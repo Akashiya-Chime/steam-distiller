@@ -1,0 +1,18 @@
+name: steam-distiller
+
+services:
+  web:
+    build: ./backend
+    ports:
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - steamcmd
+
+  steamcmd:
+    image: cm2network/steamcmd
+    container_name: steamcmd-web-container
+    tty: true
+    stdin_open: true
+    command: sleep infinity
