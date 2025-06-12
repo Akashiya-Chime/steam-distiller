@@ -15,3 +15,7 @@ func userRoutePing(c *gin.Context) {
 		"message": "pong",
 	})
 }
+
+func userRegister(c *gin.Context) {
+	c.HTML(http.StatusOK, "register.html", gin.H{})
+}

@@ -16,6 +16,7 @@ type RouteItem struct {
 var routes = []RouteItem{
 	{http.MethodGet, "/", userHomePage, nil},
 	{http.MethodGet, "/ping", userRoutePing, nil},
+	{http.MethodGet, "/register", userRegister, nil},
 }
 
 func RouteRigister(g *gin.Engine) {
