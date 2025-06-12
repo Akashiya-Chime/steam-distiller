@@ -36,3 +36,19 @@ steam-distiller/
 ├── go.sum                # Go 模块校验文件
 └── README.md             # 项目说明
 ```
+
+## Debug
+
+1. `git clone` to your local path
+
+2. `cd steam-distiller/`
+
+3. `go mod download`
+
+4. `go run .`
+
+> Recommend: by using air
+> - `go install github.com/air-verse/air@latest`
+> - `air`
+
+- default port: `8088`
