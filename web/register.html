@@ -31,25 +31,16 @@
       <span class="mdi mdi-lock" aria-hidden="true"></span>
       <input type="password" class="form-control opacity" v-model="user_info.pass" autocomplete="off" placeholder="密码">
     </div>
-    <div class="form-group">
-      <div class="custom-control custom-checkbox">
-        <input type="checkbox" class="lyear-checkbox checkbox-inline checkbox-success" v-model="remember_password">
-        <label style=" color: white; ">记住密码</label>
-      </div>
-    </div>
+
 
     <div class="form-group">
-      <button class="btn btn-block btn-primary" @click="login">立即登录</button>
-    </div>
-    <div class="form-group">
-        <button class="btn btn-block btn-purple" @click="to_register">我要注册</button>
+        <button class="btn btn-block btn-purple" @click="register">发送给管理员审核</button>
       </div>
   </div>
 
       </div>
   </div>
 </div>
-
 
 <script src="static/js/jquery-3.1.1.min.js"></script>
 <script src="static/js/md5.js"></script>
@@ -61,9 +52,8 @@
 <script src="static/js/axios.min.js"></script>
 <script src="static/js/bootstrap-notify.min.js"></script>
 <script src="static/js/lightyear.js"></script>
-<script src="static/js/lyear-loading.js"></script>
 <script src="static/js/Mouse.js"></script>
-
+<script src="static/layui/layui.js"></script>
 </body>
 </html>
 <script>
@@ -71,67 +61,32 @@ var vm = new Vue({
         el: "#login",
         data: {
             user_info: {},
-            remember_password:true,
         },
         methods: {
-            to_register:function(){
-                window.location.href = "./register.html"
-            },
-            login: function() {
+            register: function() {
                 if (!this.user_info.user || !this.user_info.pass) {
                     lightyear.notify('账号密码不能为空', 'danger', 3000, 'mdi mdi-alert-outline', 'top', 'right');
                     return
                 }
-                var loading = $('body').lyearloading({
-                        opacity: 0.2,
-                        backgroundColor: '#ffffff',
-                        imgUrl: 'static/image/loader.gif',
-                        spinnerText: '登录中，请稍后...',
-                        textColorClass: 'text-info'
-                });
-                vm.$http.post("/user/login", {
+                vm.$http.post("/user/register", {
                     username: this.user_info.user,
                     password: md5(this.user_info.pass)
                 }, {
                     emulateJSON: false
                 }).then(function(r) {
-                    loading.destroy();
                     if (r.data.code == 0) {
-                        document.cookie = "access_token=" + r.data.access_token+";path=/";
-                        if (this.remember_password) {
-                            localStorage.setItem('username', this.user_info.user);
-                            localStorage.setItem('password', this.user_info.pass);
-                        } else {
-                            localStorage.removeItem('username');
-                            localStorage.removeItem('password');
-                        }
-                        lightyear.notify(r.data.msg,'success', 3000, 'mdi mdi-check-circle-outline', 'top', 'right');
-                        setTimeout(function() {
-                            window.location.href = "steamcmd.html"
-                        }, 1000);
+                        layer.msg("已提交管理员审核，请等待",{
+                            time: 3000,
+                            shade: 0.1,
+                            end: function(){
+                                window.location.href = "index.html"
+                            }
+                        });
                     } else {
                         lightyear.notify(r.data.msg, 'danger', 3000, 'mdi mdi-alert-outline', 'top', 'right');
                     }
                 });
-
             },
         },
-        created: function() {
-            document.cookie = ''
-            const savedUsername = localStorage.getItem('username');
-            const savedPassword = localStorage.getItem('password');
-            if (savedUsername && savedPassword) {
-                this.user_info.user = savedUsername;
-                this.user_info.pass = savedPassword;
-                this.remember_password = true;
-            }
-        }
     });
-document.onkeydown = function(e){
-    var theEvent = window.event || e;
-    var code = theEvent.keyCode || theEvent.which;
-    if (code == 13){
-        vm.login();
-    }
-}
 </script>
