@@ -12,6 +12,8 @@ import (
 const (
 	CODE_OK = iota
 	CODE_ERROR
+	ERROR_INNER
+	ERROR_GEN_TOKEN_FAILED
 )
 
 type User struct {
@@ -48,10 +50,14 @@ func userRegister(c *gin.Context) {
 func userLogin(c *gin.Context) {
 	var user User
 	if err := c.ShouldBindJSON(&user); err != nil {
+		fmt.Println("序列化用户信息失败:", err)
 		c.JSON(http.StatusBadRequest, Response{
-			Code: CODE_ERROR,
-			Data: ResponseData{},
+			Code: ERROR_INNER,
+			Data: ResponseData{
+				Msg: "系统内部错误",
+			},
 		})
+		c.Abort()
 		return
 	}
 
@@ -60,8 +66,10 @@ func userLogin(c *gin.Context) {
 		// TODO: 日志系统
 		fmt.Println("生成token失败:", err)
 		c.JSON(http.StatusBadRequest, Response{
-			Code: CODE_ERROR,
-			Data: ResponseData{},
+			Code: ERROR_GEN_TOKEN_FAILED,
+			Data: ResponseData{
+				Msg: "系统内部错误",
+			},
 		})
 		c.Abort()
 		return
