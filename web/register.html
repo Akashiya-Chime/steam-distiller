@@ -1,92 +1,120 @@
+<!DOCTYPE html>
 <html lang="zh">
+
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>登录</title>
-<meta name="keywords" content="steam-distiller">
-<meta name="description" content="steam-distiller">
-<link rel="stylesheet" href="static/css/layui.css">
-<link rel="stylesheet" type="text/css" href="static/css/materialdesignicons.min.css">
-<link rel="stylesheet" type="text/css" href="static/css/bootstrap.min.css">
-<link rel="stylesheet" type="text/css" href="static/css/multitabs.min.css">
-<link rel="stylesheet" type="text/css" href="static/css/animate.min.css">
-<link rel="stylesheet" type="text/css" href="static/css/style.min.css">
-<link rel="stylesheet" type="text/css" href="static/css/login.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>steam-distiller 注册</title>
+  <link rel="icon" href="static/image/neko.ico" type="image/ico">
+  <link href="static/css/bootstrap.min.css" rel="stylesheet">
+  <link href="static/css/materialdesignicons.min.css" rel="stylesheet">
+  <link href="static/css/style.min.css" rel="stylesheet">
+  <link href="static/css/login.css" rel="stylesheet">
+  <link href="static/css/animate.css" rel="stylesheet">
 </head>
-  
-<body class="center-vh" style="background-image: url(static/image/login-bg-3.jpg); background-size: cover;">
-<div class="card card-shadowed p-5 w-420 mb-0 mr-2 ml-2 opacity" id="login">
-  <div class="login-header text-center">
-    <button type="button" type="button" onclick="location=location" class="fa fa-refresh" style="background:center;border:0;position:absolute;margin:-25px 145px 0px;width:max-content;font-size:13px;color:#33cabb;"></button>
-  </div>
-  <div class="text-center mb-3" style="font-weight: 1000;color:white;font-size:20px">Steam-Distiller</div>
 
-  <div id="form-login" class="login-form">
-    <div class="form-group has-feedback">
-      <span class="mdi mdi-account" aria-hidden="true"></span>
-      <input type="text" class="form-control opacity" v-model="user_info.user" autocomplete="off" placeholder="账号">
-    </div>
-
-    <div class="form-group has-feedback">
-      <span class="mdi mdi-lock" aria-hidden="true"></span>
-      <input type="password" class="form-control opacity" v-model="user_info.pass" autocomplete="off" placeholder="密码">
-    </div>
-
-
-    <div class="form-group">
-        <button class="btn btn-block btn-purple" @click="register">发送给管理员审核</button>
+<body>
+  <div class="row lyear-wrapper" style="background-image: url(static/image/login-bg-3.jpg); background-size: cover;">
+    <div class="lyear-login" id="login">
+      <div class="login-center">
+        <div class="login-header text-center">
+          <h2 class="text-white">欢迎注册</h2>
+        </div>
+        <form>
+          <div class="form-group has-feedback feedback-left">
+            <input type="text" v-model="user_info.user" placeholder="请输入您的用户名" class="form-control text-white"
+              name="username" id="username" />
+            <span class="mdi mdi-account form-control-feedback" aria-hidden="true"></span>
+          </div>
+          <div class="form-group has-feedback feedback-left">
+            <input type="password" v-model="user_info.pass" placeholder="请输入密码" class="form-control text-white"
+              id="password" name="password" />
+            <span class="mdi mdi-lock form-control-feedback" aria-hidden="true"></span>
+          </div>
+          <div class="form-group has-feedback feedback-left">
+            <input type="text" v-model="user_info.invitation_code" placeholder="请输入邀请码" class="form-control text-white"
+              id="invitation_code" name="invitation_code" />
+            <span class="mdi mdi-lock form-control-feedback" aria-hidden="true"></span>
+          </div>
+          <div class="form-group has-feedback feedback-left text-white">
+            <p class="small ">用户名及密码必须为<strong>4~16位的数字和字母组合</strong></p>
+          </div>
+          <div class="form-group">
+            <button class="btn btn-block btn-primary" @click="register" type="button">立即注册</button>
+          </div>
+        </form>
+        <footer class="col-sm-12 text-center text-white">
+          <p class="m-b-0">Copyright © 2025. All right reserved</p>
+        </footer>
       </div>
+    </div>
   </div>
-
-      </div>
-  </div>
-</div>
-
-<script src="static/js/jquery-3.1.1.min.js"></script>
-<script src="static/js/md5.js"></script>
-<script src="static/js/remember.js"></script>
-<script src="static/js/bootstrap.min.js"></script>
-<script src="layer/3.1.1/layer.js"></script>
-<script src="static/js/vue.min.js"></script>
-<script src="static/js/vue-resource.min.js"></script>
-<script src="static/js/axios.min.js"></script>
-<script src="static/js/bootstrap-notify.min.js"></script>
-<script src="static/js/lightyear.js"></script>
-<script src="static/js/Mouse.js"></script>
-<script src="static/layui/layui.js"></script>
-</body>
-</html>
-<script>
-var vm = new Vue({
-        el: "#login",
-        data: {
-            user_info: {},
+  <script type="text/javascript" src="static/js/jquery-3.1.1.min.js"></script>
+  <script type="text/javascript" src="static/js/bootstrap.min.js"></script>
+  <script src="static/js/vue.min.js"></script>
+  <script src="static/js/vue-resource.min.js"></script>
+  <script src="static/js/bootstrap-notify.min.js"></script>
+  <script src="static/js/lightyear.js"></script>
+  <script src="static/js/md5.js"></script>
+  <script>
+    var vm = new Vue({
+      el: "#login",
+      data: {
+        user_info: {
+          user: '',
+          pass: '',
+          invitation_code: ''
         },
-        methods: {
-            register: function() {
-                if (!this.user_info.user || !this.user_info.pass) {
-                    lightyear.notify('账号密码不能为空', 'danger', 3000, 'mdi mdi-alert-outline', 'top', 'right');
-                    return
-                }
-                vm.$http.post("/user/register", {
-                    username: this.user_info.user,
-                    password: md5(this.user_info.pass)
-                }, {
-                    emulateJSON: false
-                }).then(function(r) {
-                    if (r.data.code == 0) {
-                        layer.msg("已提交管理员审核，请等待",{
-                            time: 3000,
-                            shade: 0.1,
-                            end: function(){
-                                window.location.href = "index.html"
-                            }
-                        });
-                    } else {
-                        lightyear.notify(r.data.msg, 'danger', 3000, 'mdi mdi-alert-outline', 'top', 'right');
-                    }
-                });
-            },
+      },
+      methods: {
+        check_password: function () {
+          //检查是否为纯数字和字母的组合
+          var reg = /^[0-9A-Za-z]{4,16}$/;
+          if (!reg.test(this.user_info.pass) || !reg.test(this.user_info.user)) {
+            lightyear.notify('用户名和密码必须为4-16位数字和字母的组合', 'danger', 3000);
+            return false; 
+          }
+          return true;
         },
+        register: function () {
+          if (!this.check_password()) {
+            return;
+          }
+          if (!this.user_info.invitation_code) {
+            lightyear.notify('邀请码不能为空', 'danger', 3000);
+            return
+          }
+          lightyear.loading('show')
+          vm.$http.post("/user/register", {
+            username: this.user_info.user,
+            password: md5(this.user_info.pass)
+          }, {
+            emulateJSON: false
+          }).then(function (r) {
+            lightyear.loading('hide')
+            if (r.data.code == 0) {
+              lightyear.notify(r.data.msg, 'success', 1000);
+              setTimeout(function () {
+                window.location.href = "index.html"
+              }, 1000);
+            } else {
+              lightyear.notify(r.data.msg, 'danger', 3000);
+            }
+          }).catch(error => {
+            lightyear.loading('hide')
+            lightyear.notify('网络异常，请稍后再试', 'danger', 3000);
+          })
+        },
+      },
     });
-</script>
+    document.onkeydown = function (e) {
+      var theEvent = window.event || e;
+      var code = theEvent.keyCode || theEvent.which;
+      if (code == 13) {
+        vm.login();
+      }
+    }
+  </script>
+</body>
+
+</html>
