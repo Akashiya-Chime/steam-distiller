@@ -1,0 +1,12 @@
+name: steam-distiller
+
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: ./build/Dockerfile
+    ports:
+      - "8088:8088"
+    volumes:
+      - ../db:/app/db
+      - ../web:/app/web
