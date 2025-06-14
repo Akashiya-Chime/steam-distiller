@@ -1,137 +1,134 @@
+<!DOCTYPE html>
 <html lang="zh">
+
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>登录</title>
-<meta name="keywords" content="steam-distiller">
-<meta name="description" content="steam-distiller">
-<link rel="stylesheet" href="static/css/layui.css">
-<link rel="stylesheet" type="text/css" href="static/css/materialdesignicons.min.css">
-<link rel="stylesheet" type="text/css" href="static/css/bootstrap.min.css">
-<link rel="stylesheet" type="text/css" href="static/css/multitabs.min.css">
-<link rel="stylesheet" type="text/css" href="static/css/animate.min.css">
-<link rel="stylesheet" type="text/css" href="static/css/style.min.css">
-<link rel="stylesheet" type="text/css" href="static/css/login.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>steam-distiller 登录</title>
+  <link rel="icon" href="static/image/neko.ico" type="image/ico">
+  <link href="static/css/bootstrap.min.css" rel="stylesheet">
+  <link href="static/css/materialdesignicons.min.css" rel="stylesheet">
+  <link href="static/css/style.min.css" rel="stylesheet">
+  <link href="static/css/login.css" rel="stylesheet">
+  <link href="static/css/animate.css" rel="stylesheet">
 </head>
-  
-<body class="center-vh" style="background-image: url(static/image/login-bg-3.jpg); background-size: cover;">
-<div class="card card-shadowed p-5 w-420 mb-0 mr-2 ml-2 opacity" id="login">
-  <div class="login-header text-center">
-    <button type="button" type="button" onclick="location=location" class="fa fa-refresh" style="background:center;border:0;position:absolute;margin:-25px 145px 0px;width:max-content;font-size:13px;color:#33cabb;"></button>
-  </div>
-  <div class="text-center mb-3" style="font-weight: 1000;color:white;font-size:20px">Steam-Distiller</div>
 
-  <div id="form-login" class="login-form">
-    <div class="form-group has-feedback">
-      <span class="mdi mdi-account" aria-hidden="true"></span>
-      <input type="text" class="form-control opacity" v-model="user_info.user" autocomplete="off" placeholder="账号">
-    </div>
-
-    <div class="form-group has-feedback">
-      <span class="mdi mdi-lock" aria-hidden="true"></span>
-      <input type="password" class="form-control opacity" v-model="user_info.pass" autocomplete="off" placeholder="密码">
-    </div>
-    <div class="form-group">
-      <div class="custom-control custom-checkbox">
-        <input type="checkbox" class="lyear-checkbox checkbox-inline checkbox-success" v-model="remember_password">
-        <label style=" color: white; ">记住密码</label>
+<body>
+  <div class="row lyear-wrapper" style="background-image: url(static/image/login-bg-3.jpg); background-size: cover;">
+    <div class="lyear-login" id="login">
+      <div class="login-center">
+        <div class="login-header text-center">
+          <h2 class="text-white">欢迎登录</h2>
+        </div>
+        <form>
+          <div class="form-group has-feedback feedback-left">
+            <input type="text" v-model="user_info.user" placeholder="请输入您的用户名" class="form-control text-white"
+              name="username" id="username" />
+            <span class="mdi mdi-account form-control-feedback" aria-hidden="true"></span>
+          </div>
+          <div class="form-group has-feedback feedback-left">
+            <input type="password" v-model="user_info.pass" placeholder="请输入密码" class="form-control text-white"
+              id="password" name="password" />
+            <span class="mdi mdi-lock form-control-feedback" aria-hidden="true"></span>
+          </div>
+          <div class="form-group">
+            <div class="row text-white">
+              <div class="col-xs-6">
+                <label class="lyear-checkbox checkbox-primary">
+                  <input type="checkbox" v-model="remember_password" checked=""><span>记住密码</span>
+                </label>
+              </div>
+              <div class="col-xs-6">
+                <div class="text-right">
+                  <a href="register">
+                    <label class="custom-control-label">去注册</label>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <button class="btn btn-block btn-primary" @click="login" type="button">立即登录</button>
+          </div>
+        </form>
+        <footer class="col-sm-12 text-center text-white">
+          <p class="m-b-0">Copyright © 2025. All right reserved</p>
+        </footer>
       </div>
     </div>
-
-    <div class="form-group">
-      <button class="btn btn-block btn-primary" @click="login">立即登录</button>
-    </div>
-    <div class="form-group">
-        <button class="btn btn-block btn-purple" @click="to_register">我要注册</button>
-      </div>
   </div>
-
-      </div>
-  </div>
-</div>
-
-
-<script src="static/js/jquery-3.1.1.min.js"></script>
-<script src="static/js/md5.js"></script>
-<script src="static/js/remember.js"></script>
-<script src="static/js/bootstrap.min.js"></script>
-<script src="layer/3.1.1/layer.js"></script>
-<script src="static/js/vue.min.js"></script>
-<script src="static/js/vue-resource.min.js"></script>
-<script src="static/js/axios.min.js"></script>
-<script src="static/js/bootstrap-notify.min.js"></script>
-<script src="static/js/lightyear.js"></script>
-<script src="static/js/lyear-loading.js"></script>
-<script src="static/js/Mouse.js"></script>
-
-</body>
-</html>
-<script>
-var vm = new Vue({
-        el: "#login",
-        data: {
-            user_info: {},
-            remember_password:true,
+  <script type="text/javascript" src="static/js/jquery-3.1.1.min.js"></script>
+  <script type="text/javascript" src="static/js/bootstrap.min.js"></script>
+  <script src="static/js/vue.min.js"></script>
+  <script src="static/js/vue-resource.min.js"></script>
+  <script src="static/js/bootstrap-notify.min.js"></script>
+  <script src="static/js/lightyear.js"></script>
+  <script src="static/js/md5.js"></script>
+  <script>
+    var vm = new Vue({
+      el: "#login",
+      data: {
+        user_info: {},
+        remember_password: true,
+      },
+      methods: {
+        to_register: function () {
+          window.location.href = "/register"
         },
-        methods: {
-            to_register:function(){
-                window.location.href = "./register.html"
-            },
-            login: function() {
-                if (!this.user_info.user || !this.user_info.pass) {
-                    lightyear.notify('账号密码不能为空', 'danger', 3000, 'mdi mdi-alert-outline', 'top', 'right');
-                    return
-                }
-                var loading = $('body').lyearloading({
-                        opacity: 0.2,
-                        backgroundColor: '#ffffff',
-                        imgUrl: 'static/image/loader.gif',
-                        spinnerText: '登录中，请稍后...',
-                        textColorClass: 'text-info'
-                });
-                vm.$http.post("/user/login", {
-                    username: this.user_info.user,
-                    password: md5(this.user_info.pass)
-                }, {
-                    emulateJSON: false
-                }).then(function(r) {
-                    loading.destroy();
-                    if (r.data.code == 0) {
-                        document.cookie = "access_token=" + r.data.access_token+";path=/";
-                        if (this.remember_password) {
-                            localStorage.setItem('username', this.user_info.user);
-                            localStorage.setItem('password', this.user_info.pass);
-                        } else {
-                            localStorage.removeItem('username');
-                            localStorage.removeItem('password');
-                        }
-                        lightyear.notify(r.data.msg,'success', 3000, 'mdi mdi-check-circle-outline', 'top', 'right');
-                        setTimeout(function() {
-                            window.location.href = "steamcmd.html"
-                        }, 1000);
-                    } else {
-                        lightyear.notify(r.data.msg, 'danger', 3000, 'mdi mdi-alert-outline', 'top', 'right');
-                    }
-                });
-
-            },
-        },
-        created: function() {
-            document.cookie = ''
-            const savedUsername = localStorage.getItem('username');
-            const savedPassword = localStorage.getItem('password');
-            if (savedUsername && savedPassword) {
-                this.user_info.user = savedUsername;
-                this.user_info.pass = savedPassword;
-                this.remember_password = true;
+        login: function () {
+          if (!this.user_info.user || !this.user_info.pass) {
+            lightyear.notify('账号密码不能为空', 'danger', 3000);
+            return
+          }
+          lightyear.loading('show')
+          vm.$http.post("/user/login", {
+            username: this.user_info.user,
+            password: md5(this.user_info.pass)
+          }, {
+            emulateJSON: false
+          }).then(function (r) {
+            lightyear.loading('hide')
+            if (r.data.code == 0) {
+              document.cookie = "access_token=" + r.data.access_token + ";path=/";
+              if (this.remember_password) {
+                localStorage.setItem('username', this.user_info.user);
+                localStorage.setItem('password', this.user_info.pass);
+              } else {
+                localStorage.removeItem('username');
+                localStorage.removeItem('password');
+              }
+              lightyear.notify(r.data.msg, 'success', 1000);
+              setTimeout(function () {
+                window.location.href = "home.html"
+              }, 1000);
+            } else {
+              lightyear.notify(r.data.msg, 'danger', 3000);
             }
+          }).catch(error => {
+            lightyear.loading('hide')
+            lightyear.notify('网络异常，请稍后再试', 'danger', 3000);
+          })
+        },
+      },
+      created: function () {
+        document.cookie = ''
+        const savedUsername = localStorage.getItem('username');
+        const savedPassword = localStorage.getItem('password');
+        if (savedUsername && savedPassword) {
+          this.user_info.user = savedUsername;
+          this.user_info.pass = savedPassword;
+          this.remember_password = true;
         }
+      }
     });
-document.onkeydown = function(e){
-    var theEvent = window.event || e;
-    var code = theEvent.keyCode || theEvent.which;
-    if (code == 13){
+    document.onkeydown = function (e) {
+      var theEvent = window.event || e;
+      var code = theEvent.keyCode || theEvent.which;
+      if (code == 13) {
         vm.login();
+      }
     }
-}
-</script>
+  </script>
+</body>
+
+</html>
