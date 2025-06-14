@@ -1,26 +1,74 @@
-.login-form .has-feedback {
+.lyear-wrapper {
     position: relative;
-}
-.login-form .has-feedback .form-control {
-    padding-left: 36px;
-}
-.login-form .has-feedback .mdi {
-    position: absolute;
-    top: 0;
+  }
+
+  .lyear-login {
+    display: flex !important;
+    min-height: 100vh;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  .lyear-login:after {
+    content: '';
+    min-height: inherit;
+    font-size: 0;
+  }
+
+  .login-center {
+    background-color: rgba(255, 255, 255, .075);
+    min-width: 29.25rem;
+    padding: 2.14286em 3.57143em;
+    border-radius: 3px;
+    margin: 2.85714em;
+  }
+
+  .login-header {
+    margin-bottom: 1.5rem !important;
+  }
+
+  .login-center .has-feedback.feedback-left .form-control {
+    padding-left: 38px;
+    padding-right: 12px;
+    background-color: rgba(255, 255, 255, .075);
+    border-color: rgba(255, 255, 255, .075)
+  }
+
+  .login-center .has-feedback.feedback-left .form-control-feedback {
     left: 0;
     right: auto;
-    width: 36px;
-    height: 36px;
-    line-height: 36px;
+    width: 38px;
+    height: 38px;
+    line-height: 38px;
     z-index: 4;
     color: #dcdcdc;
-    display: block;
-    text-align: center;
-    pointer-events: none;
-}
-.login-form .has-feedback.row .mdi {
+  }
+
+  .login-center .has-feedback.feedback-left.row .form-control-feedback {
     left: 15px;
-}
-.opacity {
-    background-color: rgba(0,0,0,0.2);/*登录界面透明度*/
-}
+  }
+
+  .login-center .form-control::-webkit-input-placeholder {
+    color: rgba(255, 255, 255, .8);
+  }
+
+  .login-center .form-control:-moz-placeholder {
+    color: rgba(255, 255, 255, .8);
+  }
+
+  .login-center .form-control::-moz-placeholder {
+    color: rgba(255, 255, 255, .8);
+  }
+
+  .login-center .form-control:-ms-input-placeholder {
+    color: rgba(255, 255, 255, .8);
+  }
+
+  .login-center .custom-control-label::before {
+    background: rgba(0, 0, 0, 0.3);
+    border-color: rgba(0, 0, 0, 0.1);
+  }
+
+  .login-center .lyear-checkbox span::before {
+    border-color: rgba(255, 255, 255, .075)
+  }

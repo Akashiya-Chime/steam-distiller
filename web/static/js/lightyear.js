@@ -1,5 +1,8 @@
 var lightyear = function(){
 	
+	/**
+	 * 页面loading
+	 */
 	var pageLoader = function($mode) {
 		var $loadingEl = jQuery('#lyear-loading');
 		    $mode      = $mode || 'show';
@@ -17,6 +20,17 @@ var lightyear = function(){
 		return false;
 	};
 	
+    /**
+     * 页面小提示
+     * @param $msg 提示信息
+     * @param $type 提示类型:'info', 'success', 'warning', 'danger'
+     * @param $delay 毫秒数，例如：1000
+     * @param $icon 图标，例如：'fa fa-user' 或 'glyphicon glyphicon-warning-sign'
+     * @param $from 'top' 或 'bottom'
+     * @param $align 'left', 'right', 'center'
+     * @param $url 跳转链接  例如： https://www.xxxx.com
+     * @author CaiWeiMing <314013107@qq.com>
+     */
     var tips = function ($msg, $type, $delay, $icon, $from, $align, $url) {
         $type  = $type || 'info';
         $delay = $delay || 1000;
@@ -38,10 +52,11 @@ var lightyear = function(){
                 from: $from,
                 align: $align
             },
-            offset: 1,
-            spacing: 4,
+            offset: 20,
+            spacing: 10,
             z_index: 10800,
             delay: $delay,
+            //timer: 1000,
             animate: {
                 enter: $enter,
                 exit: 'animated fadeOutDown'
@@ -58,12 +73,14 @@ var lightyear = function(){
 	var url = '';
 	
 	return {
+        // 页面小提示
         notify  : function ($msg, $type, $delay, $icon, $from, $align, $url) {
             tips($msg, $type, $delay, $icon, $from, $align, $url);
         },
 		url : function ($url){
 			url=$url;
 		},
+        // 页面加载动画
 		loading : function ($mode) {
 		    pageLoader($mode);
 		}
