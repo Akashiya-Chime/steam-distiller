@@ -22,22 +22,35 @@
         </div>
         <form>
           <div class="form-group has-feedback feedback-left">
-            <input type="text" v-model="user_info.user" placeholder="请输入您的用户名" class="form-control text-white"
-              name="username" id="username" />
+            <input type="text" v-model="user_info.user" placeholder="请输入您的用户名" class="form-control text-white collapsed"
+              name="username" id="username" @focus="expand_collapse" @blur="collapse" @input="change_status" />
             <span class="mdi mdi-account form-control-feedback" aria-hidden="true"></span>
+            <div class="m-t-10 collapse" id="username_require" aria-expanded="false">
+              <div class="well">
+                <p class="small ">
+                  <span class="mdi mdi-alert-circle text-warning" aria-hidden="true"></span>
+                  <strong>&nbsp;4~16位的数字和字母组合</strong>
+                </p>
+              </div>
+            </div>
           </div>
           <div class="form-group has-feedback feedback-left">
             <input type="password" v-model="user_info.pass" placeholder="请输入密码" class="form-control text-white"
-              id="password" name="password" />
+              id="password" name="password" @focus="expand_collapse" @blur="collapse" @input="change_status" />
             <span class="mdi mdi-lock form-control-feedback" aria-hidden="true"></span>
+            <div class="m-t-10 collapse" id="password_require" aria-expanded="false">
+              <div class="well">
+                <p>
+                  <span class="mdi mdi-alert-circle text-warning" aria-hidden="true"></span>
+                  <strong>&nbsp;4~16位的数字和字母组合</strong>
+                </p>
+              </div>
+            </div>
           </div>
           <div class="form-group has-feedback feedback-left">
             <input type="text" v-model="user_info.invitation_code" placeholder="请输入邀请码" class="form-control text-white"
               id="invitation_code" name="invitation_code" />
-            <span class="mdi mdi-lock form-control-feedback" aria-hidden="true"></span>
-          </div>
-          <div class="form-group has-feedback feedback-left text-white">
-            <p class="small ">用户名及密码必须为<strong>4~16位的数字和字母组合</strong></p>
+            <span class="mdi mdi-shield-half-full form-control-feedback" aria-hidden="true"></span>
           </div>
           <div class="form-group">
             <button class="btn btn-block btn-primary" @click="register" type="button">立即注册</button>
@@ -49,72 +62,14 @@
       </div>
     </div>
   </div>
-  <script type="text/javascript" src="static/js/jquery-3.1.1.min.js"></script>
+  <script src="https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.6.0/jquery.min.js"></script>
   <script type="text/javascript" src="static/js/bootstrap.min.js"></script>
-  <script src="static/js/vue.min.js"></script>
-  <script src="static/js/vue-resource.min.js"></script>
+  <script src="https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/vue/2.6.14/vue.min.js"></script>
+  <script src="https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/vue-resource/1.5.1/vue-resource.min.js"></script>
   <script src="static/js/bootstrap-notify.min.js"></script>
+  <script src="https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/blueimp-md5/2.19.0/js/md5.min.js"></script>
   <script src="static/js/lightyear.js"></script>
-  <script src="static/js/md5.js"></script>
-  <script>
-    var vm = new Vue({
-      el: "#login",
-      data: {
-        user_info: {
-          user: '',
-          pass: '',
-          invitation_code: ''
-        },
-      },
-      methods: {
-        check_password: function () {
-          //检查是否为纯数字和字母的组合
-          var reg = /^[0-9A-Za-z]{4,16}$/;
-          if (!reg.test(this.user_info.pass) || !reg.test(this.user_info.user)) {
-            lightyear.notify('用户名和密码必须为4-16位数字和字母的组合', 'danger', 3000);
-            return false; 
-          }
-          return true;
-        },
-        register: function () {
-          if (!this.check_password()) {
-            return;
-          }
-          if (!this.user_info.invitation_code) {
-            lightyear.notify('邀请码不能为空', 'danger', 3000);
-            return
-          }
-          lightyear.loading('show')
-          vm.$http.post("/user/register", {
-            username: this.user_info.user,
-            password: md5(this.user_info.pass)
-          }, {
-            emulateJSON: false
-          }).then(function (r) {
-            lightyear.loading('hide')
-            if (r.data.code == 0) {
-              lightyear.notify(r.data.msg, 'success', 1000);
-              setTimeout(function () {
-                window.location.href = "index.html"
-              }, 1000);
-            } else {
-              lightyear.notify(r.data.msg, 'danger', 3000);
-            }
-          }).catch(error => {
-            lightyear.loading('hide')
-            lightyear.notify('网络异常，请稍后再试', 'danger', 3000);
-          })
-        },
-      },
-    });
-    document.onkeydown = function (e) {
-      var theEvent = window.event || e;
-      var code = theEvent.keyCode || theEvent.which;
-      if (code == 13) {
-        vm.login();
-      }
-    }
-  </script>
+  <script src="static/js/register.js"></script>
 </body>
 
 </html>

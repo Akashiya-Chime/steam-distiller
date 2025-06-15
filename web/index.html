@@ -57,78 +57,14 @@
       </div>
     </div>
   </div>
-  <script type="text/javascript" src="static/js/jquery-3.1.1.min.js"></script>
+  <script src="https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.6.0/jquery.min.js"></script>
   <script type="text/javascript" src="static/js/bootstrap.min.js"></script>
-  <script src="static/js/vue.min.js"></script>
-  <script src="static/js/vue-resource.min.js"></script>
+  <script src="https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/vue/2.6.14/vue.min.js"></script>
+  <script src="https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/vue-resource/1.5.1/vue-resource.min.js"></script>
   <script src="static/js/bootstrap-notify.min.js"></script>
+  <script src="https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/blueimp-md5/2.19.0/js/md5.min.js"></script>
   <script src="static/js/lightyear.js"></script>
-  <script src="static/js/md5.js"></script>
-  <script>
-    var vm = new Vue({
-      el: "#login",
-      data: {
-        user_info: {},
-        remember_password: true,
-      },
-      methods: {
-        to_register: function () {
-          window.location.href = "/register"
-        },
-        login: function () {
-          if (!this.user_info.user || !this.user_info.pass) {
-            lightyear.notify('账号密码不能为空', 'danger', 3000);
-            return
-          }
-          lightyear.loading('show')
-          vm.$http.post("/user/login", {
-            username: this.user_info.user,
-            password: md5(this.user_info.pass)
-          }, {
-            emulateJSON: false
-          }).then(function (r) {
-            lightyear.loading('hide')
-            if (r.data.code == 0) {
-              document.cookie = "access_token=" + r.data.access_token + ";path=/";
-              if (this.remember_password) {
-                localStorage.setItem('username', this.user_info.user);
-                localStorage.setItem('password', this.user_info.pass);
-              } else {
-                localStorage.removeItem('username');
-                localStorage.removeItem('password');
-              }
-              lightyear.notify(r.data.msg, 'success', 1000);
-              setTimeout(function () {
-                window.location.href = "home.html"
-              }, 1000);
-            } else {
-              lightyear.notify(r.data.msg, 'danger', 3000);
-            }
-          }).catch(error => {
-            lightyear.loading('hide')
-            lightyear.notify('网络异常，请稍后再试', 'danger', 3000);
-          })
-        },
-      },
-      created: function () {
-        document.cookie = ''
-        const savedUsername = localStorage.getItem('username');
-        const savedPassword = localStorage.getItem('password');
-        if (savedUsername && savedPassword) {
-          this.user_info.user = savedUsername;
-          this.user_info.pass = savedPassword;
-          this.remember_password = true;
-        }
-      }
-    });
-    document.onkeydown = function (e) {
-      var theEvent = window.event || e;
-      var code = theEvent.keyCode || theEvent.which;
-      if (code == 13) {
-        vm.login();
-      }
-    }
-  </script>
+  <script src="static/js/login.js"></script>
 </body>
 
 </html>
