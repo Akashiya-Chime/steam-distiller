@@ -26,8 +26,13 @@ func JwtGenToken(key string) (string, error) {
 
 func JwtAuthor() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		tokenStr := c.GetHeader("Cookie")
-		if tokenStr == "" {
+		tokenStr, err := c.Cookie("access_token")
+		if err != nil || tokenStr == "" {
+			if err == http.ErrNoCookie {
+				fmt.Println("No access token in cookie.")
+			} else {
+				fmt.Println("Get cookie failed.")
+			}
 			c.JSON(http.StatusUnauthorized, gin.H{
 				"error": "未提供认证token",
 			})
@@ -36,7 +41,7 @@ func JwtAuthor() gin.HandlerFunc {
 		}
 
 		var claims jwt.RegisteredClaims
-		_, err := jwt.ParseWithClaims(tokenStr, &claims,
+		_, err = jwt.ParseWithClaims(tokenStr, &claims,
 			func(t *jwt.Token) (any, error) {
 				return []byte(SECRET_KEY), nil
 			})
