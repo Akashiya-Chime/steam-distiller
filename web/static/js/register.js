@@ -59,8 +59,7 @@ var vm = new Vue({
             $(target)[0].classList.remove("in");
         },
         change_status: function (event) {
-            target = "#" + event.target.id + "_require > div > p > span"
-            console.log(event.target.value)
+            target = "#" + event.target.id + "_require > div > p > span";
             if (this.check(event.target.value)) {
                 $(target)[0].classList.remove("text-warning", "mdi-alert-circle");
                 $(target)[0].classList.add("text-success", "mdi-check-circle");
