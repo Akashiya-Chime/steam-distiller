@@ -82,7 +82,7 @@ func userLogin(c *gin.Context) {
 	var user User
 	if err := c.ShouldBindJSON(&user); err != nil {
 		fmt.Println("Serialize user info failed:", err)
-		c.JSON(http.StatusBadRequest, Response{
+		c.JSON(http.StatusOK, Response{
 			Code: CODE_INNER_ERROR,
 			Data: ResponseData{
 				Msg: "系统内部错误",
@@ -93,7 +93,7 @@ func userLogin(c *gin.Context) {
 	}
 
 	if !isUserOk(user) {
-		c.JSON(http.StatusBadRequest, Response{
+		c.JSON(http.StatusOK, Response{
 			Code: CODE_LOGIN_FAILED,
 			Data: ResponseData{
 				Msg: "登陆失败，请检查用户名及密码是否正确",
@@ -107,7 +107,7 @@ func userLogin(c *gin.Context) {
 	if err != nil {
 		// TODO: 日志系统
 		fmt.Println("Generate token failed:", err)
-		c.JSON(http.StatusBadRequest, Response{
+		c.JSON(http.StatusOK, Response{
 			Code: CODE_GEN_TOKEN_FAILED,
 			Data: ResponseData{
 				Msg: "系统内部错误",
