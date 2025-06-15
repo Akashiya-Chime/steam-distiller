@@ -52,3 +52,18 @@ steam-distiller/
 > - `air`
 
 - default port: `8088`
+
+## Docker
+
+1. build:
+```
+docker build -t steam-distiller -f build/Dockerfile .
+```
+2. run:
+```
+docker run -it --name app -p 8088:8088 -d steam-distiller
+```
+3. use:
+```
+docker exec -it app bash
+```
