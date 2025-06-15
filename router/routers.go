@@ -23,7 +23,6 @@ var routes = []RouteItem{
 
 var apiv1Route = []RouteItem{
 	{http.MethodGet, "/ping", apiRoutePing},
-	{http.MethodGet, "/home", userHomePage},
 }
 
 func RouteRigister(g *gin.Engine) {
