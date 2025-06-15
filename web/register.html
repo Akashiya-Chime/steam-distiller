@@ -15,7 +15,7 @@
 
 <body>
   <div class="row lyear-wrapper" style="background-image: url(static/image/login-bg-3.jpg); background-size: cover;">
-    <div class="lyear-login" id="login">
+    <div class="lyear-login" id="content">
       <div class="login-center">
         <div class="login-header text-center">
           <h2 class="text-white">欢迎注册</h2>
@@ -35,9 +35,18 @@
             </div>
           </div>
           <div class="form-group has-feedback feedback-left">
-            <input type="password" v-model="user_info.pass" placeholder="请输入密码" class="form-control text-white"
-              id="password" name="password" @focus="expand_collapse" @blur="collapse" @input="change_status" />
-            <span class="mdi mdi-lock form-control-feedback" aria-hidden="true"></span>
+            <div class="input-group m-b-10">
+              <input type="text" v-model="user_info.pass" placeholder="请输入密码" class="form-control text-white"
+                id="password" name="password" @focus="expand_collapse" @blur="collapse" @input="change_status" />
+              <span class="mdi mdi-lock form-control-feedback" aria-hidden="true"></span>
+              <div class="input-group-btn">
+                <button type="button" class="btn password-icon" @click="change_password_show">
+                  <span class="text-white mdi mdi-eye"></span>
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="form-group has-feedback feedback-left">
             <div class="m-t-10 collapse" id="password_require" aria-expanded="false">
               <div class="well">
                 <p>

@@ -1,5 +1,5 @@
 var vm = new Vue({
-    el: "#login",
+    el: "#content",
     data: {
         user_info: {
             user: '',
@@ -13,6 +13,17 @@ var vm = new Vue({
             var reg = /^[0-9A-Za-z]{4,16}$/;
             return reg.test(target);
         },
+        change_password_show: function () {
+            if ($("#password").attr("type") == "password") {
+                 $("#password").attr("type", "text")
+                 $(".password-icon > span").removeClass("mdi-eye-off")
+                 $(".password-icon > span").addClass("mdi-eye")                
+             } else {
+                 $("#password").attr("type", "password")
+                 $(".password-icon > span").removeClass("mdi-eye")
+                 $(".password-icon > span").addClass("mdi-eye-off")
+             }
+         },
         register: function () {
             if (!this.check(this.user_info.user)) {
                 lightyear.notify('用户名必须为4-16位数字和字母的组合', 'danger', 3000);
@@ -35,13 +46,14 @@ var vm = new Vue({
                 emulateJSON: false
             }).then(function (r) {
                 lightyear.loading('hide')
-                if (r.data.code == 0) {
-                    lightyear.notify(r.data.msg, 'success', 1000);
+                content = r.data;
+                if (content.code == 0) {
+                    lightyear.notify(content.data.msg, 'success', 1000);
                     setTimeout(function () {
                         window.location.href = "index.html"
                     }, 1000);
                 } else {
-                    lightyear.notify(r.data.msg, 'danger', 3000);
+                    lightyear.notify(content.data.msg, 'danger', 3000);
                 }
             }).catch(error => {
                 lightyear.loading('hide')
