@@ -72,3 +72,6 @@
   .login-center .lyear-checkbox span::before {
     border-color: rgba(255, 255, 255, .075)
   }
+  .password-icon{
+    background-color: rgba(255, 255, 255, .075)
+  }
