@@ -29,8 +29,12 @@ var apiv1Route = []RouteItem{
 func RouteRigister(g *gin.Engine) {
 	g.LoadHTMLGlob("web/*.html")
 	g.Static("/static", "web/static")
+	home := g.Group("/")
+	home.Use(jwt.JwtAuthor())
 	apiv1 := g.Group("/api/v1")
 	apiv1.Use(jwt.JwtAuthor())
+
+	home.Handle(http.MethodGet, "/home", userHomePage)
 
 	for _, route := range routes {
 		g.Handle(route.Method, route.Path, route.Handler)
