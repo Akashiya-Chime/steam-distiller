@@ -1,3 +1,4 @@
+
 var vm = new Vue({
     el: "#login",
     data: {
@@ -55,9 +56,10 @@ var vm = new Vue({
     }
 });
 document.onkeydown = function (e) {
+    const ENTER_CODE = 13; //回车键的键值为13
     var theEvent = window.event || e;
     var code = theEvent.keyCode || theEvent.which;
-    if (code == 13) {
+    if (code == ENTER_CODE) {
         vm.login();
     }
 }
