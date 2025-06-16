@@ -76,7 +76,7 @@ func isUserOk(user User) bool {
 func userLogin(c *gin.Context) {
 	var user User
 	if err := c.ShouldBindJSON(&user); err != nil {
-		fmt.Println("Serialize user info failed:", err)
+		log.Warnf("Serialize user info failed, %v.\n", err)
 		SendJsonMsg(c, CODE_INNER_ERROR, "系统内部错误")
 		c.Abort()
 		return
@@ -91,7 +91,7 @@ func userLogin(c *gin.Context) {
 	token, err := jwt.JwtGenToken(user.Name)
 	if err != nil {
 		// TODO: 日志系统
-		fmt.Println("Generate token failed:", err)
+		log.Warnf("Generate token failed, %v.\n", err)
 		SendJsonMsg(c, CODE_GEN_TOKEN_FAILED, "系统内部错误")
 		c.Abort()
 		return
@@ -126,7 +126,7 @@ func IsUserInfoValid(user User) bool {
 func userRegister(c *gin.Context) {
 	var user User
 	if err := c.ShouldBindJSON(&user); err != nil {
-		fmt.Println("Serialize user info failed:", err)
+		log.Warnf("Serialize user info failed, %v.\n", err)
 		SendJsonMsg(c, CODE_INNER_ERROR, "系统内部错误")
 		c.Abort()
 		return
