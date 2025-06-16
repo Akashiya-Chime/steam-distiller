@@ -248,10 +248,10 @@
     obj.parentNode.classList.add("active")
     // 切换iframe
     iframe_data = {
-      "steamCMD": "steamCMD.html",
-      "left4Dead2": "left4dead2.html",
-      "Barotrauma": "barotrauma.html",
-      "关于": "about.html",
+      "steamCMD": "steamCMD",
+      "left4Dead2": "left4dead2",
+      "Barotrauma": "barotrauma",
+      "关于": "about",
     }
     $("#main_iframe").attr("src", iframe_data[obj.innerText.replace( /\s/g, "")])
   }
