@@ -40,7 +40,7 @@ term.loadAddon(fitAddon);
 // 打开终端
 term.open(document.getElementById('terminal'));
 fitAddon.fit();
-// const socket = new WebSocket(`ws://${window.location.host}/webterminal`); // 创建WebSocket连接
+const socket = new WebSocket(`ws://${window.location.host}/webterminal`); // 创建WebSocket连接
 // 添加欢迎信息
 term.writeln('\x1b[33m$\x1b[0m \x1b[32m欢迎使用steamCMD终端界面\x1b[0m ');;
 term.writeln('');
@@ -51,26 +51,26 @@ let command = '';
 term.onData(e => {
     switch (e) {
         case '\x03': // Ctrl+C
-            term.write('\r\n'); // 发送换行符
-            term.write('^C\r\n'); // 发送Ctrl+C
+            term.write('\r\n');
+            term.write('^C\r\n');
             break;
-        case '\r': // Enter
-            term.write('\r\n'); // 发送换行符
-            term.write('\x1b[33m$\x1b[0m '); // 显示命令提示符
+        case '\r':
+            term.write('\r\n');
+            term.write('\x1b[33m$\x1b[0m '); // 添加新的命令提示符
             break;
         case '\x7f': // Backspace
-            term.write('\b \b'); // 发送退格键
+            term.write('\b \b');
             break;
-        default: // 其他字符
-            term.write(e); // 发送原始数据
+        default:
+            term.write(e);
             break;
     }
-    // socket.send(data); // 通过WebSocket发送给服务器
+    socket.send(data); // 通过WebSocket发送给服务器
 });
-// socket.onmessage = (event) => { // 收到来自服务器的WebSocket消息
-// console.log('socket.onmessage:', event.data);
-//   // term.write(event.data); // 向xterm对象写入数据
-// };
+socket.onmessage = (event) => { // 收到来自服务器的WebSocket消息
+    console.log('socket.onmessage:', event.data);
+    term.write(event.data); // 向xterm对象写入数据
+};
 
 // 窗口调整大小时重新适配终端
 window.addEventListener('resize', () => {
