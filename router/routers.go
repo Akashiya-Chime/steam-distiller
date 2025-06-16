@@ -16,9 +16,10 @@ type RouteItem struct {
 var routes = []RouteItem{
 	{http.MethodGet, "/", userIndexPage},
 	{http.MethodGet, "/ping", userRoutePing},
-	{http.MethodGet, "/register", userRegister},
+	{http.MethodGet, "/register", userRegisterPage},
 	// user
 	{http.MethodPost, "/user/login", userLogin},
+	{http.MethodPost, "/user/register", userRegister},
 }
 
 var apiv1Route = []RouteItem{
