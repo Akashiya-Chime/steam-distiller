@@ -17,7 +17,7 @@ var vm = new Vue({
             if ($("#password").attr("type") == "password") {
                  $("#password").attr("type", "text")
                  $(".password-icon > span").removeClass("mdi-eye-off")
-                 $(".password-icon > span").addClass("mdi-eye")                
+                 $(".password-icon > span").addClass("mdi-eye")
              } else {
                  $("#password").attr("type", "password")
                  $(".password-icon > span").removeClass("mdi-eye")
@@ -50,7 +50,7 @@ var vm = new Vue({
                 if (content.code == 0) {
                     lightyear.notify(content.data.msg, 'success', 1000);
                     setTimeout(function () {
-                        window.location.href = "index.html"
+                        window.location.href = "/"
                     }, 1000);
                 } else {
                     lightyear.notify(content.data.msg, 'danger', 3000);
