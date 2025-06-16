@@ -156,10 +156,5 @@ func userRegister(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, Response{
-		Code: CODE_OK,
-		Data: ResponseData{
-			Msg: "注册成功",
-		},
-	})
+	SendJsonMsg(c, CODE_OK, "注册成功")
 }
