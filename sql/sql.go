@@ -2,7 +2,7 @@ package sql
 
 import (
 	"errors"
-	"fmt"
+	log "steam-distiller/logger"
 
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -32,9 +32,9 @@ type User struct {
 func Connect() {
 	db, err := gorm.Open(sqlite.Open("db/app.db"), &gorm.Config{})
 	if err != nil {
-		fmt.Println(err)
-		panic("Failed to connect database.")
+		log.Panicf("Failed to connect database, %v.\n", err)
 	}
+	log.Infoln("Connect database successfully.")
 
 	db.AutoMigrate(&User{})
 	g_gormDB = db
@@ -43,8 +43,7 @@ func Connect() {
 func Close() {
 	sqlDB, err := g_gormDB.DB()
 	if err != nil {
-		fmt.Println(err)
-		panic("Failed to get sqlDB.")
+		log.Panicf("Failed to get sqlDB, %v.\n", err)
 	}
 	sqlDB.Close()
 }
@@ -60,10 +59,10 @@ func GetUser(user User) (*User, DbError) {
 	res := g_gormDB.Where("username = ?", user.Username).First(&dbUser)
 	if res.Error != nil {
 		if errors.Is(res.Error, gorm.ErrRecordNotFound) {
-			fmt.Println("Record not found.")
+			log.Info("Record not found.")
 			return nil, DB_NOT_FOUND
 		} else {
-			fmt.Println("Search record error:", res.Error)
+			log.Warnf("Search record error, %v.\n", res.Error)
 			return nil, DB_ERROR
 		}
 	}
@@ -77,7 +76,7 @@ func CreateUser(user User) DbError {
 
 	res := g_gormDB.Create(&user)
 	if res.Error != nil {
-		fmt.Println("Create user failed:", res.Error)
+		log.Warnf("Create user failed, %v.\n", res.Error)
 		return DB_CREATE_FAILED
 	}
 
@@ -87,7 +86,7 @@ func CreateUser(user User) DbError {
 func DeleteUser(user User) DbError {
 	res := g_gormDB.Where("username = ?", user.Username).Delete(&user)
 	if res.Error != nil {
-		fmt.Println("Delete user failed:", res.Error)
+		log.Warnf("Delete user failed, %v.\n", res.Error)
 		return DB_DELETE_FAILED
 	}
 
@@ -103,7 +102,7 @@ func UpdateUserPassWord(user User) DbError {
 		Where("username = ?", user.Username).
 		Update("password", user.Password)
 	if res.Error != nil {
-		fmt.Println("Update user failed:", res.Error)
+		log.Warnf("Update user failed, %v.\n", res.Error)
 		return DB_UPDATE_FAILED
 	}
 

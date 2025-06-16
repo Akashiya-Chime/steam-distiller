@@ -2,6 +2,7 @@ package router
 
 import (
 	"net/http"
+	log "steam-distiller/logger"
 	"steam-distiller/middleware/jwt"
 
 	"github.com/gin-gonic/gin"
@@ -43,4 +44,6 @@ func RouteRigister(g *gin.Engine) {
 	for _, route := range apiv1Route {
 		apiv1.Handle(route.Method, route.Path, route.Handler)
 	}
+
+	log.Info("Register routes successfully.")
 }

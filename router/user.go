@@ -1,8 +1,8 @@
 package router
 
 import (
-	"fmt"
 	"net/http"
+	log "steam-distiller/logger"
 
 	"steam-distiller/middleware/jwt"
 	"steam-distiller/sql"
@@ -60,13 +60,13 @@ func userTransDB(data User, isAdmin bool) sql.User {
 func isUserOk(user User) bool {
 	// 先查询用户是否存在，避免上报error
 	if !sql.IsUserExists(user.Name) {
-		fmt.Println("User not exist.")
+		log.Info("User not exist.")
 		return false
 	}
 
 	dbUser, err := sql.GetUser(userTransDB(user, false))
 	if err != sql.DB_OK || dbUser.Password != user.Password {
-		fmt.Println("Check user password failed.")
+		log.Info("Check user password failed.")
 		return false
 	}
 
