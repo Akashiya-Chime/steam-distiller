@@ -214,9 +214,18 @@
       <!--页面主要内容-->
       <main class="lyear-layout-content">
 
-        <div class="container-fluid">
-          <!-- <iframe src="#" frameborder="0" width="100%" height="100%" scrolling="auto"></iframe> -->
+
+
+        <div id="iframe-content">
+          <div class="mt-wrapper " style="height: 100%;">
+
+            <div class="tab-content" style="padding: 5px;">
+              <iframe id="main_iframe" class="tab-pane  active" width="100%" height="100%"  frameborder="0"
+                src="steamCMD.html" seamless="" style="min-height: 90vh;"></iframe>
+            </div>
+          </div>
         </div>
+
       </main>
       <!--End 页面主要内容-->
     </div>
@@ -230,10 +239,20 @@
 </html>
 <script>
   function switch_tab(obj) {
+    // 切换标题
     $(".navbar-page-title")[0].innerText = obj.innerText
+    // 切换导航栏
     $(".nav-item").each(function () {
       $(this).removeClass("active")
     })
     obj.parentNode.classList.add("active")
+    // 切换iframe
+    iframe_data = {
+      "steamCMD": "steamCMD.html",
+      "left4Dead2": "left4dead2.html",
+      "Barotrauma": "barotrauma.html",
+      "关于": "about.html",
+    }
+    $("#main_iframe").attr("src", iframe_data[obj.innerText.replace( /\s/g, "")])
   }
 </script>

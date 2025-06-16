@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>终端</title>
+    <script src="https://cdn.bootcdn.net/ajax/libs/xterm/5.5.0/xterm.js"></script>
+    <script src="static/js/xterm-addon-fit.min.js"></script>
+    <link href="https://cdn.bootcdn.net/ajax/libs/xterm/5.5.0/xterm.min.css" rel="stylesheet">
+    <link href="static/css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="static/css/steamCMD.css" rel="stylesheet">
+</head>
+
+<body  style="background-image: url(static/image/login-bg-3.jpg); background-size: cover;">
+    <div class="terminal-container">
+        <div class="terminal-header">
+            <div class="terminal-title">
+                <i class="mdi mdi-console-line"></i>
+                <span>steamCMD</span>
+            </div>
+            <div class="terminal-actions">
+                <button class="action-btn" id="clear-btn">
+                    <i class="mdi mdi-eraser"></i>
+                    <span>清除</span>
+                </button>
+                <button class="action-btn" id="reset-btn">
+                    <i class="mdi mdi-replay"></i>
+                    <span>重置</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="terminal-wrapper">
+            <div id="terminal"></div>
+        </div>
+    </div>
+    <script src="static/js/steamCMD.js"></script>
+</body>
+
+</html>

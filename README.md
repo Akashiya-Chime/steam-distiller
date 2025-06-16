@@ -67,3 +67,6 @@ docker run -it --name app -p 8088:8088 -d steam-distiller
 ```
 docker exec -it app bash
 ```
+
+## Thanks
+* [lyear](http://lyear.itshubao.com/index.html) - used for the front-end template.
