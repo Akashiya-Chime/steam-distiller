@@ -60,13 +60,13 @@ func userTransDB(data User, isAdmin bool) sql.User {
 func isUserOk(user User) bool {
 	// 先查询用户是否存在，避免上报error
 	if !sql.IsUserExists(user.Name) {
-		log.Info("User not exist.")
+		log.Infoln("User not exist.")
 		return false
 	}
 
 	dbUser, err := sql.GetUser(userTransDB(user, false))
 	if err != sql.DB_OK || dbUser.Password != user.Password {
-		log.Info("Check user password failed.")
+		log.Infoln("Check user password failed.")
 		return false
 	}
 

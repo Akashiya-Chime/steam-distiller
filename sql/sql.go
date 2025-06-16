@@ -59,7 +59,7 @@ func GetUser(user User) (*User, DbError) {
 	res := g_gormDB.Where("username = ?", user.Username).First(&dbUser)
 	if res.Error != nil {
 		if errors.Is(res.Error, gorm.ErrRecordNotFound) {
-			log.Info("Record not found.")
+			log.Infoln("Record not found.")
 			return nil, DB_NOT_FOUND
 		} else {
 			log.Warnf("Search record error, %v.\n", res.Error)
