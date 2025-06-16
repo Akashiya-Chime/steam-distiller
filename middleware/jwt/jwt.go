@@ -1,8 +1,8 @@
 package jwt
 
 import (
-	"fmt"
 	"net/http"
+	log "steam-distiller/logger"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -29,9 +29,9 @@ func JwtAuthor() gin.HandlerFunc {
 		tokenStr, err := c.Cookie("access_token")
 		if err != nil || tokenStr == "" {
 			if err == http.ErrNoCookie {
-				fmt.Println("No access token in cookie.")
+				log.Warnln("No access token in cookie.")
 			} else {
-				fmt.Println("Get cookie failed.")
+				log.Warnln("Get cookie failed.")
 			}
 			c.JSON(http.StatusUnauthorized, gin.H{
 				"error": "未提供认证token",
@@ -46,7 +46,7 @@ func JwtAuthor() gin.HandlerFunc {
 				return []byte(SECRET_KEY), nil
 			})
 		if err != nil {
-			fmt.Println("无效token错误:", err)
+			log.Warnf("Invalid token, %v.\n", err)
 			c.JSON(http.StatusUnauthorized, gin.H{
 				"error": "无效token",
 			})
