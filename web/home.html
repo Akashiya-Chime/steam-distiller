@@ -34,6 +34,8 @@
                   <li class="nav-item"> <a href="javascript:void(0)" onclick="switch_tab(this)">Barotrauma</a> </li>
                 </ul>
               </li>
+              <li class="nav-item" id="sidebar_admin_tab" style="display: none;"> <a href="#"
+                  onclick="switch_tab(this)"><i class="mdi mdi-settings"></i> 管理</a>
               <li class="nav-item"> <a href="#" onclick="switch_tab(this)"><i class="mdi mdi-information"></i> 关于</a>
               </li>
           </nav>
@@ -62,7 +64,7 @@
             <ul class="topbar-right">
               <li class="dropdown dropdown-profile">
                 <a href="javascript:void(0)" data-toggle="dropdown">
-                  <span>用户名 <span class="caret"></span></span>
+                  <span id="top_user_info">用户<span class="caret"></span></span>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-right">
                   <li> <a href="#"><i class="mdi mdi-lock-outline"></i> 修改密码</a> </li>
@@ -220,8 +222,8 @@
           <div class="mt-wrapper " style="height: 100%;">
 
             <div class="tab-content" style="padding: 5px;">
-              <iframe id="main_iframe" class="tab-pane  active" width="100%" height="100%"  frameborder="0"
-                src="steamCMD.html" seamless="" style="min-height: 90vh;"></iframe>
+              <iframe id="main_iframe" class="tab-pane  active" width="100%" height="100%" frameborder="0"
+                src="steamCMD" seamless="" style="min-height: 90vh;"></iframe>
             </div>
           </div>
         </div>
@@ -234,6 +236,8 @@
   <script type="text/javascript" src="static/js/bootstrap.min.js"></script>
   <script type="text/javascript" src="static/js/perfect-scrollbar.min.js"></script>
   <script type="text/javascript" src="static/js/main.min.js"></script>
+  <script type="text/javascript" src="static/js/bootstrap-notify.min.js"></script>
+  <script type="text/javascript" src="static/js/lightyear.js"></script>
 </body>
 
 </html>
@@ -251,8 +255,30 @@
       "steamCMD": "steamCMD",
       "left4Dead2": "left4dead2",
       "Barotrauma": "barotrauma",
+      "管理": "admin",
       "关于": "about",
     }
-    $("#main_iframe").attr("src", iframe_data[obj.innerText.replace( /\s/g, "")])
+    $("#main_iframe").attr("src", iframe_data[obj.innerText.replace(/\s/g, "")])
   }
+  function get_user_info() {
+    $.ajax({
+      url: "api/v1/userinfo",
+      type: "get",
+      dataType: "json",
+      success: function (r) {
+        if (r.code == 0) {
+          $("#top_user_info")[0].innerText = r.data.username
+          if (r.data.is_admin) {
+            $("#sidebar_admin_tab")[0].style.display = "block"
+          }
+        } else {
+          lightyear.notify(r.data.msg, 'danger', 3000);
+        }
+      },
+      error: function (xhr) {
+        lightyear.notify("网络异常，用户信息获取失败", 'danger', 3000);
+      }
+    })
+  }
+  get_user_info()
 </script>
