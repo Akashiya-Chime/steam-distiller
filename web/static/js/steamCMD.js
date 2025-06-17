@@ -41,7 +41,7 @@ fitAddon.fit();
 
 // 打开终端
 let command = '';
-let wsUrl = `ws://${window.location.host}/api/v1/ws/steamcmd`; 
+let wsUrl = "ws://localhost:8078/api/v1/ws/steamcmd" //`ws://${window.location.host}/api/v1/ws/steamcmd`; 
 let socket = null
 let isConnected = false; // 跟踪连接状态;
 function connectWebSocket() {
@@ -59,6 +59,7 @@ function connectWebSocket() {
         };
         socket.onmessage = (event) => {
             // 将服务器返回的数据写入终端
+            term.write('\r  \r'); // 删除终端显示的字符
             term.writeln(event.data); // 在终端显示服务器的消息
             term.write('\x1b[33m$\x1b[0m '); // 重新显示命令提示符
         };
@@ -141,7 +142,7 @@ term.onKey((event) => {
     }
 })
 
-term.writeln('\x1b[33m$\x1b[0m \x1b[32m欢迎使用steamCMD终端界面\x1b[0m ');
+term.writeln('\x1b[32m欢迎使用steamCMD终端界面\x1b[0m ');
 connectWebSocket();
 
 // 窗口调整大小时重新适配终端

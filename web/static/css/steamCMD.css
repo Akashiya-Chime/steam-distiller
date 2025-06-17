@@ -28,8 +28,9 @@ body::before {
 }
 
 .terminal-container {
-    width: 98%;
-    height: 98vh;
+    width: 100%;
+    height: 100vh;
+    margin: 0px;
     background: rgba(30, 30, 30, 0.6);
     border-radius: 10px;
     overflow: hidden;
@@ -154,10 +155,6 @@ body::before {
 }
 
 @media (max-width: 768px) {
-    .terminal-container {
-        height: 90vh;
-        width: 95%;
-    }
 
     .terminal-title {
         font-size: 16px;
