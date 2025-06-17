@@ -41,7 +41,7 @@ fitAddon.fit();
 
 // 打开终端
 let command = '';
-let wsUrl = "ws://localhost:8078/api/v1/ws/steamcmd" //`ws://${window.location.host}/api/v1/ws/steamcmd`; 
+let wsUrl = `ws://${window.location.host}/api/v1/ws/steamcmd`; //"ws://localhost:8078/api/v1/ws/steamcmd" 
 let socket = null
 let isConnected = false; // 跟踪连接状态;
 function connectWebSocket() {
