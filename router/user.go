@@ -49,6 +49,26 @@ func userHomePage(c *gin.Context) {
 	c.HTML(http.StatusOK, "home.html", gin.H{})
 }
 
+func userSteamCMDPage(c *gin.Context) {
+	c.HTML(http.StatusOK, "steamCMD.html", gin.H{})
+}
+
+func userL4D2Page(c *gin.Context) {
+	c.HTML(http.StatusOK, "l4d2.html", gin.H{})
+}
+
+func userBaroPage(c *gin.Context) {
+	c.HTML(http.StatusOK, "baro.html", gin.H{})
+}
+
+func userAboutPage(c *gin.Context) {
+	c.HTML(http.StatusOK, "about.html", gin.H{})
+}
+
+func userAdminPage(c *gin.Context) {
+	c.HTML(http.StatusOK, "admin.html", gin.H{})
+}
+
 func userTransDB(data User, isAdmin bool) sql.User {
 	return sql.User{
 		Username: data.Name,
