@@ -1,0 +1,7 @@
+[server]
+host = "localhost"
+port = ":8088"
+secret_key = "4Ty4TfToxTZGjt"
+
+[steamcmd]
+path = "/home/steam/steamcmd/"

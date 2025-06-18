@@ -2,6 +2,7 @@ package jwt
 
 import (
 	"net/http"
+	"steam-distiller/env"
 	log "steam-distiller/logger"
 	"time"
 
@@ -9,11 +10,10 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-const SECRET_KEY string = "neko.studio"
 const MAX_TOKEN_LIVE uint = 6 // token过期时间6小时
 
 func JwtGenToken(key string) (string, error) {
-	secretKey := []byte(SECRET_KEY)
+	secretKey := []byte(env.GetServerConfig().SecretKey)
 	claims := jwt.RegisteredClaims{
 		Subject:   key,
 		ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Duration(MAX_TOKEN_LIVE) * time.Hour)),
@@ -29,9 +29,9 @@ func JwtAuthor() gin.HandlerFunc {
 		tokenStr, err := c.Cookie("access_token")
 		if err != nil || tokenStr == "" {
 			if err == http.ErrNoCookie {
-				log.Warnln("No access token in cookie.")
+				log.L.Warnln("No access token in cookie.")
 			} else {
-				log.Warnln("Get cookie failed.")
+				log.L.Warnln("Get cookie failed.")
 			}
 			c.JSON(http.StatusUnauthorized, gin.H{
 				"error": "未提供认证token",
@@ -43,10 +43,10 @@ func JwtAuthor() gin.HandlerFunc {
 		var claims jwt.RegisteredClaims
 		_, err = jwt.ParseWithClaims(tokenStr, &claims,
 			func(t *jwt.Token) (any, error) {
-				return []byte(SECRET_KEY), nil
+				return []byte(env.GetServerConfig().SecretKey), nil
 			})
 		if err != nil {
-			log.Warnf("Invalid token, %v.\n", err)
+			log.L.Warnf("Invalid token, %v.\n", err)
 			c.JSON(http.StatusUnauthorized, gin.H{
 				"error": "无效token",
 			})

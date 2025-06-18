@@ -49,6 +49,26 @@ func userHomePage(c *gin.Context) {
 	c.HTML(http.StatusOK, "home.html", gin.H{})
 }
 
+func userSteamCMDPage(c *gin.Context) {
+	c.HTML(http.StatusOK, "steamCMD.html", gin.H{})
+}
+
+func userL4D2Page(c *gin.Context) {
+	c.HTML(http.StatusOK, "l4d2.html", gin.H{})
+}
+
+func userBaroPage(c *gin.Context) {
+	c.HTML(http.StatusOK, "baro.html", gin.H{})
+}
+
+func userAboutPage(c *gin.Context) {
+	c.HTML(http.StatusOK, "about.html", gin.H{})
+}
+
+func userAdminPage(c *gin.Context) {
+	c.HTML(http.StatusOK, "admin.html", gin.H{})
+}
+
 func userTransDB(data User, isAdmin bool) sql.User {
 	return sql.User{
 		Username: data.Name,
@@ -60,13 +80,13 @@ func userTransDB(data User, isAdmin bool) sql.User {
 func isUserOk(user User) bool {
 	// 先查询用户是否存在，避免上报error
 	if !sql.IsUserExists(user.Name) {
-		log.Infoln("User not exist.")
+		log.L.Infoln("User not exist.")
 		return false
 	}
 
 	dbUser, err := sql.GetUser(userTransDB(user, false))
 	if err != sql.DB_OK || dbUser.Password != user.Password {
-		log.Infoln("Check user password failed.")
+		log.L.Infoln("Check user password failed.")
 		return false
 	}
 
@@ -76,7 +96,7 @@ func isUserOk(user User) bool {
 func userLogin(c *gin.Context) {
 	var user User
 	if err := c.ShouldBindJSON(&user); err != nil {
-		log.Warnf("Serialize user info failed, %v.\n", err)
+		log.L.Warnf("Serialize user info failed, %v.\n", err)
 		SendJsonMsg(c, CODE_INNER_ERROR, "系统内部错误")
 		c.Abort()
 		return
@@ -91,7 +111,7 @@ func userLogin(c *gin.Context) {
 	token, err := jwt.JwtGenToken(user.Name)
 	if err != nil {
 		// TODO: 日志系统
-		log.Warnf("Generate token failed, %v.\n", err)
+		log.L.Warnf("Generate token failed, %v.\n", err)
 		SendJsonMsg(c, CODE_GEN_TOKEN_FAILED, "系统内部错误")
 		c.Abort()
 		return
@@ -126,7 +146,7 @@ func IsUserInfoValid(user User) bool {
 func userRegister(c *gin.Context) {
 	var user User
 	if err := c.ShouldBindJSON(&user); err != nil {
-		log.Warnf("Serialize user info failed, %v.\n", err)
+		log.L.Warnf("Serialize user info failed, %v.\n", err)
 		SendJsonMsg(c, CODE_INNER_ERROR, "系统内部错误")
 		c.Abort()
 		return

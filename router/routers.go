@@ -4,6 +4,7 @@ import (
 	"net/http"
 	log "steam-distiller/logger"
 	"steam-distiller/middleware/jwt"
+	ws "steam-distiller/websocket"
 
 	"github.com/gin-gonic/gin"
 )
@@ -23,27 +24,39 @@ var routes = []RouteItem{
 	{http.MethodPost, "/user/register", userRegister},
 }
 
+var authRoutes = []RouteItem{
+	{http.MethodGet, "/home", userHomePage},
+	{http.MethodGet, "/steamCMD", userSteamCMDPage},
+	{http.MethodGet, "/left4dead2", userL4D2Page},
+	{http.MethodGet, "/barotrauma", userBaroPage},
+	{http.MethodGet, "/about", userAboutPage},
+	{http.MethodGet, "/admin", userAdminPage},
+}
+
 var apiv1Route = []RouteItem{
 	{http.MethodGet, "/ping", apiRoutePing},
+	{http.MethodGet, "/ws/steamcmd", ws.HandleWebSocket},
 }
 
 func RouteRigister(g *gin.Engine) {
 	g.LoadHTMLGlob("web/*.html")
 	g.Static("/static", "web/static")
-	home := g.Group("/")
-	home.Use(jwt.JwtAuthor())
+	auth := g.Group("/")
+	auth.Use(jwt.JwtAuthor())
 	apiv1 := g.Group("/api/v1")
 	apiv1.Use(jwt.JwtAuthor())
 
-	home.Handle(http.MethodGet, "/home", userHomePage)
-
 	for _, route := range routes {
 		g.Handle(route.Method, route.Path, route.Handler)
+	}
+
+	for _, route := range authRoutes {
+		auth.Handle(route.Method, route.Path, route.Handler)
 	}
 
 	for _, route := range apiv1Route {
 		apiv1.Handle(route.Method, route.Path, route.Handler)
 	}
 
-	log.Infoln("Register routes successfully.")
+	log.L.Infoln("Register routes successfully.")
 }

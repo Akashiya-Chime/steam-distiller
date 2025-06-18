@@ -32,9 +32,9 @@ type User struct {
 func Connect() {
 	db, err := gorm.Open(sqlite.Open("db/app.db"), &gorm.Config{})
 	if err != nil {
-		log.Panicf("Failed to connect database, %v.\n", err)
+		log.L.Panicf("Failed to connect database, %v.\n", err)
 	}
-	log.Infoln("Connect database successfully.")
+	log.L.Infoln("Connect database successfully.")
 
 	db.AutoMigrate(&User{})
 	g_gormDB = db
@@ -43,7 +43,7 @@ func Connect() {
 func Close() {
 	sqlDB, err := g_gormDB.DB()
 	if err != nil {
-		log.Panicf("Failed to get sqlDB, %v.\n", err)
+		log.L.Panicf("Failed to get sqlDB, %v.\n", err)
 	}
 	sqlDB.Close()
 }
@@ -59,10 +59,10 @@ func GetUser(user User) (*User, DbError) {
 	res := g_gormDB.Where("username = ?", user.Username).First(&dbUser)
 	if res.Error != nil {
 		if errors.Is(res.Error, gorm.ErrRecordNotFound) {
-			log.Infoln("Record not found.")
+			log.L.Infoln("Record not found.")
 			return nil, DB_NOT_FOUND
 		} else {
-			log.Warnf("Search record error, %v.\n", res.Error)
+			log.L.Warnf("Search record error, %v.\n", res.Error)
 			return nil, DB_ERROR
 		}
 	}
@@ -76,7 +76,7 @@ func CreateUser(user User) DbError {
 
 	res := g_gormDB.Create(&user)
 	if res.Error != nil {
-		log.Warnf("Create user failed, %v.\n", res.Error)
+		log.L.Warnf("Create user failed, %v.\n", res.Error)
 		return DB_CREATE_FAILED
 	}
 
@@ -86,7 +86,7 @@ func CreateUser(user User) DbError {
 func DeleteUser(user User) DbError {
 	res := g_gormDB.Where("username = ?", user.Username).Delete(&user)
 	if res.Error != nil {
-		log.Warnf("Delete user failed, %v.\n", res.Error)
+		log.L.Warnf("Delete user failed, %v.\n", res.Error)
 		return DB_DELETE_FAILED
 	}
 
@@ -102,7 +102,7 @@ func UpdateUserPassWord(user User) DbError {
 		Where("username = ?", user.Username).
 		Update("password", user.Password)
 	if res.Error != nil {
-		log.Warnf("Update user failed, %v.\n", res.Error)
+		log.L.Warnf("Update user failed, %v.\n", res.Error)
 		return DB_UPDATE_FAILED
 	}
 
