@@ -32,10 +32,10 @@ func HandleWebSocket(c *gin.Context) {
 	for {
 		_, data, err := conn.ReadMessage()
 		if err != nil {
-			log.Warnf("Failed to read from websocket: %v", err)
+			log.L.Warnf("Failed to read from websocket: %v", err)
 			break
 		}
-		log.Infof("WS: Read from ws: %v\n", string(data))
+		log.L.Infof("WS: Read from ws: %v\n", string(data))
 
 		res := strings.Fields(string(data))
 

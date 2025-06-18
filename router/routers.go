@@ -58,5 +58,5 @@ func RouteRigister(g *gin.Engine) {
 		apiv1.Handle(route.Method, route.Path, route.Handler)
 	}
 
-	log.Infoln("Register routes successfully.")
+	log.L.Infoln("Register routes successfully.")
 }

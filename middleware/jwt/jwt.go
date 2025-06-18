@@ -29,9 +29,9 @@ func JwtAuthor() gin.HandlerFunc {
 		tokenStr, err := c.Cookie("access_token")
 		if err != nil || tokenStr == "" {
 			if err == http.ErrNoCookie {
-				log.Warnln("No access token in cookie.")
+				log.L.Warnln("No access token in cookie.")
 			} else {
-				log.Warnln("Get cookie failed.")
+				log.L.Warnln("Get cookie failed.")
 			}
 			c.JSON(http.StatusUnauthorized, gin.H{
 				"error": "未提供认证token",
@@ -46,7 +46,7 @@ func JwtAuthor() gin.HandlerFunc {
 				return []byte(SECRET_KEY), nil
 			})
 		if err != nil {
-			log.Warnf("Invalid token, %v.\n", err)
+			log.L.Warnf("Invalid token, %v.\n", err)
 			c.JSON(http.StatusUnauthorized, gin.H{
 				"error": "无效token",
 			})

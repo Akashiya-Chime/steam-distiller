@@ -9,7 +9,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var log *logrus.Logger
+var L *logrus.Logger
 
 type customFormatter struct {
 	ModuleName string
@@ -47,49 +47,13 @@ func (f *customFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 }
 
 func Init(moduleName string) {
-	log = logrus.New()
-	log.SetReportCaller(true)
-	log.SetFormatter(&customFormatter{
+	L = logrus.New()
+	L.SetReportCaller(true)
+	L.SetFormatter(&customFormatter{
 		ModuleName: moduleName,
 	})
-	log.SetLevel(logrus.InfoLevel)
-	log.SetOutput(os.Stdout)
+	L.SetLevel(logrus.InfoLevel)
+	L.SetOutput(os.Stdout)
 
-	log.Infoln("Init logger successfully.")
+	L.Infoln("Init logger successfully.")
 }
-
-func Info(args ...any) { log.Info(args...) }
-
-func Infof(format string, args ...any) { log.Infof(format, args...) }
-
-func Infoln(args ...any) { log.Infoln(args...) }
-
-func Warn(args ...any) { log.Warn(args...) }
-
-func Warnf(format string, args ...any) { log.Warnf(format, args...) }
-
-func Warnln(args ...any) { log.Warnln(args...) }
-
-func Debug(args ...any) { log.Debug(args...) }
-
-func Debugf(format string, args ...any) { log.Debugf(format, args...) }
-
-func Debugln(args ...any) { log.Debugln(args...) }
-
-func Error(args ...any) { log.Error(args...) }
-
-func Errorf(format string, args ...any) { log.Errorf(format, args...) }
-
-func Errorln(args ...any) { log.Errorln(args...) }
-
-func Panic(args ...any) { log.Panic(args...) }
-
-func Panicf(format string, args ...any) { log.Panicf(format, args...) }
-
-func Panicln(args ...any) { log.Panicln(args...) }
-
-func Fatal(args ...any) { log.Fatal(args...) }
-
-func Fatalf(format string, args ...any) { log.Fatalf(format, args...) }
-
-func Fatalln(args ...any) { log.Fatalln(args...) }
