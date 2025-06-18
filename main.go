@@ -1,6 +1,7 @@
 package main
 
 import (
+	"steam-distiller/env"
 	"steam-distiller/logger"
 	"steam-distiller/router"
 	"steam-distiller/sql"
@@ -13,10 +14,11 @@ func init() {
 }
 
 func main() {
+	env.InitEnv()
 	engine := gin.Default()
 	sql.Connect()
 	defer sql.Close()
 
 	router.RouteRigister(engine)
-	engine.Run(":8088")
+	engine.Run(env.GetServerConfig().Port)
 }

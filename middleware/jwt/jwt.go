@@ -2,6 +2,7 @@ package jwt
 
 import (
 	"net/http"
+	"steam-distiller/env"
 	log "steam-distiller/logger"
 	"time"
 
@@ -9,11 +10,10 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-const SECRET_KEY string = "neko.studio"
 const MAX_TOKEN_LIVE uint = 6 // token过期时间6小时
 
 func JwtGenToken(key string) (string, error) {
-	secretKey := []byte(SECRET_KEY)
+	secretKey := []byte(env.GetServerConfig().SecretKey)
 	claims := jwt.RegisteredClaims{
 		Subject:   key,
 		ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Duration(MAX_TOKEN_LIVE) * time.Hour)),
@@ -43,7 +43,7 @@ func JwtAuthor() gin.HandlerFunc {
 		var claims jwt.RegisteredClaims
 		_, err = jwt.ParseWithClaims(tokenStr, &claims,
 			func(t *jwt.Token) (any, error) {
-				return []byte(SECRET_KEY), nil
+				return []byte(env.GetServerConfig().SecretKey), nil
 			})
 		if err != nil {
 			log.L.Warnf("Invalid token, %v.\n", err)
