@@ -4,11 +4,13 @@ import (
 	"bufio"
 	"fmt"
 	"net/http"
+	"os"
 	"os/exec"
 	"steam-distiller/env"
 	log "steam-distiller/logger"
 	"strings"
 
+	"github.com/creack/pty"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 )
@@ -33,6 +35,28 @@ func HandleWebSocket(c *gin.Context) {
 	}
 	defer conn.Close()
 
+	startServer := exec.Command("bash")
+	startCmd := "/home/lighthouse/l4d2-server/run.sh\n"
+	stopCmd := "quit\n"
+	var ptmx *os.File
+
+	ptmx, err = pty.Start(startServer)
+	if err != nil {
+		log.L.Warnf("Ptmx error, %v.\n", err)
+	}
+	defer func() { _ = ptmx.Close() }()
+
+	// 实时读取标准输出
+	go func() {
+		scanner := bufio.NewScanner(ptmx)
+		for scanner.Scan() {
+			if err := conn.WriteMessage(websocket.TextMessage, scanner.Bytes()); err != nil {
+				log.L.Warnf("Failed to write to websocket: %v", err)
+				break
+			}
+		}
+	}()
+
 	for {
 		_, data, err := conn.ReadMessage()
 		if err != nil {
@@ -41,43 +65,25 @@ func HandleWebSocket(c *gin.Context) {
 		}
 		log.L.Infof("WS: Read from ws: %v\n", string(data))
 
-		res := strings.Fields(string(data))
+		cmdStr := strings.Split(string(data), " ")
 
-		cmd := exec.Command(res[0], res[1:]...)
-		stdout, err := cmd.StdoutPipe()
-		if err != nil {
-			log.L.Fatal(err)
-		}
-
-		stderr, err := cmd.StderrPipe()
-		if err != nil {
-			log.L.Fatal(err)
-		}
-
-		// 启动命令
-		if err := cmd.Start(); err != nil {
-			log.L.Infoln(err)
-		}
-
-		// 实时读取标准输出
-		go func() {
-			scanner := bufio.NewScanner(stdout)
-			for scanner.Scan() {
-				if err := conn.WriteMessage(websocket.TextMessage, scanner.Bytes()); err != nil {
-					log.L.Warnf("Failed to write to websocket: %v", err)
-					break
-				}
+		if cmdStr[0] == "run" {
+			if len(cmdStr) > 1 {
+				// 注意避免命令注入攻击
+				log.L.Infof("cmdStr1: %v\n", cmdStr[1])
+				startCmd = fmt.Sprintf("/home/lighthouse/l4d2-server/run.sh %s\n", cmdStr[1])
 			}
-		}()
-
-		go func() {
-			scanner := bufio.NewScanner(stderr)
-			for scanner.Scan() {
-				if err := conn.WriteMessage(websocket.TextMessage, scanner.Bytes()); err != nil {
-					log.L.Warnf("Failed to write to websocket: %v", err)
-					break
-				}
+			_, err = ptmx.Write([]byte(startCmd))
+			if err != nil {
+				log.L.Warnf("Ptmx error, %v.\n", err)
 			}
-		}()
+		}
+
+		if cmdStr[0] == "stop" {
+			_, err = ptmx.Write([]byte(stopCmd))
+			if err != nil {
+				log.L.Warnf("Ptmx error, %v.\n", err)
+			}
+		}
 	}
 }
