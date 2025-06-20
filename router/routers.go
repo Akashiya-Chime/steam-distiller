@@ -36,6 +36,7 @@ var authRoutes = []RouteItem{
 var apiv1Route = []RouteItem{
 	{http.MethodGet, "/ping", apiRoutePing},
 	{http.MethodGet, "/ws/steamcmd", ws.HandleWebSocket},
+	{http.MethodGet, "/users", userGetInfo},
 }
 
 func RouteRigister(g *gin.Engine) {

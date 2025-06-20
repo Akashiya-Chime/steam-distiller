@@ -11,6 +11,12 @@ type ResponseData struct {
 	Msg   string      `json:"msg"`
 }
 
+type GetUserRes struct {
+	Msg      string `json:"msg"`
+	Username string `json:"username"`
+	IsAdmin  bool   `json:"is_admin"`
+}
+
 type Response struct {
 	Code ReturnCode `json:"code"`
 	Data any        `json:"data"`
