@@ -69,7 +69,7 @@
                 <ul class="dropdown-menu dropdown-menu-right">
                   <li> <a href="#"><i class="mdi mdi-lock-outline"></i> 修改密码</a> </li>
                   <li class="divider"></li>
-                  <li> <a href="/"><i class="mdi mdi-logout-variant"></i> 退出登录</a> </li>
+                  <li> <a href="#" onclick="exit()"><i class="mdi mdi-logout-variant"></i> 退出登录</a> </li>
                 </ul>
               </li>
               <!--切换主题配色-->
@@ -232,53 +232,14 @@
       <!--End 页面主要内容-->
     </div>
   </div>
-  <script src="https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.6.0/jquery.min.js"></script>
+  <script type="text/javascript" src="https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.6.0/jquery.min.js"></script>
+  <script type="text/javascript" src="https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
   <script type="text/javascript" src="static/js/bootstrap.min.js"></script>
   <script type="text/javascript" src="static/js/perfect-scrollbar.min.js"></script>
   <script type="text/javascript" src="static/js/main.min.js"></script>
   <script type="text/javascript" src="static/js/bootstrap-notify.min.js"></script>
   <script type="text/javascript" src="static/js/lightyear.js"></script>
+  <script type="text/javascript" src="static/js/home.js"></script>
 </body>
 
 </html>
-<script>
-  function switch_tab(obj) {
-    // 切换标题
-    $(".navbar-page-title")[0].innerText = obj.innerText
-    // 切换导航栏
-    $(".nav-item").each(function () {
-      $(this).removeClass("active")
-    })
-    obj.parentNode.classList.add("active")
-    // 切换iframe
-    iframe_data = {
-      "steamCMD": "steamCMD",
-      "left4Dead2": "left4dead2",
-      "Barotrauma": "barotrauma",
-      "管理": "admin",
-      "关于": "about",
-    }
-    $("#main_iframe").attr("src", iframe_data[obj.innerText.replace(/\s/g, "")])
-  }
-  function get_user_info() {
-    $.ajax({
-      url: "api/v1/users",
-      type: "get",
-      dataType: "json",
-      success: function (r) {
-        if (r.code == 0) {
-          $("#top_user_info")[0].innerText = r.data.username
-          if (r.data.is_admin) {
-            $("#sidebar_admin_tab")[0].style.display = "block"
-          }
-        } else {
-          lightyear.notify(r.data.msg, 'danger', 3000);
-        }
-      },
-      error: function (xhr) {
-        lightyear.notify("网络异常，用户信息获取失败", 'danger', 3000);
-      }
-    })
-  }
-  get_user_info()
-</script>
