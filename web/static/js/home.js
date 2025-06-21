@@ -5,6 +5,7 @@ function exit() {
         window.location.href = "/"
     }, 2000)
 }
+
 function switch_tab(obj) {
     // 切换标题
     $(".navbar-page-title")[0].innerText = obj.innerText
@@ -23,6 +24,7 @@ function switch_tab(obj) {
     }
     $("#main_iframe").attr("src", iframe_data[obj.innerText.replace(/\s/g, "")])
 }
+
 function get_user_info() {
     let access_token = $.cookie("access_token")
     if (access_token == null) {
@@ -55,4 +57,5 @@ function get_user_info() {
         }
     })
 }
+
 get_user_info()
