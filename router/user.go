@@ -21,6 +21,7 @@ const (
 	CODE_INV_CODE_INVALID
 	CODE_USER_INFO_INVALID
 	CODE_USER_ALREADY_EXIST
+	CODE_USER_NOT_EXIST
 )
 
 type User struct {
@@ -177,4 +178,36 @@ func userRegister(c *gin.Context) {
 	}
 
 	SendJsonMsg(c, CODE_OK, "注册成功")
+}
+
+func userGetInfo(c *gin.Context) {
+	username := c.Query("username")
+	if len(username) == 0 {
+		SendJsonMsg(c, CODE_ERROR, "无用户名")
+		c.Abort()
+		return
+	}
+
+	if !sql.IsUserExists(username) {
+		SendJsonMsg(c, CODE_USER_NOT_EXIST, "用户不存在")
+		c.Abort()
+		return
+	}
+
+	dbUser, err := sql.GetUser(sql.User{Username: username})
+	if err != sql.DB_OK {
+		log.L.Warnf("Get user info from db failed.")
+		SendJsonMsg(c, CODE_INNER_ERROR, "查询用户失败")
+		c.Abort()
+		return
+	}
+
+	c.JSON(http.StatusOK, Response{
+		Code: CODE_OK,
+		Data: GetUserRes{
+			Msg:      "ok",
+			Username: username,
+			IsAdmin:  dbUser.IsAdmin,
+		},
+	})
 }
