@@ -18,8 +18,8 @@ function generateInviteCode() {
         return null;
     }
     $.ajax({
-        url: "/api/v1/invite",
-        type: "get",
+        url: "/api//api/v1/invcode/invite",
+        type: "post",
         dataType: "json",
         data: {
             "username": username,
@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', function () {
             navigator.clipboard.writeText(textarea.value).then(() => {
             }).catch((err) => {
                 lightyear.notify("自动复制失败，请手动复制", 'danger', 3000);
-                return; 
+                return;
             });
         } catch (err) {
             document.execCommand('copy');
