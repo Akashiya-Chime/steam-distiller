@@ -1,0 +1,172 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: rgb(0, 0, 0);
+    overflow: hidden;
+    position: relative;
+}
+
+.container {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    padding: 40px;
+    max-width: 800px;
+    width: 90%;
+}
+
+.logo-container {
+    margin: 0 auto 40px;
+    position: relative;
+    display: inline-block;
+}
+
+.logo {
+    width: 220px;
+    height: 220px;
+    background: linear-gradient(45deg, #dedede 0%, #909090 100%);
+    border-radius: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+    animation: float 6s ease-in-out infinite;
+    transition: all 0.4s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.logo:hover {
+    transform: scale(1.05);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+.logo:before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transform: rotate(45deg);
+    animation: shine 5s infinite;
+}
+
+.logo-content {
+    position: relative;
+    z-index: 2;
+}
+
+.logo-icon {
+    font-size: 80px;
+    color: #fff;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.logo-text {
+    font-size: 32px;
+    font-weight: 700;
+    margin-top: 10px;
+    letter-spacing: 1px;
+}
+
+.tagline {
+    font-size: 24px;
+    line-height: 1.6;
+    margin: 30px 0;
+    font-weight: 300;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.highlight {
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 500;
+    color: rgb(255, 127, 2);
+}
+
+.footer {
+    position: absolute;
+    bottom: 20px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 14px;
+    opacity: 0.8;
+}
+
+/* 动画效果 */
+@keyframes float {
+    0% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-20px);
+    }
+
+    100% {
+        transform: translateY(0px);
+    }
+}
+
+@keyframes shine {
+    0% {
+        transform: rotate(45deg) translateX(-200%);
+    }
+
+    100% {
+        transform: rotate(45deg) translateX(200%);
+    }
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .logo {
+        width: 180px;
+        height: 180px;
+    }
+
+    .logo-icon {
+        font-size: 60px;
+    }
+
+    .logo-text {
+        font-size: 26px;
+    }
+
+    .tagline {
+        font-size: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .logo {
+        width: 150px;
+        height: 150px;
+    }
+
+    .logo-icon {
+        font-size: 50px;
+    }
+
+    .logo-text {
+        font-size: 22px;
+    }
+
+    .tagline {
+        font-size: 18px;
+    }
+}
