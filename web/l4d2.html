@@ -1,0 +1,83 @@
+<html lang="zh">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>l4d2</title>
+  <link href="static/css/bootstrap.min.css" rel="stylesheet">
+  <link href="static/css/materialdesignicons.min.css" rel="stylesheet">
+  <link href="static/css/style.min.css" rel="stylesheet">
+  <script src="static/js/xterm.js"></script>
+  <script src="static/js/xterm-addon-fit.min.js"></script>
+  <link href="static/css/xterm.min.css" rel="stylesheet">
+  <link href="static/css/l4d2.css" rel="stylesheet">
+  <link href="static/css/animate.css" rel="stylesheet">
+
+<body>
+  <div class="lyear-layout-web">
+    <!--页面主要内容-->
+    <main>
+
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-xs-12">
+            <div class="card">
+              <div class="card-body">
+                <button class="btn btn-w-lg btn-round btn-success" id="start_game" disabled="true" onclick="startGame()">启动游戏</button>
+                <button class="btn btn-w-lg btn-round btn-secondary" id="game_config">游戏配置</button>
+                <button class="btn btn-w-lg btn-round btn-secondary" id="game_mod">Mod</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-lg-12">
+            <div class="card content active" id="start_game_content"
+              style="background-image: url(static/image/login-bg-3.jpg);background-size: cover">
+              <div class="terminal-container">
+                <div class="terminal-header">
+                  <div class="terminal-title">
+                    <i class="mdi mdi-console-line"></i>
+                    <span>steamCMD</span>
+                    <div class="status">
+                      <div class="status-indicator" id="statusIndicator"></div>
+                      <span id="statusText">未连接</span>
+                    </div>
+                  </div>
+                  <div class="terminal-actions">
+                    <button class="action-btn" id="clear-btn">
+                      <i class="mdi mdi-eraser"></i>
+                      <span>清除</span>
+                    </button>
+                  </div>
+                </div>
+                <div class="terminal-wrapper">
+                  <div id="terminal"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card content" id="game_config_content">
+              <h1>游戏配置</h1>
+              <p>在这里你可以修改游戏的配置</p>
+            </div>
+
+            <div class="card content" id="game_mod_content">
+              <h1>Mod</h1>
+              <p>在这里你可以安装Mod</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+    <!--End 页面主要内容-->
+  </div>
+  <script type="text/javascript" src="https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.6.0/jquery.min.js"></script>
+  <script type="text/javascript" src="static/js/bootstrap-notify.min.js"></script>
+  <script type="text/javascript" src="static/js/lightyear.js"></script>
+  <script src="static/js/l4d2.js"></script>
+</body>
+
+</html>
