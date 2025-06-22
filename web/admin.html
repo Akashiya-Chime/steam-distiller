@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理</title>
+    <link href="static/css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="static/css/animate.css" rel="stylesheet">
+    <link href="static/css/admin.css" rel="stylesheet">
+</head>
+
+<body style="background-image: url(static/image/login-bg-3.jpg); background-size: cover;">
+    <div class="center-container">
+        <div class="container">
+            <h1>获取邀请码</h1>
+            <p class="subtitle">邀请码有效期为10分钟</p>
+
+            <div class="invite-container">
+                <div class="invite-btn" id="inviteBtn">
+                    <div class="btn-text">
+                        <i class="btn-icon mdi mdi-account-plus"></i>
+                        <div>获取邀请码</div>
+                    </div>
+                </div>
+
+                <div class="loading" id="loading"></div>
+
+                <div class="code-container" id="codeContainer">
+                    <div class="code-label">您的专属邀请码</div>
+                    <div class="code-box" id="codeBox">
+                        <span class="code-value" id="codeValue"></span>
+                        <i class="copy-icon mdi mdi-content-copy"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer">
+            </div>
+        </div>
+    </div>
+    <script src="https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+    <script src="static/js/bootstrap-notify.min.js"></script>
+    <script src="static/js/lightyear.js"></script>
+    <script src="static/js/admin.js"></script>
+</body>
+
+</html>
