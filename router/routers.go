@@ -4,7 +4,6 @@ import (
 	"net/http"
 	log "steam-distiller/logger"
 	"steam-distiller/middleware/jwt"
-	ws "steam-distiller/websocket"
 
 	"github.com/gin-gonic/gin"
 )
@@ -35,8 +34,9 @@ var authRoutes = []RouteItem{
 
 var apiv1Route = []RouteItem{
 	{http.MethodGet, "/ping", apiRoutePing},
-	{http.MethodGet, "/ws/steamcmd", ws.HandleWebSocket},
 	{http.MethodGet, "/users", userGetInfo},
+	{http.MethodGet, "/l4d2/start", l4d2StartGame},
+	{http.MethodGet, "/l4d2/log", l4d2LogHandler},
 }
 
 func RouteRigister(g *gin.Engine) {

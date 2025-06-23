@@ -5,6 +5,7 @@ import (
 	"steam-distiller/logger"
 	"steam-distiller/router"
 	"steam-distiller/sql"
+	"steam-distiller/websocket"
 
 	"github.com/gin-gonic/gin"
 )
@@ -18,6 +19,7 @@ func main() {
 	engine := gin.Default()
 	sql.Connect()
 	defer sql.Close()
+	websocket.StartManager()
 
 	router.RouteRigister(engine)
 	engine.Run(env.GetServerConfig().Port)
