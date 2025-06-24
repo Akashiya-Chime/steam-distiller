@@ -1,6 +1,17 @@
-.btn:hover {
+.nav-tabs > li:hover {
     transform: translateY(-3px);
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+.tab-content>.tab-pane {
+    display: none
+}
+
+.tab-content>.active {
+    display: block
+}
+
+.card .tab-content {
+    padding: 0px;
 }
 
 .content {
@@ -9,7 +20,7 @@
     border-radius: 10px;
 }
 
-.content.active {
+.tab-pane.active > .content{
     display: block;
 }
 .terminal-container {

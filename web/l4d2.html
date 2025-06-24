@@ -23,9 +23,66 @@
           <div class="col-xs-12">
             <div class="card">
               <div class="card-body">
-                <button class="btn btn-w-lg btn-round btn-success" id="start_game" disabled="true" onclick="startGame()">启动游戏</button>
-                <button class="btn btn-w-lg btn-round btn-secondary" id="game_config">游戏配置</button>
-                <button class="btn btn-w-lg btn-round btn-secondary" id="game_mod">Mod</button>
+
+                <ul id="Tabs" class="nav nav-tabs" role="tablist">
+                  <li id="start_game_tab_btn" class="active"><a href="#start_game_tab" role="tab" data-toggle="tab"
+                      aria-expanded="true">启停游戏</a></li>
+                  <li class=""><a href="#game_config_tab" role="tab" data-toggle="tab"
+                      aria-expanded="false">游戏配置</a></li>
+                  <li class=""><a href="#game_mod_tab" role="tab" data-toggle="tab"
+                      aria-expanded="false">Mod</a></li>
+                </ul>
+
+                <div class="tab-content">
+                  <div class="tab-pane fade active in" id="start_game_tab">
+                    <div class="content" id="start_game_content"
+                      style="background-image: url(static/image/login-bg-3.jpg);background-size: cover">
+                      <div class="terminal-container">
+                        <div class="terminal-header">
+                          <div class="terminal-title">
+                            <i class="mdi mdi-console-line"></i>
+                            <span>steamCMD</span>
+                            <div class="status">
+                              <div class="status-indicator" id="statusIndicator"></div>
+                              <span id="statusText">未连接</span>
+                            </div>
+                          </div>
+                          <div class="terminal-actions">
+                            <button class="action-btn" id="clear-btn">
+                              <i class="mdi mdi-eraser"></i>
+                              <span>清除</span>
+                            </button>
+                            <button class="action-btn" id="start-btn">
+                              <i class="mdi mdi-play-circle"></i>
+                              <span>启动游戏</span>
+                            </button>
+                            <button class="action-btn" id="stop-btn" >
+                              <i class="mdi mdi-power"></i>
+                              <span>关闭游戏</span>
+                            </button>
+                          </div>
+                        </div>
+                        <div class="terminal-wrapper">
+                          <div id="terminal"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="tab-pane fade" id="game_config_tab">
+                    <p>
+                      游戏配置页面
+                    </p>
+                  </div>
+
+                  <div class="tab-pane fade" id="game_mod_tab">
+                    <p>
+                      Mod页面
+                    </p>
+                  </div>
+                </div>
+
+
               </div>
             </div>
           </div>
@@ -33,30 +90,7 @@
 
         <div class="row">
           <div class="col-lg-12">
-            <div class="card content active" id="start_game_content"
-              style="background-image: url(static/image/login-bg-3.jpg);background-size: cover">
-              <div class="terminal-container">
-                <div class="terminal-header">
-                  <div class="terminal-title">
-                    <i class="mdi mdi-console-line"></i>
-                    <span>steamCMD</span>
-                    <div class="status">
-                      <div class="status-indicator" id="statusIndicator"></div>
-                      <span id="statusText">未连接</span>
-                    </div>
-                  </div>
-                  <div class="terminal-actions">
-                    <button class="action-btn" id="clear-btn">
-                      <i class="mdi mdi-eraser"></i>
-                      <span>清除</span>
-                    </button>
-                  </div>
-                </div>
-                <div class="terminal-wrapper">
-                  <div id="terminal"></div>
-                </div>
-              </div>
-            </div>
+
 
             <div class="card content" id="game_config_content">
               <h1>游戏配置</h1>
@@ -74,8 +108,10 @@
     </main>
     <!--End 页面主要内容-->
   </div>
-  <script type="text/javascript" src="https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.6.0/jquery.min.js"></script>
+  <script type="text/javascript"
+    src="https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.6.0/jquery.min.js"></script>
   <script type="text/javascript" src="static/js/bootstrap-notify.min.js"></script>
+  <script type="text/javascript" src="static/js/bootstrap.min.js"></script>
   <script type="text/javascript" src="static/js/lightyear.js"></script>
   <script src="static/js/l4d2.js"></script>
 </body>

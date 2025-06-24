@@ -48,26 +48,23 @@ function updateConnectionStatus(connected) {
     if (connected) {
         document.getElementById("statusIndicator").classList.add("connected")
         document.getElementById("statusText").innerText = "已连接";
-        document.getElementById("start_game").removeAttribute("disabled");
+        // document.getElementById("start_game").removeAttribute("disabled");
     } else {
         document.getElementById("statusIndicator").classList.remove("connected")
         document.getElementById("statusText").innerText = "正在连接服务器...";
-        document.getElementById("start_game").setAttribute("disabled", true);
+        // document.getElementById("start_game").setAttribute("disabled", true);
     }
 }
 
 // 发送启动游戏命令
 function startGame() {
-    if($("#start_game")[0].innerText !="启动游戏"){
-        return
-    }
     if (!isConnected) {
-        lightyear.notify("与服务器尚未建立连接，请稍后再试", 'danger', 3000,"", 'top', 'right'); 
+        lightyear.notify("与服务器尚未建立连接，请稍后再试", 'danger', 3000, "", 'top', 'right');
         return;
     }
     if (isGameStarted) {
-        lightyear.notify("游戏已经启动，请勿重复操作", 'danger', 3000,"", 'top', 'right');
-        return; 
+        lightyear.notify("游戏已经启动，请勿重复操作", 'danger', 3000, "", 'top', 'right');
+        return;
     }
     term.writeln(`\r\n\x1b[32m正在启动游戏...\x1b[0m\r\n`);
     $.ajax({
@@ -77,14 +74,41 @@ function startGame() {
         success: function (r) {
             if (r.code == 0) {
                 isGameStarted = true;
-                lightyear.notify(r.data.msg, 'success', 3000,"", 'top', 'right'); 
-            } 
+                lightyear.notify(r.data.msg, 'success', 3000, "", 'top', 'right');
+            }
         },
         error: function (xhr) {
-            lightyear.notify("网络异常，游戏启动失败", 'danger', 3000,"", 'top', 'right'); 
+            lightyear.notify("网络异常，游戏启动失败", 'danger', 3000, "", 'top', 'right');
         }
     })
 }
+
+function stopGame() {
+    if (!isConnected) {
+        lightyear.notify("与服务器尚未建立连接，请稍后再试", 'danger', 3000, "", 'top', 'right');
+        return;
+    }
+    if (!isGameStarted) {
+        lightyear.notify("游戏还未启动，请勿重复操作", 'danger', 3000, "", 'top', 'right');
+        return;
+    }
+    term.writeln(`\r\n\x1b[32m正在关闭游戏...\x1b[0m\r\n`);
+    $.ajax({
+        url: "/api/v1/l4d2/stop",
+        type: "get",
+        dataType: "json",
+        success: function (r) {
+            if (r.code == 0) {
+                isGameStarted = false;
+                lightyear.notify(r.data.msg, 'success', 3000, "", 'top', 'right');
+            }
+        },
+        error: function (xhr) {
+            lightyear.notify("网络异常，游戏关闭失败", 'danger', 3000, "", 'top', 'right');
+        }
+    })
+}
+
 
 // 初始化终端
 const term = new Terminal({
@@ -129,7 +153,7 @@ fitAddon.fit();
 
 // 打开终端
 let command = '';
-let wsUrl = `ws://${window.location.host}/api/v1/ws/steamcmd`;
+let wsUrl = `ws://${window.location.host}/api/v1/l4d2/log`;
 let socket = null
 let isConnected = false; // 跟踪连接状态;
 let isGameStarted = false; // 跟踪游戏启动状态;
@@ -139,7 +163,7 @@ const contents = document.querySelectorAll('.content');
 term.writeln('\x1b[32m欢迎使用steamCMD终端界面\x1b[0m ');
 connectWebSocket();
 
-// 窗口调整大小时重新适配终端
+// 窗口调整大小时重新适配终端,标签页切换时重新适配终端
 window.addEventListener('resize', () => {
     fitAddon.fit();
 });
@@ -149,33 +173,11 @@ document.getElementById('clear-btn').addEventListener('click', () => {
     term.clear();
 });
 
+document.getElementById('start-btn').addEventListener('click',startGame);
+document.getElementById('stop-btn').addEventListener('click',stopGame);
 // 页面关闭时清理
 window.addEventListener("beforeunload", () => {
     socket.close();
 });
-tabBtns.forEach(btn => {
-    btn.addEventListener('click', function () {
-        // 移除所有按钮和内容的active类
-        tabBtns.forEach(b => b.classList.remove('btn-success'));
-        tabBtns.forEach(b => b.classList.add('btn-secondary'));
-        contents.forEach(c => c.classList.remove('active'));
 
-        // 添加当前按钮的active类
-        this.classList.remove('btn-secondary');
-        this.classList.add('btn-success');
-
-        // 显示对应内容
-        const tabId = this.getAttribute('id');
-        const contentId = `${tabId}_content`;
-        if (tabId != "start_game") {
-            //允许切换至启动游戏页面
-            document.getElementById("start_game").removeAttribute('disabled');
-            document.getElementById("start_game").innerText = "返回启动页";
-        } else {
-            //启动游戏页面默认禁用
-            document.getElementById("start_game").innerText = "启动游戏";
-        }
-        document.getElementById(contentId).classList.add('active');
-    });
-});
 
