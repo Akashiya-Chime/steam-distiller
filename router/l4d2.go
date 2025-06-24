@@ -3,20 +3,41 @@ package router
 import (
 	"net/http"
 	"steam-distiller/controllers"
+	log "steam-distiller/logger"
 	ws "steam-distiller/websocket"
+	"sync"
 
 	"github.com/gin-gonic/gin"
 )
 
-var l4d2 controllers.L4D2Contoller
+var once sync.Once
+var l4d2 controllers.GameContoller
 
 func l4d2StartGame(c *gin.Context) {
 	if l4d2.IsRunning() {
-		// 反消息
+		SendJsonMsg(c, CODE_GAME_IS_RUNNING, "游戏正在运行")
+		c.Abort()
 		return
 	}
-	l4d2.Init()
 	l4d2.StartGame()
+	SendJsonMsg(c, CODE_OK, "启动游戏服务器成功")
+}
+
+func l4d2StopGame(c *gin.Context) {
+	if !l4d2.IsRunning() {
+		SendJsonMsg(c, CODE_GAME_IS_RUNNING, "游戏未在运行")
+		c.Abort()
+		return
+	}
+	l4d2.StopGame()
+	SendJsonMsg(c, CODE_OK, "停止游戏服务器成功")
+}
+
+func onceInit() {
+	once.Do(func() {
+		// 初始化后会持续广播日志
+		l4d2.Init(ws.L4D2, "/home/lighthouse/l4d2-server/run.sh", "quit")
+	})
 }
 
 func l4d2LogHandler(c *gin.Context) {
@@ -26,19 +47,12 @@ func l4d2LogHandler(c *gin.Context) {
 	}
 	client := ws.RegisterClient(conn, ws.L4D2)
 
-	go func() {
-		defer func() {
-			ws.UnregisterClient(client)
-			conn.Close()
-		}()
+	conn.SetCloseHandler(func(code int, text string) error {
+		log.L.Infof("Connection closed: %d %s\n", code, text)
+		ws.UnregisterClient(client)
+		return nil
+	})
+	defer l4d2.Close()
 
-		for {
-			logs := <-l4d2.Logs
-			broadcast := ws.BroadcastType{
-				Msg:  logs,
-				Game: ws.L4D2,
-			}
-			ws.Broadcast(broadcast)
-		}
-	}()
+	onceInit()
 }

@@ -39,30 +39,40 @@ func (m *Manager) run() {
 			m.mu.Lock()
 			m.clients[client] = true
 			m.mu.Unlock()
-			log.L.Infof("Game: %v client registered.\n", client.Game)
+			log.L.Infof("Game total: %v client registered.", len(m.clients))
 
 		case client := <-m.unregister:
 			m.mu.Lock()
 			if _, ok := m.clients[client]; ok {
 				delete(m.clients, client)
 				client.Conn.Close()
-				log.L.Infoln("Client unregistered.")
 			}
 			m.mu.Unlock()
+			log.L.Infof("Game total: %v client registered.", len(m.clients))
 
 		case bc := <-m.broadcast:
 			m.mu.RLock()
+			var toUnregister []*Client
 			for client := range m.clients {
 				if bc.Game != client.Game {
 					continue
 				}
 				if err := client.Conn.WriteMessage(websocket.TextMessage, bc.Msg); err != nil {
-					log.L.Warnf("Write error, %v.\n", err)
-					m.unregister <- client
-					client.Conn.Close()
+					log.L.Warnf("Write error, %v.", err)
+					toUnregister = append(toUnregister, client)
 				}
 			}
 			m.mu.RUnlock()
+
+			// 集中处理去注册，避免死锁
+			if len(toUnregister) > 0 {
+				log.L.Infof("to Unregister num: %v.", len(toUnregister))
+				go func() {
+					for _, client := range toUnregister {
+						m.unregister <- client
+					}
+				}()
+			}
 		}
 	}
 }

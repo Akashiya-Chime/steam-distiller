@@ -36,6 +36,7 @@ var apiv1Route = []RouteItem{
 	{http.MethodGet, "/ping", apiRoutePing},
 	{http.MethodGet, "/users", userGetInfo},
 	{http.MethodGet, "/l4d2/start", l4d2StartGame},
+	{http.MethodGet, "/l4d2/stop", l4d2StopGame},
 	{http.MethodGet, "/l4d2/log", l4d2LogHandler},
 }
 
