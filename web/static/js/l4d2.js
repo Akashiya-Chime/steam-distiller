@@ -1,15 +1,48 @@
-function startGame(term_class) {
+function getGameStatus() {
+    result = false
+    $.ajax({
+        url: "/api/v1/l4d2/status",
+        type: "get",
+        async: false,
+        dataType: "json",
+        success: function (r) {
+            if (r.code == 0) {
+                result = r.data.status
+            }else{
+                lightyear.notify(r.msg,'danger', 3000, "", 'top', 'right');
+            }
+        },
+        error: function (xhr) {
+            lightyear.notify("网络异常，获取服务状态失败", 'danger', 3000, "", 'top', 'right');
+        }
+    })
+    return result
+}
+function switchGame(term_class,action) {
+    let status_control = "runnig"
+    let prompt = "启动"
+    let url = "/api/v1/l4d2/start"
+    if (action != "start") {
+        status_control = "closed"
+        prompt = "关闭"
+        url = "/api/v1/l4d2/stop"
+    }
     if (!term_class.isConnected) {
         lightyear.notify("与服务器尚未建立连接，请稍后再试", 'danger', 3000, "", 'top', 'right');
         return;
     }
-    if (term_class.isGameStarted) {
-        lightyear.notify("游戏已经启动，请勿重复操作", 'danger', 3000, "", 'top', 'right');
+    let status = getGameStatus()
+    if (status == false) {
         return;
     }
-    term_class.term.writeln(`\r\n\x1b[32m正在启动游戏...\x1b[0m\r\n`);
+    console.log(status)
+    if (status == status_control) {
+        lightyear.notify("服务已经"+prompt, 'success', 3000, "", 'top', 'right');
+        return;
+    }
+    term_class.term.writeln(`\r\n\x1b[32m正在`+prompt+`游戏服务...\x1b[0m\r\n`);
     $.ajax({
-        url: "/api/v1/l4d2/start",
+        url: url,
         type: "get",
         dataType: "json",
         success: function (r) {
@@ -19,33 +52,7 @@ function startGame(term_class) {
             }
         },
         error: function (xhr) {
-            lightyear.notify("网络异常，游戏启动失败", 'danger', 3000, "", 'top', 'right');
-        }
-    })
-}
-
-function stopGame(term_class) {
-    if (!term_class.isConnected) {
-        lightyear.notify("与服务器尚未建立连接，请稍后再试", 'danger', 3000, "", 'top', 'right');
-        return;
-    }
-    if (!term_class.isGameStarted) {
-        lightyear.notify("游戏还未启动，请勿重复操作", 'danger', 3000, "", 'top', 'right');
-        return;
-    }
-    term_class.term.writeln(`\r\n\x1b[32m正在关闭游戏...\x1b[0m\r\n`);
-    $.ajax({
-        url: "/api/v1/l4d2/stop",
-        type: "get",
-        dataType: "json",
-        success: function (r) {
-            if (r.code == 0) {
-                term_class.isGameStarted = false;
-                lightyear.notify(r.data.msg, 'success', 3000, "", 'top', 'right');
-            }
-        },
-        error: function (xhr) {
-            lightyear.notify("网络异常，游戏关闭失败", 'danger', 3000, "", 'top', 'right');
+            lightyear.notify("网络异常，服务"+prompt+"失败", 'danger', 3000, "", 'top', 'right');
         }
     })
 }
@@ -64,6 +71,6 @@ term_l4d2.updateConnectionStatus = function (connected) {
 }
 term_l4d2.updateConnectionStatus(term_l4d2.isConnected) // 重新显示终端时刷新状态
 term_l4d2.term.open(document.getElementById('terminal'));
-document.getElementById('start-btn').addEventListener('click', () => { startGame(term_l4d2) });
-document.getElementById('stop-btn').addEventListener('click', () => { stopGame(term_l4d2) });
+document.getElementById('start-btn').addEventListener('click', () => { switchGame(term_l4d2,"start") });
+document.getElementById('stop-btn').addEventListener('click', () => { switchGame(term_l4d2,"close") });
 document.getElementById('clear-btn').addEventListener('click', () => { term_l4d2.term.clear() });
