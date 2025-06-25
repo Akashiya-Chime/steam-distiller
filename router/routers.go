@@ -38,6 +38,7 @@ var apiv1Route = []RouteItem{
 	{http.MethodGet, "/l4d2/start", l4d2StartGame},
 	{http.MethodGet, "/l4d2/stop", l4d2StopGame},
 	{http.MethodGet, "/l4d2/log", l4d2LogHandler},
+	{http.MethodGet, "/l4d2/status", l4d2Status},
 }
 
 func RouteRigister(g *gin.Engine) {

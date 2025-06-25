@@ -56,3 +56,36 @@ func l4d2LogHandler(c *gin.Context) {
 
 	onceInit()
 }
+
+type ServerStatus string
+
+const (
+	StatusRunning  ServerStatus = "running"
+	StatusClosed   ServerStatus = "closed"
+	StatusAbnormal ServerStatus = "abnormal"
+)
+
+type GetStatusRes struct {
+	Msg    string       `json:"msg"`
+	Status ServerStatus `json:"status"`
+}
+
+func l4d2Status(c *gin.Context) {
+	if l4d2.IsRunning() {
+		c.JSON(http.StatusOK, Response{
+			Code: CODE_OK,
+			Data: GetStatusRes{
+				Msg:    "游戏服务器已启动",
+				Status: StatusRunning,
+			},
+		})
+		return
+	}
+	c.JSON(http.StatusOK, Response{
+		Code: CODE_OK,
+		Data: GetStatusRes{
+			Msg:    "游戏服务器已关闭",
+			Status: StatusClosed,
+		},
+	})
+}
