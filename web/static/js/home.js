@@ -42,6 +42,7 @@ class ws_terminal {
     }
 
     connectWebSocket() {
+        // this = ws_terminal
         this.term.writeln('\r\n\x1b[32m正在连接服务器...\x1b[0m');
         try {
             this.socket = new WebSocket(this.wsUrl);
@@ -65,7 +66,7 @@ class ws_terminal {
     
                 if (event.code !== 2000) {
                     this.term.writeln('\x1b[33m连接已断开，2秒后尝试重连...\x1b[0m',);
-                    setTimeout(this.connectWebSocket, 2000);
+                    setTimeout(()=>{this.connectWebSocket()}, 2000);
                 }
             };
     
