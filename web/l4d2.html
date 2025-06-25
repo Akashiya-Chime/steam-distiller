@@ -41,25 +41,24 @@
                         <div class="terminal-header">
                           <div class="terminal-title">
                             <i class="mdi mdi-console-line"></i>
-                            <span>steamCMD</span>
-                            <div class="status">
-                              <div class="status-indicator" id="statusIndicator"></div>
-                              <span id="statusText">未连接</span>
-                            </div>
+                            <button class="action-btn" id="start-btn">
+                              <i class="mdi mdi-play-circle"></i>
+                              <span>启动服务</span>
+                            </button>
+                            <button class="action-btn" id="stop-btn" >
+                              <i class="mdi mdi-power"></i>
+                              <span>停止服务</span>
+                            </button>
                           </div>
                           <div class="terminal-actions">
                             <button class="action-btn" id="clear-btn">
                               <i class="mdi mdi-eraser"></i>
                               <span>清除</span>
                             </button>
-                            <button class="action-btn" id="start-btn">
-                              <i class="mdi mdi-play-circle"></i>
-                              <span>启动游戏</span>
-                            </button>
-                            <button class="action-btn" id="stop-btn" >
-                              <i class="mdi mdi-power"></i>
-                              <span>关闭游戏</span>
-                            </button>
+                            <div class="status">
+                              <div class="status-indicator" id="statusIndicator"></div>
+                              <span id="statusText">未连接</span>
+                            </div>
                           </div>
                         </div>
                         <div class="terminal-wrapper">
