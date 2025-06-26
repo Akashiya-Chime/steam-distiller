@@ -20,6 +20,7 @@ type GameContoller struct {
 	Logs     chan []byte
 }
 
+// Init 函数会在后台挂起执行循环，需放最后执行
 func (c *GameContoller) Init(game ws.GameType, startCmd string, stopCmd string) error {
 	c.StartCmd = startCmd
 	c.StopCmd = stopCmd

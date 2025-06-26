@@ -29,10 +29,6 @@ func l4d2StartGame(c *gin.Context) {
 }
 
 func l4d2StopGame(c *gin.Context) {
-	if !l4d2.IsRunning() {
-		c.Abort()
-		return
-	}
 	if err := l4d2.StopGame(); err != nil {
 		if errors.Is(err, controllers.ErrIsNotRunning) {
 			SendJsonMsg(c, CODE_GAME_IS_RUNNING, "游戏服务器未在运行")
@@ -46,14 +42,14 @@ func l4d2StopGame(c *gin.Context) {
 	SendJsonMsg(c, CODE_OK, "停止游戏服务器成功")
 }
 
-var OnceErr error
+var onceErr error
 
 func onceInit() error {
 	once.Do(func() {
 		// 初始化后会持续广播日志
-		OnceErr = l4d2.Init(ws.L4D2, "/home/lighthouse/l4d2-server/run.sh", "quit")
+		onceErr = l4d2.Init(ws.L4D2, "/home/lighthouse/l4d2-server/run.sh", "quit")
 	})
-	return OnceErr
+	return onceErr
 }
 
 func l4d2LogHandler(c *gin.Context) {
