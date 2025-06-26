@@ -1,6 +1,7 @@
 package router
 
 import (
+	"errors"
 	"net/http"
 	"steam-distiller/controllers"
 	log "steam-distiller/logger"
@@ -14,30 +15,45 @@ var once sync.Once
 var l4d2 controllers.GameContoller
 
 func l4d2StartGame(c *gin.Context) {
-	if l4d2.IsRunning() {
-		SendJsonMsg(c, CODE_GAME_IS_RUNNING, "游戏正在运行")
+	if err := l4d2.StartGame(); err != nil {
+		if errors.Is(err, controllers.ErrIsRunning) {
+			SendJsonMsg(c, CODE_GAME_IS_RUNNING, "游戏服务器正在运行")
+		} else {
+			SendJsonMsg(c, CODE_INNER_ERROR, "启动游戏服务器失败，内部错误")
+		}
 		c.Abort()
 		return
 	}
-	l4d2.StartGame()
+
 	SendJsonMsg(c, CODE_OK, "启动游戏服务器成功")
 }
 
 func l4d2StopGame(c *gin.Context) {
 	if !l4d2.IsRunning() {
-		SendJsonMsg(c, CODE_GAME_IS_RUNNING, "游戏未在运行")
 		c.Abort()
 		return
 	}
-	l4d2.StopGame()
+	if err := l4d2.StopGame(); err != nil {
+		if errors.Is(err, controllers.ErrIsNotRunning) {
+			SendJsonMsg(c, CODE_GAME_IS_RUNNING, "游戏服务器未在运行")
+		} else {
+			SendJsonMsg(c, CODE_INNER_ERROR, "停止游戏服务器失败，内部错误")
+		}
+		c.Abort()
+		return
+	}
+
 	SendJsonMsg(c, CODE_OK, "停止游戏服务器成功")
 }
 
-func onceInit() {
+var OnceErr error
+
+func onceInit() error {
 	once.Do(func() {
 		// 初始化后会持续广播日志
-		l4d2.Init(ws.L4D2, "/home/lighthouse/l4d2-server/run.sh", "quit")
+		OnceErr = l4d2.Init(ws.L4D2, "/home/lighthouse/l4d2-server/run.sh", "quit")
 	})
+	return OnceErr
 }
 
 func l4d2LogHandler(c *gin.Context) {
@@ -54,7 +70,11 @@ func l4d2LogHandler(c *gin.Context) {
 	})
 	defer l4d2.Close()
 
-	onceInit()
+	if err := onceInit(); err != nil {
+		conn.Close()
+		c.Abort()
+		return
+	}
 }
 
 type ServerStatus string

@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"bufio"
+	"errors"
 	"os"
 	"os/exec"
 	log "steam-distiller/logger"
@@ -19,7 +20,7 @@ type GameContoller struct {
 	Logs     chan []byte
 }
 
-func (c *GameContoller) Init(game ws.GameType, startCmd string, stopCmd string) {
+func (c *GameContoller) Init(game ws.GameType, startCmd string, stopCmd string) error {
 	c.StartCmd = startCmd
 	c.StopCmd = stopCmd
 	c.GameType = game
@@ -29,9 +30,9 @@ func (c *GameContoller) Init(game ws.GameType, startCmd string, stopCmd string) 
 
 	c.Ptmx, err = pty.Start(startServer)
 	if err != nil {
-		log.L.Warnf("Ptmx error, %v.\n", err)
+		log.L.Warnf("Ptmx error, %v.", err)
+		return err
 	}
-	log.L.Infof("Init game[%v] controller success.\n", game)
 
 	go func() {
 		scanner := bufio.NewScanner(c.Ptmx)
@@ -39,6 +40,8 @@ func (c *GameContoller) Init(game ws.GameType, startCmd string, stopCmd string) 
 			c.Logs <- scanner.Bytes()
 		}
 	}()
+
+	log.L.Infof("Init game[%v] controller success.\n", game)
 
 	for {
 		logs := <-c.Logs
@@ -64,27 +67,38 @@ func (c *GameContoller) IsRunning() bool {
 	return len(strings.TrimSpace(string(output))) > 0
 }
 
-func (c *GameContoller) StartGame() {
+var (
+	ErrIsRunning    = errors.New("game server is running")
+	ErrIsNotRunning = errors.New("game server is not running")
+)
+
+func (c *GameContoller) StartGame() error {
 	if c.IsRunning() {
-		return
+		return ErrIsRunning
 	}
 
 	// 使用 \n 模拟回车执行
 	_, err := c.Ptmx.Write([]byte(c.StartCmd + "\n"))
 	if err != nil {
 		log.L.Warnf("Ptmx error, %v.\n", err)
+		return err
 	}
+
 	log.L.Infof("Start game[%v] server successfully.\n", c.GameType)
+	return nil
 }
 
-func (c *GameContoller) StopGame() {
+func (c *GameContoller) StopGame() error {
 	if !c.IsRunning() {
-		return
+		return ErrIsNotRunning
 	}
 
 	_, err := c.Ptmx.Write([]byte(c.StopCmd + "\n"))
 	if err != nil {
 		log.L.Warnf("Ptmx error, %v.\n", err)
+		return err
 	}
+
 	log.L.Infof("Stop game[%v] server successfully.\n", c.GameType)
+	return nil
 }
