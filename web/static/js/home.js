@@ -146,7 +146,7 @@ function get_user_info() {
                     $("#sidebar_admin_tab")[0].style.display = "block"
                 }
             } else {
-                lightyear.notify(r.data.msg, "danger", 3000);
+                lightyear.notify(r.msg, "danger", 3000);
             }
         },
         error: function (xhr) {

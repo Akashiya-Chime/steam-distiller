@@ -45,7 +45,7 @@ function switchGame(term_class, action) {
         success: function (r) {
             if (r.code == 0) {
                 term_class.isGameStarted = true;
-                lightyear.notify(r.data.msg, "success", 3000, "", "top", "right");
+                lightyear.notify(r.msg, "success", 3000, "", "top", "right");
             }
         },
         error: function (xhr) {

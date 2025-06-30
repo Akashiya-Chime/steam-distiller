@@ -26,7 +26,7 @@ function generateInviteCode() {
         }),
         success: function (r) {
             if (r.code == 0) {
-                lightyear.notify(r.data.msg, 'success', 3000, "", 'top', 'right');
+                lightyear.notify(r.msg, 'success', 3000, "", 'top', 'right');
                 return r.data.invite_code;
             }
         },

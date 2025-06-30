@@ -48,12 +48,12 @@ var vm = new Vue({
                 lightyear.loading('hide')
                 content = r.data;
                 if (content.code == 0) {
-                    lightyear.notify(content.data.msg, 'success', 1000);
+                    lightyear.notify(content.msg, 'success', 1000);
                     setTimeout(function () {
                         window.location.href = "/"
                     }, 1000);
                 } else {
-                    lightyear.notify(content.data.msg, 'danger', 3000);
+                    lightyear.notify(content.msg, 'danger', 3000);
                 }
             }).catch(error => {
                 lightyear.loading('hide')
