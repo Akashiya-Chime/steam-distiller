@@ -19,29 +19,29 @@ var l4d2 controllers.GameContoller
 func l4d2StartGame(c *gin.Context) {
 	if err := l4d2.StartGame(); err != nil {
 		if errors.Is(err, controllers.ErrIsRunning) {
-			SendJsonMsg(c, CODE_GAME_IS_RUNNING, "游戏服务器正在运行")
+			SendJsonMsg(c, CODE_GAME_IS_RUNNING, "游戏服务器正在运行", nil)
 		} else {
-			SendJsonMsg(c, CODE_INNER_ERROR, "启动游戏服务器失败，内部错误")
+			SendJsonMsg(c, CODE_INNER_ERROR, "启动游戏服务器失败，内部错误", nil)
 		}
 		c.Abort()
 		return
 	}
 
-	SendJsonMsg(c, CODE_OK, "启动游戏服务器成功")
+	SendJsonMsg(c, CODE_OK, "启动游戏服务器成功", nil)
 }
 
 func l4d2StopGame(c *gin.Context) {
 	if err := l4d2.StopGame(); err != nil {
 		if errors.Is(err, controllers.ErrIsNotRunning) {
-			SendJsonMsg(c, CODE_GAME_IS_RUNNING, "游戏服务器未在运行")
+			SendJsonMsg(c, CODE_GAME_IS_RUNNING, "游戏服务器未在运行", nil)
 		} else {
-			SendJsonMsg(c, CODE_INNER_ERROR, "停止游戏服务器失败，内部错误")
+			SendJsonMsg(c, CODE_INNER_ERROR, "停止游戏服务器失败，内部错误", nil)
 		}
 		c.Abort()
 		return
 	}
 
-	SendJsonMsg(c, CODE_OK, "停止游戏服务器成功")
+	SendJsonMsg(c, CODE_OK, "停止游戏服务器成功", nil)
 }
 
 var onceErr error
@@ -84,33 +84,15 @@ const (
 )
 
 type GetStatusRes struct {
-	Msg    string       `json:"msg"`
 	Status ServerStatus `json:"status"`
 }
 
 func l4d2Status(c *gin.Context) {
 	if l4d2.IsRunning() {
-		c.JSON(http.StatusOK, Response{
-			Code: CODE_OK,
-			Data: GetStatusRes{
-				Msg:    "游戏服务器已启动",
-				Status: StatusRunning,
-			},
-		})
+		SendJsonMsg(c, CODE_OK, "游戏服务器已启动", GetStatusRes{Status: StatusRunning})
 		return
 	}
-	c.JSON(http.StatusOK, Response{
-		Code: CODE_OK,
-		Data: GetStatusRes{
-			Msg:    "游戏服务器已关闭",
-			Status: StatusClosed,
-		},
-	})
-}
-
-type L4D2ConfigRes struct {
-	Msg string `json:"msg"`
-	config.L4D2Config
+	SendJsonMsg(c, CODE_OK, "游戏服务器已关闭", GetStatusRes{Status: StatusClosed})
 }
 
 func l4d2GetConfig(c *gin.Context) {
@@ -118,14 +100,9 @@ func l4d2GetConfig(c *gin.Context) {
 
 	if err := l4d2Config.ReadConfigFile(); err != nil {
 		log.L.Warnln("Read l4d2 config file failed.")
-		SendJsonMsg(c, CODE_INNER_ERROR, "获取L4D2游戏配置失败")
+		SendJsonMsg(c, CODE_INNER_ERROR, "获取L4D2游戏配置失败", nil)
+		c.Abort()
 	}
 
-	c.JSON(http.StatusOK, Response{
-		Code: CODE_OK,
-		Data: L4D2ConfigRes{
-			Msg:        "ok",
-			L4D2Config: l4d2Config.GameConfig,
-		},
-	})
+	SendJsonMsg(c, CODE_OK, "ok", l4d2Config.GameConfig)
 }

@@ -97,37 +97,34 @@ func isUserOk(user User) bool {
 	return true
 }
 
+type TokenRes struct {
+	Token AccessToken `json:"access_token"`
+}
+
 func userLogin(c *gin.Context) {
 	var user User
 	if err := c.ShouldBindJSON(&user); err != nil {
 		log.L.Warnf("Serialize user info failed, %v.\n", err)
-		SendJsonMsg(c, CODE_INNER_ERROR, "系统内部错误")
+		SendJsonMsg(c, CODE_INNER_ERROR, "系统内部错误", nil)
 		c.Abort()
 		return
 	}
 
 	if !isUserOk(user) {
-		SendJsonMsg(c, CODE_LOGIN_FAILED, "登陆失败，请检查用户名及密码是否正确")
+		SendJsonMsg(c, CODE_LOGIN_FAILED, "登陆失败，请检查用户名及密码是否正确", nil)
 		c.Abort()
 		return
 	}
 
 	token, err := jwt.JwtGenToken(user.Name)
 	if err != nil {
-		// TODO: 日志系统
 		log.L.Warnf("Generate token failed, %v.\n", err)
-		SendJsonMsg(c, CODE_GEN_TOKEN_FAILED, "系统内部错误")
+		SendJsonMsg(c, CODE_GEN_TOKEN_FAILED, "系统内部错误", nil)
 		c.Abort()
 		return
 	}
 
-	c.JSON(http.StatusOK, Response{
-		Code: CODE_OK,
-		Data: ResponseData{
-			Token: token,
-			Msg:   "登录成功",
-		},
-	})
+	SendJsonMsg(c, CODE_OK, "登录成功", TokenRes{Token: token})
 }
 
 func IsInvCodeValid(code string) bool {
@@ -146,20 +143,20 @@ func userRegister(c *gin.Context) {
 	var user User
 	if err := c.ShouldBindJSON(&user); err != nil {
 		log.L.Warnf("Serialize user info failed, %v.\n", err)
-		SendJsonMsg(c, CODE_INNER_ERROR, "系统内部错误")
+		SendJsonMsg(c, CODE_INNER_ERROR, "系统内部错误", nil)
 		c.Abort()
 		return
 	}
 
 	// 先校验验证码
 	if !IsInvCodeValid(user.InvCode) {
-		SendJsonMsg(c, CODE_INV_CODE_INVALID, "无效验证码")
+		SendJsonMsg(c, CODE_INV_CODE_INVALID, "无效验证码", nil)
 		c.Abort()
 		return
 	}
 
 	if !IsUserInfoValid(user) {
-		SendJsonMsg(c, CODE_USER_INFO_INVALID, "用户名或密码有误")
+		SendJsonMsg(c, CODE_USER_INFO_INVALID, "用户名或密码有误", nil)
 		c.Abort()
 		return
 	}
@@ -167,27 +164,32 @@ func userRegister(c *gin.Context) {
 	err := sql.CreateUser(userTransDB(user, false))
 	if err != sql.DB_OK {
 		if err == sql.DB_DATA_ALREADY_EXIST {
-			SendJsonMsg(c, CODE_USER_ALREADY_EXIST, "用户已存在")
+			SendJsonMsg(c, CODE_USER_ALREADY_EXIST, "用户已存在", nil)
 		} else {
-			SendJsonMsg(c, CODE_INNER_ERROR, "内部错误")
+			SendJsonMsg(c, CODE_INNER_ERROR, "内部错误", nil)
 		}
 		c.Abort()
 		return
 	}
 
-	SendJsonMsg(c, CODE_OK, "注册成功")
+	SendJsonMsg(c, CODE_OK, "注册成功", nil)
+}
+
+type GetUserRes struct {
+	Username string `json:"username"`
+	IsAdmin  bool   `json:"is_admin"`
 }
 
 func userGetInfo(c *gin.Context) {
 	username := c.Query("username")
 	if len(username) == 0 {
-		SendJsonMsg(c, CODE_ERROR, "无用户名")
+		SendJsonMsg(c, CODE_ERROR, "无用户名", nil)
 		c.Abort()
 		return
 	}
 
 	if !sql.IsUserExists(username) {
-		SendJsonMsg(c, CODE_USER_NOT_EXIST, "用户不存在")
+		SendJsonMsg(c, CODE_USER_NOT_EXIST, "用户不存在", nil)
 		c.Abort()
 		return
 	}
@@ -195,19 +197,12 @@ func userGetInfo(c *gin.Context) {
 	dbUser, err := sql.GetUser(sql.User{Username: username})
 	if err != sql.DB_OK {
 		log.L.Warnf("Get user info from db failed.")
-		SendJsonMsg(c, CODE_INNER_ERROR, "查询用户失败")
+		SendJsonMsg(c, CODE_INNER_ERROR, "查询用户失败", nil)
 		c.Abort()
 		return
 	}
 
-	c.JSON(http.StatusOK, Response{
-		Code: CODE_OK,
-		Data: GetUserRes{
-			Msg:      "ok",
-			Username: username,
-			IsAdmin:  dbUser.IsAdmin,
-		},
-	})
+	SendJsonMsg(c, CODE_OK, "ok", GetUserRes{Username: username, IsAdmin: dbUser.IsAdmin})
 }
 
 type GetInvCodeRes struct {
