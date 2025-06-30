@@ -3,7 +3,9 @@ package router
 import (
 	"errors"
 	"net/http"
+	"steam-distiller/config"
 	"steam-distiller/controllers"
+	"steam-distiller/def"
 	log "steam-distiller/logger"
 	ws "steam-distiller/websocket"
 	"sync"
@@ -47,7 +49,7 @@ var onceErr error
 func onceInit() error {
 	once.Do(func() {
 		// 初始化后会持续广播日志
-		onceErr = l4d2.Init(ws.L4D2, "/home/lighthouse/l4d2-server/run.sh", "quit")
+		onceErr = l4d2.Init(def.L4D2, "/home/lighthouse/l4d2-server/run.sh", "quit")
 	})
 	return onceErr
 }
@@ -57,7 +59,7 @@ func l4d2LogHandler(c *gin.Context) {
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 	}
-	client := ws.RegisterClient(conn, ws.L4D2)
+	client := ws.RegisterClient(conn, def.L4D2)
 
 	conn.SetCloseHandler(func(code int, text string) error {
 		log.L.Infof("Connection closed: %d %s\n", code, text)
@@ -102,6 +104,28 @@ func l4d2Status(c *gin.Context) {
 		Data: GetStatusRes{
 			Msg:    "游戏服务器已关闭",
 			Status: StatusClosed,
+		},
+	})
+}
+
+type L4D2ConfigRes struct {
+	Msg string `json:"msg"`
+	config.L4D2Config
+}
+
+func l4d2GetConfig(c *gin.Context) {
+	l4d2Config := config.NewConfig[config.L4D2Config]("/home/lighthouse/l4d2-server/left4dead2/cfg/server.cfg", def.L4D2)
+
+	if err := l4d2Config.ReadConfigFile(); err != nil {
+		log.L.Warnln("Read l4d2 config file failed.")
+		SendJsonMsg(c, CODE_INNER_ERROR, "获取L4D2游戏配置失败")
+	}
+
+	c.JSON(http.StatusOK, Response{
+		Code: CODE_OK,
+		Data: L4D2ConfigRes{
+			Msg:        "ok",
+			L4D2Config: l4d2Config.GameConfig,
 		},
 	})
 }

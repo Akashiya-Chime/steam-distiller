@@ -3,5 +3,5 @@ host = "localhost"
 port = ":8088"
 secret_key = "4Ty4TfToxTZGjt"
 
-[steamcmd]
-path = "/home/steam/steamcmd/"
+[l4d2]
+path = "/path/to/l4d2Server/"
