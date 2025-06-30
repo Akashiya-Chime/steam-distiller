@@ -41,12 +41,12 @@ class ws_terminal {
     }
 
     connectWebSocket() {
-        this.term.writeln("\r\n\x1b[32m正在连接服务器...\x1b[0m");
+        this.info("正在连接服务器...")
         try {
             this.socket = new WebSocket(this.wsUrl);
 
             this.socket.onopen = () => {
-                this.term.writeln("\x1b[32m连接成功！\x1b[0m");
+                this.info("连接成功！")
                 this.updateConnectionStatus(true);
             };
             this.socket.onmessage = (event) => {
@@ -54,24 +54,36 @@ class ws_terminal {
             };
 
             this.socket.onerror = (error) => {
-                this.term.write(`\r\n\x1b[31m连接错误: ${error.message || "未知错误"}\x1b[0m\r\n`);
+                this.error("连接错误:" + (error.message|| "未知错误"));
                 this.updateConnectionStatus(false);
             };
 
             this.socket.onclose = (event) => {
-                this.term.write(`\r\n\x1b[33m连接已关闭，代码: ${event.code}\x1b[0m\r\n`);
+                this.warn(`连接已关闭，代码: ${event.code}`);
                 this.updateConnectionStatus(false);
 
                 if (event.code !== 2000) {
-                    this.term.writeln("\x1b[33m连接已断开，2秒后尝试重连...\x1b[0m",);
+                    this.warn("连接已断开，2秒后尝试重连...");
                     setTimeout(() => { this.connectWebSocket() }, 2000);
                 }
             };
 
         } catch (error) {
-            this.term.write(`\r\n\x1b[31m连接失败: ${error.message}\x1b[0m\r\n`);
+            this.error("连接失败:" + (error.message|| "未知错误"));
             this.updateConnectionStatus(false);
         }
+    }
+
+    info(text){
+        this.term.write(`\r\n\x1b[32m${text}\x1b[0m\r\n`);
+    }
+
+    error(text){
+        this.term.write(`\r\n\x1b[31m${text}\x1b[0m\r\n`); 
+    }
+
+    warn(text){
+        this.term.write(`\r\n\x1b[33m${text}\x1b[0m\r\n`); 
     }
 
     updateConnectionStatus(connected) {

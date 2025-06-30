@@ -37,7 +37,7 @@ function switchGame(term_class, action) {
         lightyear.notify("服务已经" + prompt, "success", 3000, "", "top", "right");
         return;
     }
-    term_class.term.writeln("\r\n\x1b[32m正在" + prompt + "游戏服务...\x1b[0m\r\n");
+    term_class.info(`正在${prompt}服务...`);
     $.ajax({
         url: url,
         type: "get",
