@@ -48,7 +48,7 @@ func (c *GameContoller) Init(game def.GameType, startCmd string, stopCmd string)
 		}
 	}()
 
-	log.L.Infof("Init game[%v] controller success.\n", game)
+	log.L.Infof("Init game[%v] controller success.", game)
 
 	for {
 		logs := <-c.Logs
@@ -87,11 +87,11 @@ func (c *GameContoller) StartGame() error {
 	// 使用 \n 模拟回车执行
 	_, err := c.Ptmx.Write([]byte(c.StartCmd + "\n"))
 	if err != nil {
-		log.L.Warnf("Ptmx error, %v.\n", err)
+		log.L.Warnf("Ptmx error, %v.", err)
 		return err
 	}
 
-	log.L.Infof("Start game[%v] server successfully.\n", c.GameType)
+	log.L.Infof("Start game[%v] server successfully.", c.GameType)
 	return nil
 }
 
@@ -102,10 +102,10 @@ func (c *GameContoller) StopGame() error {
 
 	_, err := c.Ptmx.Write([]byte(c.StopCmd + "\n"))
 	if err != nil {
-		log.L.Warnf("Ptmx error, %v.\n", err)
+		log.L.Warnf("Ptmx error, %v.", err)
 		return err
 	}
 
-	log.L.Infof("Stop game[%v] server successfully.\n", c.GameType)
+	log.L.Infof("Stop game[%v] server successfully.", c.GameType)
 	return nil
 }

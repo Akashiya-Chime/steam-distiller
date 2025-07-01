@@ -2,7 +2,6 @@ package router
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"path/filepath"
 	"runtime"
@@ -52,7 +51,7 @@ var onceErr error
 
 func onceInit() error {
 	once.Do(func() {
-		// 初始化后会持续广播日o
+		// 初始化后会持续广播日志
 		path := filepath.Join(env.GetL4D2Env().Path, "run_server.sh")
 		onceErr = l4d2.Init(def.L4D2, path, "quit")
 	})
@@ -67,7 +66,7 @@ func l4d2LogHandler(c *gin.Context) {
 	client := ws.RegisterClient(conn, def.L4D2)
 
 	conn.SetCloseHandler(func(code int, text string) error {
-		log.L.Infof("Connection closed: %d %s\n", code, text)
+		log.L.Infof("Connection closed: %d %s.", code, text)
 		ws.UnregisterClient(client)
 		return nil
 	})
@@ -116,6 +115,5 @@ func l4d2GetConfig(c *gin.Context) {
 		return
 	}
 
-	fmt.Println(l4d2Config.GameConfig)
 	SendJsonMsg(c, CODE_OK, "ok", l4d2Config.GameConfig)
 }

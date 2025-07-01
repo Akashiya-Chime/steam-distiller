@@ -104,7 +104,7 @@ type TokenRes struct {
 func userLogin(c *gin.Context) {
 	var user User
 	if err := c.ShouldBindJSON(&user); err != nil {
-		log.L.Warnf("Serialize user info failed, %v.\n", err)
+		log.L.Warnf("Serialize user info failed, %v.", err)
 		SendJsonMsg(c, CODE_INNER_ERROR, "系统内部错误", nil)
 		c.Abort()
 		return
@@ -118,7 +118,7 @@ func userLogin(c *gin.Context) {
 
 	token, err := jwt.JwtGenToken(user.Name)
 	if err != nil {
-		log.L.Warnf("Generate token failed, %v.\n", err)
+		log.L.Warnf("Generate token failed, %v.", err)
 		SendJsonMsg(c, CODE_GEN_TOKEN_FAILED, "系统内部错误", nil)
 		c.Abort()
 		return
@@ -142,7 +142,7 @@ func IsUserInfoValid(user User) bool {
 func userRegister(c *gin.Context) {
 	var user User
 	if err := c.ShouldBindJSON(&user); err != nil {
-		log.L.Warnf("Serialize user info failed, %v.\n", err)
+		log.L.Warnf("Serialize user info failed, %v.", err)
 		SendJsonMsg(c, CODE_INNER_ERROR, "系统内部错误", nil)
 		c.Abort()
 		return
@@ -196,7 +196,7 @@ func userGetInfo(c *gin.Context) {
 
 	dbUser, err := sql.GetUser(sql.User{Username: username})
 	if err != sql.DB_OK {
-		log.L.Warnf("Get user info from db failed.")
+		log.L.Warnf("Get user info from db failed, %v.", err)
 		SendJsonMsg(c, CODE_INNER_ERROR, "查询用户失败", nil)
 		c.Abort()
 		return

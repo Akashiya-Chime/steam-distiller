@@ -62,7 +62,7 @@ func checkServerCfg() {
 func InitEnv() {
 	envOnce.Do(func() {
 		if _, err := toml.DecodeFile("config.toml", &env); err != nil {
-			log.L.Panicf("Read config.toml failed, %v.\n", err)
+			log.L.Panicf("Read config.toml failed, %v.", err)
 		}
 	})
 

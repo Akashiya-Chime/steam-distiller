@@ -46,7 +46,7 @@ func JwtAuthor() gin.HandlerFunc {
 				return []byte(env.GetServerConfig().SecretKey), nil
 			})
 		if err != nil {
-			log.L.Warnf("Invalid token, %v.\n", err)
+			log.L.Warnf("Invalid token, %v.", err)
 			c.JSON(http.StatusUnauthorized, gin.H{
 				"error": "无效token",
 			})
