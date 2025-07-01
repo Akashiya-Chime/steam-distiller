@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 	"path/filepath"
+	"runtime"
 	"steam-distiller/config"
 	"steam-distiller/controllers"
 	"steam-distiller/def"
@@ -51,7 +52,7 @@ var onceErr error
 func onceInit() error {
 	once.Do(func() {
 		// 初始化后会持续广播日o
-		path := filepath.Join(env.GetL4D2Env().Path, "run.sh")
+		path := filepath.Join(env.GetL4D2Env().Path, "run_server.sh")
 		onceErr = l4d2.Init(def.L4D2, path, "quit")
 	})
 	return onceErr
@@ -101,6 +102,10 @@ func l4d2Status(c *gin.Context) {
 
 func l4d2GetConfig(c *gin.Context) {
 	path := filepath.Join(env.GetL4D2Env().Path, "/left4dead2/cfg/", "server.cfg")
+	// 方便windows下调试，release版本需删除
+	if runtime.GOOS != "linux" {
+		path = "example_server.cfg"
+	}
 	l4d2Config := config.NewConfig[config.L4D2Config](path, def.L4D2)
 
 	if err := l4d2Config.ReadConfigFile(); err != nil {

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"os"
 	"os/exec"
+	"runtime"
 	"steam-distiller/def"
 	log "steam-distiller/logger"
 	ws "steam-distiller/websocket"
@@ -23,6 +24,10 @@ type GameContoller struct {
 
 // Init 函数会在后台挂起执行循环，需放最后执行
 func (c *GameContoller) Init(game def.GameType, startCmd string, stopCmd string) error {
+	// 方便windows下调试，release版本需删除
+	if runtime.GOOS != "linux" {
+		return nil
+	}
 	c.StartCmd = startCmd
 	c.StopCmd = stopCmd
 	c.GameType = game

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"reflect"
+	log "steam-distiller/logger"
 	"strconv"
 	"strings"
 )
@@ -28,7 +29,24 @@ type L4D2Config struct {
 // 配置文件权限 -rw-r-----
 const PERMISSION = 0640
 
+func getGameMap() string {
+	content, err := os.ReadFile("currentMap.txt")
+	if err != nil {
+		log.L.Panicf("Read currentMap.txt failed, %v.", err)
+	}
+
+	return string(content)
+}
+
+func setGameMap(mapName string) {
+	if err := os.WriteFile("currentMap.txt", []byte(mapName), PERMISSION); err != nil {
+		log.L.Panicf("Write currentMap.txt failed, %v.", err)
+	}
+}
+
 func (c *L4D2Config) Read(filePath string) error {
+	c.Map = getGameMap()
+
 	file, err := os.OpenFile(filePath, os.O_CREATE|os.O_RDWR, PERMISSION)
 	if err != nil {
 		return fmt.Errorf("failed to open config file: %v", err)
@@ -66,6 +84,8 @@ func (c *L4D2Config) Read(filePath string) error {
 }
 
 func (c *L4D2Config) Update(filePath string) error {
+	setGameMap(c.Map)
+
 	file, err := os.Open(filePath)
 	if err != nil {
 		return err
