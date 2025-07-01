@@ -3,9 +3,11 @@ package router
 import (
 	"errors"
 	"net/http"
+	"path/filepath"
 	"steam-distiller/config"
 	"steam-distiller/controllers"
 	"steam-distiller/def"
+	"steam-distiller/env"
 	log "steam-distiller/logger"
 	ws "steam-distiller/websocket"
 	"sync"
@@ -48,8 +50,9 @@ var onceErr error
 
 func onceInit() error {
 	once.Do(func() {
-		// 初始化后会持续广播日志
-		onceErr = l4d2.Init(def.L4D2, "/home/lighthouse/l4d2-server/run.sh", "quit")
+		// 初始化后会持续广播日o
+		path := filepath.Join(env.GetL4D2Env().Path, "run.sh")
+		onceErr = l4d2.Init(def.L4D2, path, "quit")
 	})
 	return onceErr
 }
@@ -90,18 +93,21 @@ type GetStatusRes struct {
 func l4d2Status(c *gin.Context) {
 	if l4d2.IsRunning() {
 		SendJsonMsg(c, CODE_OK, "游戏服务器已启动", GetStatusRes{Status: StatusRunning})
+		c.Abort()
 		return
 	}
 	SendJsonMsg(c, CODE_OK, "游戏服务器已关闭", GetStatusRes{Status: StatusClosed})
 }
 
 func l4d2GetConfig(c *gin.Context) {
-	l4d2Config := config.NewConfig[config.L4D2Config]("/home/lighthouse/l4d2-server/left4dead2/cfg/server.cfg", def.L4D2)
+	path := filepath.Join(env.GetL4D2Env().Path, "/left4dead2/cfg/", "server.cfg")
+	l4d2Config := config.NewConfig[config.L4D2Config](path, def.L4D2)
 
 	if err := l4d2Config.ReadConfigFile(); err != nil {
-		log.L.Warnln("Read l4d2 config file failed.")
+		log.L.Warnf("Read l4d2 config file failed, %v.", err)
 		SendJsonMsg(c, CODE_INNER_ERROR, "获取L4D2游戏配置失败", nil)
 		c.Abort()
+		return
 	}
 
 	SendJsonMsg(c, CODE_OK, "ok", l4d2Config.GameConfig)

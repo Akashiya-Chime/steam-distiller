@@ -14,7 +14,7 @@ var (
 
 type Env struct {
 	Server   ServerConfig   `toml:"server"`
-	Steamcmd SteamcmdConfig `toml:"steamcmd"`
+	SteamEnv SteamEnvConfig `toml:"l4d2"`
 }
 
 type ServerConfig struct {
@@ -23,7 +23,7 @@ type ServerConfig struct {
 	SecretKey string `toml:"secret_key"`
 }
 
-type SteamcmdConfig struct {
+type SteamEnvConfig struct {
 	Path string `toml:"path"`
 }
 
@@ -39,6 +39,6 @@ func GetServerConfig() ServerConfig {
 	return env.Server
 }
 
-func GetSteamcmdConfig() SteamcmdConfig {
-	return env.Steamcmd
+func GetL4D2Env() SteamEnvConfig {
+	return env.SteamEnv
 }

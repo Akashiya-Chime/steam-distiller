@@ -25,8 +25,11 @@ type L4D2Config struct {
 	Sm_SbStop   uint32 `cfg:"sm_cvar sb_stop" json:"sm_cvar sb_stop"`
 }
 
+// 配置文件权限 -rw-r-----
+const PERMISSION = 0640
+
 func (c *L4D2Config) Read(filePath string) error {
-	file, err := os.Open(filePath)
+	file, err := os.OpenFile(filePath, os.O_CREATE|os.O_RDWR, PERMISSION)
 	if err != nil {
 		return fmt.Errorf("failed to open config file: %v", err)
 	}
@@ -105,8 +108,7 @@ func (c *L4D2Config) Update(filePath string) error {
 		newContent.WriteString(key + " " + val + "\n")
 	}
 
-	// 写回文件, 文件权限 -rw-r-----
-	return os.WriteFile(filePath, newContent.Bytes(), 0640)
+	return os.WriteFile(filePath, newContent.Bytes(), PERMISSION)
 }
 
 // 获取文件中配置键值对，不保序
