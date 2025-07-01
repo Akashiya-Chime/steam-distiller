@@ -2,6 +2,7 @@ package router
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"path/filepath"
 	"runtime"
@@ -103,8 +104,8 @@ func l4d2Status(c *gin.Context) {
 func l4d2GetConfig(c *gin.Context) {
 	path := filepath.Join(env.GetL4D2Env().Path, "/left4dead2/cfg/", "server.cfg")
 	// 方便windows下调试，release版本需删除
-	if runtime.GOOS != "linux" {
-		path = "example_server.cfg"
+	if runtime.GOOS == "windows" {
+		path = "default_server.cfg"
 	}
 	l4d2Config := config.NewConfig[config.L4D2Config](path, def.L4D2)
 
@@ -115,5 +116,6 @@ func l4d2GetConfig(c *gin.Context) {
 		return
 	}
 
+	fmt.Println(l4d2Config.GameConfig)
 	SendJsonMsg(c, CODE_OK, "ok", l4d2Config.GameConfig)
 }

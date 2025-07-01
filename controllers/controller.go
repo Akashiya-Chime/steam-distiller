@@ -25,7 +25,7 @@ type GameContoller struct {
 // Init 函数会在后台挂起执行循环，需放最后执行
 func (c *GameContoller) Init(game def.GameType, startCmd string, stopCmd string) error {
 	// 方便windows下调试，release版本需删除
-	if runtime.GOOS != "linux" {
+	if runtime.GOOS == "windows" {
 		return nil
 	}
 	c.StartCmd = startCmd

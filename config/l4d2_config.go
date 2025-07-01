@@ -11,21 +11,6 @@ import (
 	"strings"
 )
 
-type L4D2Config struct {
-	Map         string `json:"map"`
-	Cheats      uint32 `cfg:"sv_cheats" json:"sv_cheats"`
-	Consistency uint32 `cfg:"sv_consistency" json:"sv_consistency"`
-	Hostport    uint32 `cfg:"hostport" json:"hostport"`
-	Hostname    string `cfg:"hostname" json:"hostname"`
-	Region      uint32 `cfg:"sv_region" json:"sv_region"`
-	LobbyOnly   uint32 `cfg:"sv_allow_lobby_connect_only" json:"sv_allow_lobby_connect_only"`
-	Steamgroup  uint32 `cfg:"sv_steamgroup" json:"sv_steamgroup"`
-	GameTypes   string `cfg:"sv_gametypes" json:"sv_gametypes"`
-	GameMode    string `cfg:"mp_gamemode" json:"mp_gamemode"`
-	Difficulty  string `cfg:"z_difficulty" json:"z_difficulty"`
-	Sm_SbStop   uint32 `cfg:"sm_cvar sb_stop" json:"sm_cvar sb_stop"`
-}
-
 // 配置文件权限 -rw-r-----
 const PERMISSION = 0640
 
@@ -42,6 +27,21 @@ func setGameMap(mapName string) {
 	if err := os.WriteFile("currentMap.txt", []byte(mapName), PERMISSION); err != nil {
 		log.L.Panicf("Write currentMap.txt failed, %v.", err)
 	}
+}
+
+type L4D2Config struct {
+	Map         string `json:"map"`
+	Cheats      uint32 `cfg:"sv_cheats" json:"sv_cheats"`
+	Consistency uint32 `cfg:"sv_consistency" json:"sv_consistency"`
+	Hostport    uint32 `cfg:"hostport" json:"hostport"`
+	Hostname    string `cfg:"hostname" json:"hostname"`
+	Region      uint32 `cfg:"sv_region" json:"sv_region"`
+	LobbyOnly   uint32 `cfg:"sv_allow_lobby_connect_only" json:"sv_allow_lobby_connect_only"`
+	Steamgroup  uint32 `cfg:"sv_steamgroup" json:"sv_steamgroup"`
+	GameTypes   string `cfg:"sv_gametypes" json:"sv_gametypes"`
+	GameMode    string `cfg:"mp_gamemode" json:"mp_gamemode"`
+	Difficulty  string `cfg:"z_difficulty" json:"z_difficulty"`
+	Sm_SbStop   uint32 `cfg:"sm_cvar sb_stop" json:"sm_cvar sb_stop"`
 }
 
 func (c *L4D2Config) Read(filePath string) error {

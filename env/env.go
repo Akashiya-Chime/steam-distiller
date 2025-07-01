@@ -32,11 +32,6 @@ type SteamEnvConfig struct {
 }
 
 func checkRunScript() {
-	// 方便windows下调试，release版本需删除
-	if runtime.GOOS != "linux" {
-		return
-	}
-
 	scriptPath := filepath.Join(env.SteamEnv.Path, "run_server.sh")
 	if _, err := os.Stat(scriptPath); err == nil {
 		return
@@ -48,7 +43,20 @@ func checkRunScript() {
 		}
 		log.L.Infoln("Copy run_server.sh successfully.")
 	}
+}
 
+func checkServerCfg() {
+	cfgPath := filepath.Join(env.SteamEnv.Path, "/left4dead2/cfg/", "server.cfg")
+	if _, err := os.Stat(cfgPath); err == nil {
+		return
+	} else if os.IsNotExist(err) {
+		cpCmd := exec.Command("cp", "default_server.cfg", cfgPath)
+		if _, err := cpCmd.CombinedOutput(); err != nil {
+			log.L.Panicln("Copy default_server.cfg failed.")
+			return
+		}
+		log.L.Infoln("Copy default_server.cfg successfully.")
+	}
 }
 
 func InitEnv() {
@@ -58,7 +66,12 @@ func InitEnv() {
 		}
 	})
 
+	// 方便windows下调试，release版本需删除
+	if runtime.GOOS == "windows" {
+		return
+	}
 	checkRunScript()
+	checkServerCfg()
 }
 
 func GetServerConfig() ServerConfig {
