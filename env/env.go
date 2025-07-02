@@ -11,6 +11,9 @@ import (
 	"github.com/BurntSushi/toml"
 )
 
+// 配置文件权限 -rwxr-xr-x
+const PERMISSION = 0755
+
 var (
 	env     Env
 	envOnce sync.Once
@@ -38,11 +41,30 @@ func checkRunScript() {
 	} else if os.IsNotExist(err) {
 		cpCmd := exec.Command("cp", "run_server.sh", scriptPath)
 		if _, err := cpCmd.CombinedOutput(); err != nil {
-			log.L.Panicln("Copy run_server.sh failed.")
+			log.L.Warnln("Copy run_server.sh failed.")
+			return
+		}
+		if err := os.Chmod(scriptPath, PERMISSION); err != nil {
+			log.L.Warnln("Chmod run_server.sh failed.")
 			return
 		}
 		log.L.Infoln("Copy run_server.sh successfully.")
 	}
+}
+
+func checkCurrentMapFile() {
+	mapPath := filepath.Join(env.SteamEnv.Path, "currentMap.txt")
+	if _, err := os.Stat(mapPath); err == nil {
+		return
+	} else if os.IsNotExist(err) {
+		cpCmd := exec.Command("cp", "currentMap.txt", mapPath)
+		if _, err := cpCmd.CombinedOutput(); err != nil {
+			log.L.Warnln("Copy currentMap.txt failed.")
+			return
+		}
+		log.L.Infoln("Copy currentMap.txt successfully.")
+	}
+
 }
 
 func checkServerCfg() {
@@ -71,6 +93,7 @@ func InitEnv() {
 		return
 	}
 	checkRunScript()
+	checkCurrentMapFile()
 	checkServerCfg()
 }
 

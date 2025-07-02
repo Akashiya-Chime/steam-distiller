@@ -5,7 +5,10 @@ import (
 	"bytes"
 	"fmt"
 	"os"
+	"path/filepath"
 	"reflect"
+	"runtime"
+	"steam-distiller/env"
 	log "steam-distiller/logger"
 	"strconv"
 	"strings"
@@ -15,7 +18,12 @@ import (
 const PERMISSION = 0640
 
 func getGameMap() string {
-	content, err := os.ReadFile("currentMap.txt")
+	path := filepath.Join(env.GetL4D2Env().Path, "currentMap.txt")
+	// 方便windows下调试，release版本需删除
+	if runtime.GOOS == "windows" {
+		path = "currentMap.txt"
+	}
+	content, err := os.ReadFile(path)
 	if err != nil {
 		log.L.Panicf("Read currentMap.txt failed, %v.", err)
 	}
@@ -24,7 +32,12 @@ func getGameMap() string {
 }
 
 func setGameMap(mapName string) {
-	if err := os.WriteFile("currentMap.txt", []byte(mapName), PERMISSION); err != nil {
+	path := filepath.Join(env.GetL4D2Env().Path, "currentMap.txt")
+	// 方便windows下调试，release版本需删除
+	if runtime.GOOS == "windows" {
+		path = "currentMap.txt"
+	}
+	if err := os.WriteFile(path, []byte(mapName), PERMISSION); err != nil {
 		log.L.Panicf("Write currentMap.txt failed, %v.", err)
 	}
 }
