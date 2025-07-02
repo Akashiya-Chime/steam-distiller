@@ -45,13 +45,13 @@ func setGameMap(mapName string) {
 type L4D2Config struct {
 	Map         string `json:"map"`
 	Cheats      uint32 `cfg:"sv_cheats" json:"sv_cheats"`
-	Consistency uint32 `cfg:"sv_consistency" json:"sv_consistency"`
+	Consistency uint32 `cfg:"sv_consistency"`
 	Hostport    uint32 `cfg:"hostport" json:"hostport"`
 	Hostname    string `cfg:"hostname" json:"hostname"`
 	Region      uint32 `cfg:"sv_region" json:"sv_region"`
 	LobbyOnly   uint32 `cfg:"sv_allow_lobby_connect_only" json:"sv_allow_lobby_connect_only"`
 	Steamgroup  uint32 `cfg:"sv_steamgroup" json:"sv_steamgroup"`
-	GameTypes   string `cfg:"sv_gametypes" json:"sv_gametypes"`
+	GameTypes   string `cfg:"sv_gametypes"`
 	GameMode    string `cfg:"mp_gamemode" json:"mp_gamemode"`
 	Difficulty  string `cfg:"z_difficulty" json:"z_difficulty"`
 	Sm_SbStop   uint32 `cfg:"sm_cvar sb_stop" json:"sm_cvar sb_stop"`

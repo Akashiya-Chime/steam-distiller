@@ -117,3 +117,30 @@ func l4d2GetConfig(c *gin.Context) {
 
 	SendJsonMsg(c, CODE_OK, "ok", l4d2Config.GameConfig)
 }
+
+func l4d2SetConfig(c *gin.Context) {
+	path := filepath.Join(env.GetL4D2Env().Path, "/left4dead2/cfg/", "server.cfg")
+	// 方便windows下调试，release版本需删除
+	if runtime.GOOS == "windows" {
+		path = "default_server.cfg"
+	}
+	l4d2Config := config.NewConfig[config.L4D2Config](path, def.L4D2)
+
+	if err := c.ShouldBindJSON(&l4d2Config.GameConfig); err != nil {
+		log.L.Warnf("Serialize l4d2 config failed, %v.", err)
+		SendJsonMsg(c, CODE_INNER_ERROR, "系统内部错误", nil)
+		c.Abort()
+		return
+	}
+
+	log.L.Infof("get config: %v", l4d2Config.GameConfig)
+
+	if err := l4d2Config.UpdateConfig(); err != nil {
+		log.L.Warnf("Update l4d2 config file failed, %v.", err)
+		SendJsonMsg(c, CODE_INNER_ERROR, "更新L4D2游戏配置失败", nil)
+		c.Abort()
+		return
+	}
+
+	SendJsonMsg(c, CODE_OK, "ok", nil)
+}
