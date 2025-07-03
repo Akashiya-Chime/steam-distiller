@@ -74,8 +74,8 @@ document.getElementById("clear-btn").addEventListener("click", () => { term_l4d2
 
 //游戏配置部分
 var app = new Vue({
-    delimiters: ['${', '}'],
-    el: '#game_config_tab',
+    delimiters: ["${", "}"],
+    el: "#game_config_tab",
     data: {
         jsonInput: `{
     "map": {
@@ -279,10 +279,9 @@ var app = new Vue({
                 try {
                     this.config = JSON.parse(newValue);
                     this.error = null;
-                    //this.initializeFormValues();
                 } catch (error) {
-                    this.error = 'JSON解析错误: ' + error.message;
-                    console.error('JSON解析错误:', error);
+                    this.error = "JSON解析错误: " + error.message;
+                    console.error("JSON解析错误:", error);
                 }
             }
         },
@@ -303,10 +302,10 @@ var app = new Vue({
     methods: {
         getFieldIcon(fieldType) {
             switch (fieldType) {
-                case 'select': return 'mdi mdi-checkbox-marked-outline';
-                case 'input_int': return 'mdi mdi-sort-numeric';
-                case 'input_str': return 'mdi mdi-code-string';
-                default: return 'mdi mdi-pen';
+                case "select": return "mdi mdi-checkbox-marked-outline";
+                case "input_int": return "mdi mdi-sort-numeric";
+                case "input_str": return "mdi mdi-code-string";
+                default: return "mdi mdi-pen";
             }
         },
         isSingleLevel(options) {
@@ -341,7 +340,7 @@ var app = new Vue({
             return Object.values(group)[0];
         },
         resetSubSelection(key) {
-            this.formValues[key] = '';
+            this.formValues[key] = "";
         },
         initializeFormValues() {
             this.formValues = {};
@@ -349,11 +348,12 @@ var app = new Vue({
 
             for (const key in this.config) {
                 const field = this.config[key];
-
-                if (field.type === 'input_int' || field.type === 'input_str') {
+                 if (field.type === "input_int") {
                     this.$set(this.formValues, key, field.value);
+                }else if (field.type === "input_str") {
+                    this.$set(this.formValues, key, field.value.replace(/\s+/g, ""));
                 }
-                else if (field.type === 'select') {
+                else if (field.type === "select") {
                     if (this.isSingleLevel(field.options)) {
                         // 单层下拉框：使用第一个选项的值
                         const options = this.flattenOptions(field.options);
@@ -401,15 +401,15 @@ var app = new Vue({
                     if (this.config[key]) {
                         const field = this.config[key];
                         // 设置输入框值
-                        if (field.type === 'input_int' || field.type === 'input_str') {
+                        if (field.type === "input_int" || field.type === "input_str") {
                             this.formValues[key] = result[key];
                         }
                         // 设置单层下拉框值
-                        else if (field.type === 'select' && this.isSingleLevel(field.options)) {
+                        else if (field.type === "select" && this.isSingleLevel(field.options)) {
                             this.formValues[key] = result[key];
                         }
                         // 设置两级下拉框值
-                        else if (field.type === 'select') {
+                        else if (field.type === "select") {
                             const targetValue = result[key];
                             let found = false;
 

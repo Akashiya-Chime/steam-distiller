@@ -1,5 +1,5 @@
 var lightyear = function(){
-	
+
 	/**
 	 * 页面loading
 	 */
@@ -19,7 +19,7 @@ var lightyear = function(){
 		}
 		return false;
 	};
-	
+
     /**
      * 页面小提示
      * @param $msg 提示信息
