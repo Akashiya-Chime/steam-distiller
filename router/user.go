@@ -2,6 +2,7 @@ package router
 
 import (
 	"net/http"
+	"steam-distiller/invcode"
 	log "steam-distiller/logger"
 
 	"steam-distiller/middleware/jwt"
@@ -23,6 +24,7 @@ const (
 	CODE_USER_ALREADY_EXIST
 	CODE_USER_NOT_EXIST
 	CODE_GAME_IS_RUNNING
+	CODE_USER_NOT_ADMIN
 )
 
 type User struct {
@@ -129,12 +131,7 @@ func userLogin(c *gin.Context) {
 }
 
 func IsInvCodeValid(code string) bool {
-	// 验证码系统待实现
-	// 管理员这边点一下生成一个邀请码，然后可以使用多次，邀请码过了有效期就不能使用
-	if code == "" {
-		return false
-	}
-	return true
+	return invcode.M.IsValid(code)
 }
 
 func IsUserInfoValid(user User) bool {
@@ -211,4 +208,30 @@ func userGetInfo(c *gin.Context) {
 			IsAdmin:  dbUser.IsAdmin,
 		},
 	})
+}
+
+type GetInvCodeRes struct {
+	InvCode string `json:"invite_code"`
+}
+
+func userGetInvCode(c *gin.Context) {
+	var user User
+	c.ShouldBindJSON(&user)
+
+	dbUser, err := sql.GetUser(sql.User{Username: user.Name})
+	if err != sql.DB_OK {
+		log.L.Warnf("Get user info from db failed, %v.", err)
+		SendJsonMsg(c, CODE_INNER_ERROR, "查询用户失败", nil)
+		c.Abort()
+		return
+	}
+
+	if !dbUser.IsAdmin {
+		SendJsonMsg(c, CODE_USER_NOT_ADMIN, "无获取邀请码权限", nil)
+		c.Abort()
+		return
+	}
+
+	code := invcode.M.Generate()
+	SendJsonMsg(c, CODE_OK, "ok", GetInvCodeRes{InvCode: code.Code})
 }
