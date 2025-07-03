@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"reflect"
 	"runtime"
-	"steam-distiller/env"
+	"steam-distiller/def"
 	log "steam-distiller/logger"
 	"strconv"
 	"strings"
@@ -18,7 +18,7 @@ import (
 const PERMISSION = 0640
 
 func getGameMap() string {
-	path := filepath.Join(env.GetL4D2Env().Path, "currentMap.txt")
+	path := filepath.Join(def.L4D2Path, "currentMap.txt")
 	// 方便windows下调试，release版本需删除
 	if runtime.GOOS == "windows" {
 		path = "currentMap.txt"
@@ -32,7 +32,7 @@ func getGameMap() string {
 }
 
 func setGameMap(mapName string) {
-	path := filepath.Join(env.GetL4D2Env().Path, "currentMap.txt")
+	path := filepath.Join(def.L4D2Path, "currentMap.txt")
 	// 方便windows下调试，release版本需删除
 	if runtime.GOOS == "windows" {
 		path = "currentMap.txt"
