@@ -20,15 +20,14 @@
         <div class="row">
           <div class="col-xs-12">
             <div class="card">
-              <div class="card-body">
+              <div class="card-body" style="overflow: scroll;margin: 5px;height: 98%;">
 
                 <ul id="Tabs" class="nav nav-tabs" role="tablist">
                   <li id="start_game_tab_btn" class="active"><a href="#start_game_tab" role="tab" data-toggle="tab"
-                      aria-expanded="true">启停游戏</a></li>
-                  <li class=""><a href="#game_config_tab" role="tab" data-toggle="tab"
-                      aria-expanded="false">游戏配置</a></li>
-                  <li class=""><a href="#game_mod_tab" role="tab" data-toggle="tab"
-                      aria-expanded="false">Mod</a></li>
+                      aria-expanded="true">控制台</a></li>
+                  <li class=""><a href="#game_config_tab" role="tab" data-toggle="tab" aria-expanded="false">游戏配置</a>
+                  </li>
+                  <li class=""><a href="#game_mod_tab" role="tab" data-toggle="tab" aria-expanded="false">Mod</a></li>
                 </ul>
 
                 <div class="tab-content">
@@ -43,7 +42,7 @@
                               <i class="mdi mdi-play-circle"></i>
                               <span>启动服务</span>
                             </button>
-                            <button class="action-btn" id="stop-btn" >
+                            <button class="action-btn" id="stop-btn">
                               <i class="mdi mdi-power"></i>
                               <span>停止服务</span>
                             </button>
@@ -67,9 +66,59 @@
                   </div>
 
                   <div class="tab-pane fade" id="game_config_tab">
-                    <p>
-                      游戏配置页面
-                    </p>
+                    <form>
+                      <div class="form-group" v-for="(field, key) in config" :key="key">
+                        <label class="form-label">
+                          <i :class="getFieldIcon(field.type)"></i>${ field.name }
+                        </label>
+
+                        <!-- 输入框类型 -->
+                        <input v-if="field.type === 'input_int' || field.type === 'input_str'"
+                          :type="field.type === 'input_int' ? 'number' : 'text'" class="form-control"
+                          v-model="formValues[key]">
+
+                        <!-- 单层下拉选择框 -->
+                        <select v-else-if="field.type === 'select' && isSingleLevel(field.options)" class="form-select"
+                          v-model="formValues[key]">
+                          <option v-for="(option, index) in flattenOptions(field.options)" :value="option.value"
+                            :key="index">
+                            ${ option.label }
+                          </option>
+                        </select>
+
+                        <!-- 两级下拉选择框 -->
+                        <div v-else-if="field.type === 'select'">
+                          <div class="form-group">
+                            <select class="form-select" v-model="selectedGroups[key]" @change="resetSubSelection(key)">
+                              <option v-for="(group, index) in field.options" :key="index" :value="index">
+                                ${ getGroupName(group) }
+                              </option>
+                            </select>
+                          </div>
+
+                          <div class="sub-select" v-if="selectedGroups[key] !== null">
+                            <select class="form-select" v-model="formValues[key]">
+                              <option v-for="(item, idx) in getSubOptions(key)" :key="idx"
+                                :value="getOptionValue(item)">
+                                ${ getOptionLabel(item) }
+                              </option>
+                            </select>
+                          </div>
+                        </div>
+
+                        <div class="form-hint" v-if="field.type === 'input_int'">
+                          请输入整数
+                        </div>
+                        <div class="form-hint" v-else-if="field.type === 'input_str'">
+                          请输入文本
+                        </div>
+                      </div>
+                      <div>
+                        <button type="button" class="btn btn-w-xl btn-primary" @click="submitForm">
+                          <i class="mdi mdi-18px mdi-rotate-315 mdi-send"></i>提交配置
+                        </button>
+                      </div>
+                    </form>
                   </div>
 
                   <div class="tab-pane fade" id="game_mod_tab">
@@ -84,26 +133,12 @@
           </div>
         </div>
 
-        <div class="row">
-          <div class="col-lg-12">
-
-            <div class="card content" id="game_config_content">
-              <h1>游戏配置</h1>
-              <p>在这里你可以修改游戏的配置</p>
-            </div>
-
-            <div class="card content" id="game_mod_content">
-              <h1>Mod</h1>
-              <p>在这里你可以安装Mod</p>
-            </div>
-          </div>
-        </div>
-
       </div>
     </main>
   </div>
   <script type="text/javascript"
     src="https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.6.0/jquery.min.js"></script>
+  <script src="https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/vue/2.6.14/vue.min.js"></script>
   <script type="text/javascript" src="static/js/bootstrap-notify.min.js"></script>
   <script type="text/javascript" src="static/js/bootstrap.min.js"></script>
   <script type="text/javascript" src="static/js/lightyear.js"></script>

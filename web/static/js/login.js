@@ -1,4 +1,3 @@
-
 var vm = new Vue({
     el: "#login",
     data: {
@@ -13,7 +12,7 @@ var vm = new Vue({
            if ($("#password").attr("type") == "password") {
                 $("#password").attr("type", "text")
                 $(".password-icon > span").removeClass("mdi-eye-off")
-                $(".password-icon > span").addClass("mdi-eye")                
+                $(".password-icon > span").addClass("mdi-eye")
             } else {
                 $("#password").attr("type", "password")
                 $(".password-icon > span").removeClass("mdi-eye")
@@ -22,44 +21,44 @@ var vm = new Vue({
         },
         login: function () {
             if (!this.user_info.user || !this.user_info.pass) {
-                lightyear.notify('账号密码不能为空', 'danger', 3000);
+                lightyear.notify("账号密码不能为空", "danger", 3000);
                 return
             }
-            lightyear.loading('show')
+            lightyear.loading("show")
             vm.$http.post("/user/login", {
                 username: this.user_info.user,
                 password: md5(this.user_info.pass)
             }, {
                 emulateJSON: false
             }).then(function (r) {
-                lightyear.loading('hide')
+                lightyear.loading("hide")
                 content = r.data
                 if (content.code == 0) {
                     document.cookie = "access_token=" + content.data.access_token + ";path=/";
                     if (this.remember_password) {
-                        localStorage.setItem('username', this.user_info.user);
-                        localStorage.setItem('password', this.user_info.pass);
+                        localStorage.setItem("username", this.user_info.user);
+                        localStorage.setItem("password", this.user_info.pass);
                     } else {
-                        localStorage.removeItem('username');
-                        localStorage.removeItem('password');
+                        localStorage.removeItem("username");
+                        localStorage.removeItem("password");
                     }
-                    lightyear.notify(content.data.msg, 'success', 1000);
+                    lightyear.notify(content.msg, "success", 1000);
                     setTimeout(function () {
                         window.location.href = "home"
                     }, 1000);
                 } else {
-                    lightyear.notify(content.data.msg, 'danger', 3000);
+                    lightyear.notify(content.msg, "danger", 3000);
                 }
             }).catch(error => {
-                lightyear.loading('hide')
-                lightyear.notify('网络异常，请稍后再试', 'danger', 3000);
+                lightyear.loading("hide")
+                lightyear.notify("网络异常，请稍后再试", "danger", 3000);
             })
         },
     },
     created: function () {
-        document.cookie = ''
-        const savedUsername = localStorage.getItem('username');
-        const savedPassword = localStorage.getItem('password');
+        document.cookie = ""
+        const savedUsername = localStorage.getItem("username");
+        const savedPassword = localStorage.getItem("password");
         if (savedUsername && savedPassword) {
             this.user_info.user = savedUsername;
             this.user_info.pass = savedPassword;

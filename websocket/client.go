@@ -1,27 +1,21 @@
 package websocket
 
 import (
+	"steam-distiller/def"
 	log "steam-distiller/logger"
 	"sync"
 
 	"github.com/gorilla/websocket"
 )
 
-type GameType int
-
-const (
-	L4D2 GameType = iota + 1
-	Baro
-)
-
 type Client struct {
 	Conn *websocket.Conn
-	Game GameType
+	Game def.GameType
 }
 
 type BroadcastType struct {
 	Msg  []byte
-	Game GameType
+	Game def.GameType
 }
 
 type Manager struct {
@@ -88,7 +82,7 @@ func StartManager() {
 	go manager.run()
 }
 
-func RegisterClient(conn *websocket.Conn, game GameType) *Client {
+func RegisterClient(conn *websocket.Conn, game def.GameType) *Client {
 	client := &Client{Conn: conn, Game: game}
 	manager.register <- client
 	return client
