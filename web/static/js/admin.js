@@ -17,24 +17,27 @@ function generateInviteCode() {
         lightyear.notify("用户登录异常，生成邀请码失败", 'danger', 3000, "", 'top', 'right');
         return null;
     }
+    let result = null
     $.ajax({
         url: "/api/v1/invcode",
         type: "post",
+        async: false,
         dataType: "json",
         data: JSON.stringify({
             "username": username,
         }),
-        success: function (r) {
+        success: (r) => {
             if (r.code == 0) {
                 lightyear.notify(r.msg, 'success', 3000, "", 'top', 'right');
-                return r.data.invite_code;
+                result = r.data.invite_code;
             }
         },
-        error: function (xhr) {
+        error: (r) => {
             lightyear.notify("网络异常，邀请码生成失败", 'danger', 3000, "", 'top', 'right');
-            return null;
         }
     })
+    return result;
+
 }
 
 document.addEventListener('DOMContentLoaded', function () {
