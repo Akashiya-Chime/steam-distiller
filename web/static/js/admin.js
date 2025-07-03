@@ -18,7 +18,7 @@ function generateInviteCode() {
         return null;
     }
     $.ajax({
-        url: "/api//api/v1/invcode/invite",
+        url: "/api/v1/invcode",
         type: "post",
         dataType: "json",
         data: {
