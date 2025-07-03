@@ -88,7 +88,7 @@ var app = new Vue({
                     {"街道": "c1m2_streets"},
                     {"购物中心": "c1m3_mall"},
                     {"中厅": "c1m4_atrium"}
-                ]                
+                ]
             },
             {
                 "黑色狂欢节": [
@@ -99,7 +99,7 @@ var app = new Vue({
                     {"音乐会": "c2m5_concert"}
                 ]
             },
-            
+
             {
                 "沼泽激战": [
                     {"乡村": "c3m1_plankcountry"},
@@ -272,14 +272,6 @@ var app = new Vue({
         selectedGroups: {},
         error: null
     },
-    computed: {
-        formattedResult() {
-            return JSON.stringify(this.formValues, null, 4)
-                .replace(/"([^"]+)":/g, '$1:')
-                .replace(/true/g, 'true')
-                .replace(/false/g, 'false');
-        }
-    },
     watch: {
         jsonInput: {
             immediate: true,
@@ -388,7 +380,7 @@ var app = new Vue({
             $.ajax({
                 url: "/api/v1/l4d2/config",
                 type: "post",
-                data: this.formattedResult,
+                data: JSON.stringify(this.formValues),
                 contentType: "application/json",
                 dataType: "json",
                 success: (r) => {
