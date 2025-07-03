@@ -132,8 +132,6 @@ func l4d2SetConfig(c *gin.Context) {
 		return
 	}
 
-	log.L.Infof("get config: %v", l4d2Config.GameConfig)
-
 	if err := l4d2Config.UpdateConfig(); err != nil {
 		log.L.Warnf("Update l4d2 config file failed, %v.", err)
 		SendJsonMsg(c, CODE_INNER_ERROR, "更新L4D2游戏配置失败", nil)

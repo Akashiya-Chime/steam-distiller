@@ -148,9 +148,9 @@ func userRegister(c *gin.Context) {
 		return
 	}
 
-	// 先校验验证码
+	// 先校验邀请码
 	if !IsInvCodeValid(user.InvCode) {
-		SendJsonMsg(c, CODE_INV_CODE_INVALID, "无效验证码", nil)
+		SendJsonMsg(c, CODE_INV_CODE_INVALID, "无效邀请码", nil)
 		c.Abort()
 		return
 	}
