@@ -26,6 +26,8 @@ func InitInvCodeManager(validity time.Duration) {
 		codes:    make(map[string]InvCode),
 		validity: validity,
 	}
+
+	go M.cleanupRoutine()
 }
 
 func (m *InvCodeManager) Generate() InvCode {
@@ -63,6 +65,27 @@ func (m *InvCodeManager) IsValid(code string) bool {
 	}
 
 	return true
+}
+
+func (m *InvCodeManager) cleanupExpiredCodes() {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	now := time.Now()
+	for code, invCode := range m.codes {
+		if now.After(invCode.ExpiresAt) {
+			delete(m.codes, code)
+		}
+	}
+}
+
+func (m *InvCodeManager) cleanupRoutine() {
+	ticker := time.NewTicker(1 * time.Hour)
+	defer ticker.Stop()
+
+	for range ticker.C {
+		m.cleanupExpiredCodes()
+	}
 }
 
 func generateRandomCode(length int) string {
