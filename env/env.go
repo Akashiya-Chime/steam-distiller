@@ -64,7 +64,6 @@ func checkCurrentMapFile() {
 		}
 		log.L.Infoln("Copy currentMap.txt successfully.")
 	}
-
 }
 
 func checkServerCfg() {
