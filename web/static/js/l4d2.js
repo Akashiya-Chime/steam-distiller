@@ -358,7 +358,6 @@ var app = new Vue({
                         // 单层下拉框：使用第一个选项的值
                         const options = this.flattenOptions(field.options);
                         if (options.length > 0) {
-                            // 修复点：直接使用值，无论类型
                             this.$set(this.formValues, key, options[0].value);
                         }
                     } else {
