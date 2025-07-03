@@ -21,9 +21,9 @@ function generateInviteCode() {
         url: "/api/v1/invcode",
         type: "post",
         dataType: "json",
-        data: {
+        data: JSON.stringify({
             "username": username,
-        },
+        }),
         success: function (r) {
             if (r.code == 0) {
                 lightyear.notify(r.data.msg, 'success', 3000, "", 'top', 'right');
