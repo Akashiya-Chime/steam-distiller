@@ -54,20 +54,6 @@ func checkRunScript() {
 	}
 }
 
-func checkCurrentMapFile() {
-	mapPath := filepath.Join(env.SteamEnv.Path, "currentMap.txt")
-	if _, err := os.Stat(mapPath); err == nil {
-		return
-	} else if os.IsNotExist(err) {
-		cpCmd := exec.Command("cp", "currentMap.txt", mapPath)
-		if _, err := cpCmd.CombinedOutput(); err != nil {
-			log.L.Warnln("Copy currentMap.txt failed.")
-			return
-		}
-		log.L.Infoln("Copy currentMap.txt successfully.")
-	}
-}
-
 func checkServerCfg() {
 	cfgPath := filepath.Join(env.SteamEnv.Path, "/left4dead2/cfg/", "server.cfg")
 	if _, err := os.Stat(cfgPath); err == nil {
@@ -96,7 +82,6 @@ func InitEnv() {
 		return
 	}
 	checkRunScript()
-	checkCurrentMapFile()
 	checkServerCfg()
 }
 
