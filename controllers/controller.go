@@ -16,20 +16,18 @@ import (
 
 type GameContoller struct {
 	StartCmd string
-	StopCmd  string
 	GameType def.GameType
 	Ptmx     *os.File
 	Logs     chan []byte
 }
 
 // Init 函数会在后台挂起执行循环，需放最后执行
-func (c *GameContoller) Init(game def.GameType, startCmd string, stopCmd string) error {
+func (c *GameContoller) Init(game def.GameType, startCmd string) error {
 	// 方便windows下调试，release版本需删除
 	if runtime.GOOS == "windows" {
 		return nil
 	}
 	c.StartCmd = startCmd
-	c.StopCmd = stopCmd
 	c.GameType = game
 	c.Logs = make(chan []byte)
 	startServer := exec.Command("bash")
@@ -100,7 +98,8 @@ func (c *GameContoller) StopGame() error {
 		return ErrIsNotRunning
 	}
 
-	_, err := c.Ptmx.Write([]byte(c.StopCmd + "\n"))
+	// 发送Ctrl+C (ASCII码0x03)
+	_, err := c.Ptmx.Write([]byte{0x03})
 	if err != nil {
 		log.L.Warnf("Ptmx error, %v.", err)
 		return err

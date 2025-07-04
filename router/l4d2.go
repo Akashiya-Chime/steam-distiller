@@ -54,7 +54,7 @@ func onceInit() error {
 		// 初始化后会持续广播日志
 		path := filepath.Join(env.L4D2Path, "run_server.sh")
 		startCmd := path + " " + env.L4D2Path
-		onceErr = l4d2.Init(def.L4D2, startCmd, "quit")
+		onceErr = l4d2.Init(def.L4D2, startCmd)
 	})
 	return onceErr
 }
