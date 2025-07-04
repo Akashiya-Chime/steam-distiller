@@ -2,8 +2,8 @@ package invcode
 
 import (
 	"crypto/rand"
-	"encoding/base64"
-	log "steam-distiller/logger"
+	"fmt"
+	"math/big"
 	"sync"
 	"time"
 )
@@ -35,6 +35,7 @@ func (m *InvCodeManager) Generate() InvCode {
 	defer m.mu.RUnlock()
 
 	code := generateRandomCode(8)
+	fmt.Println(code)
 	expiresAt := time.Now().Add(m.validity)
 
 	invCode := InvCode{
@@ -88,12 +89,18 @@ func (m *InvCodeManager) cleanupRoutine() {
 	}
 }
 
+// 生成长度为length的仅大写字母及数字的字符串
 func generateRandomCode(length int) string {
-	b := make([]byte, length)
-	_, err := rand.Read(b)
-	if err != nil {
-		log.L.Warnln("Generate random invitation code failed.")
-		return ""
+	const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	result := make([]byte, length)
+
+	for i := range result {
+		num, err := rand.Int(rand.Reader, big.NewInt(int64(len(charset))))
+		if err != nil {
+			panic(err)
+		}
+		result[i] = charset[num.Int64()]
 	}
-	return base64.URLEncoding.EncodeToString(b)[:length]
+
+	return string(result)
 }

@@ -228,5 +228,5 @@ func userGetInvCode(c *gin.Context) {
 	}
 
 	code := invcode.M.Generate()
-	SendJsonMsg(c, CODE_OK, "ok", GetInvCodeRes{InvCode: code.Code})
+	SendJsonMsg(c, CODE_OK, "成功获取邀请码", GetInvCodeRes{InvCode: code.Code})
 }
