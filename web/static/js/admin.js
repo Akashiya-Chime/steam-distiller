@@ -67,17 +67,17 @@ document.addEventListener("DOMContentLoaded", function () {
         textarea.style.display = "none";
         document.body.appendChild(textarea);
         textarea.select();
-        // 尝试使用Clipboard API复制
-        try {
-            navigator.clipboard.writeText(textarea.value).then(() => {
-            }).catch((err) => {
-                lightyear.notify("自动复制失败，请手动复制", "danger", 3000);
-                return;
-            });
-        } catch (err) {
-            document.execCommand("copy");
-        }
-        lightyear.notify("邀请码已复制", "success", 3000);
-        document.body.removeChild(textarea);
-    });
+        new Promise((resolve, reject) => {
+            // 执行复制命令并移除文本框
+            document.execCommand("copy") ? resolve() : reject(new Error("出错了"));
+            textarea.remove();
+        }).then(
+            () => {
+                lightyear.notify("邀请码已复制", "success", 3000, "", "top", "right");
+            },
+            () => {
+                lightyear.notify("邀请码复制失败", "danger", 3000, "", "top", "right");
+            }
+        );
+    })
 });
