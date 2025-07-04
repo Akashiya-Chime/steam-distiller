@@ -19,6 +19,8 @@ var (
 	envOnce sync.Once
 )
 
+var L4D2Path, L4D2ConfigPath, L4D2ModPath string
+
 type Env struct {
 	Server   ServerConfig   `toml:"server"`
 	SteamEnv SteamEnvConfig `toml:"l4d2"`
@@ -86,6 +88,8 @@ func InitEnv() {
 			log.L.Panicf("Read config.toml failed, %v.", err)
 		}
 	})
+	// 读取配置文件后再进行路径变量初始化，避免空值
+	InitPath()
 
 	// 方便windows下调试，release版本需删除
 	if runtime.GOOS == "windows" {
@@ -94,6 +98,12 @@ func InitEnv() {
 	checkRunScript()
 	checkCurrentMapFile()
 	checkServerCfg()
+}
+
+func InitPath() {
+	L4D2Path = filepath.Join(env.SteamEnv.Path)
+	L4D2ConfigPath = filepath.Join(L4D2Path, "/left4dead2/cfg/")
+	L4D2ModPath = filepath.Join(L4D2Path, "/left4dead2/addons/workshop/")
 }
 
 func GetServerConfig() ServerConfig {

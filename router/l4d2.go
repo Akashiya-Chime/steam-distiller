@@ -8,6 +8,7 @@ import (
 	"steam-distiller/config"
 	"steam-distiller/controllers"
 	"steam-distiller/def"
+	"steam-distiller/env"
 	log "steam-distiller/logger"
 	ws "steam-distiller/websocket"
 	"sync"
@@ -51,7 +52,7 @@ var onceErr error
 func onceInit() error {
 	once.Do(func() {
 		// 初始化后会持续广播日志
-		path := filepath.Join(def.L4D2Path, "run_server.sh")
+		path := filepath.Join(env.L4D2Path, "run_server.sh")
 		onceErr = l4d2.Init(def.L4D2, path, "quit")
 	})
 	return onceErr
@@ -100,7 +101,7 @@ func l4d2Status(c *gin.Context) {
 }
 
 func l4d2GetConfig(c *gin.Context) {
-	path := filepath.Join(def.L4D2ConfigPath, "server.cfg")
+	path := filepath.Join(env.L4D2ConfigPath, "server.cfg")
 	// 方便windows下调试，release版本需删除
 	if runtime.GOOS == "windows" {
 		path = "default_server.cfg"
@@ -118,7 +119,7 @@ func l4d2GetConfig(c *gin.Context) {
 }
 
 func l4d2SetConfig(c *gin.Context) {
-	path := filepath.Join(def.L4D2ConfigPath, "server.cfg")
+	path := filepath.Join(env.L4D2ConfigPath, "server.cfg")
 	// 方便windows下调试，release版本需删除
 	if runtime.GOOS == "windows" {
 		path = "default_server.cfg"
