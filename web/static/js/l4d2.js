@@ -77,214 +77,11 @@ var app = new Vue({
     delimiters: ["${", "}"],
     el: "#game_config_tab",
     data: {
-        jsonInput: `{
-    "map": {
-        "name": "游戏地图及章节",
-        "type": "select",
-        "options": [
-            {
-                "死亡中心": [
-                    {"旅店": "c1m1_hotel"},
-                    {"街道": "c1m2_streets"},
-                    {"购物中心": "c1m3_mall"},
-                    {"中厅": "c1m4_atrium"}
-                ]
-            },
-            {
-                "黑色狂欢节": [
-                    {"高速公路": "c2m1_highway"},
-                    {"游乐场": "c2m2_fairgrounds"},
-                    {"过山车": "c2m3_coaster"},
-                    {"谷仓": "c2m4_barns"},
-                    {"音乐会": "c2m5_concert"}
-                ]
-            },
-
-            {
-                "沼泽激战": [
-                    {"乡村": "c3m1_plankcountry"},
-                    {"沼泽": "c3m2_swamp"},
-                    {"贫民窟": "c3m3_shantytown"},
-                    {"种植园": "c3m4_plantation"}
-                ]
-            },
-            {
-                "暴风骤雨": [
-                    {"密尔城": "c4m1_milltown_a"},
-                    {"糖厂": "c4m2_sugarmill_a"},
-                    {"逃离工厂": "c4m3_sugarmill_b"},
-                    {"重返小镇": "c4m4_milltown_b"},
-                    {"逃离小镇": "c4m5_milltown_escape"}
-                ]
-            },
-            {
-                "教区": [
-                    {"码头": "c5m1_waterfront"},
-                    {"公园": "c5m2_park"},
-                    {"墓地": "c5m3_cemetery"},
-                    {"特区": "c5m4_quarter"},
-                    {"桥": "c5m5_bridge"}
-                ]
-            },
-            {
-                "短暂时刻": [
-                    {"河畔": "c6m1_riverbank"},
-                    {"地下通道": "c6m2_bedlam"},
-                    {"港口": "c6m3_port"}
-                ]
-            },
-            {
-                "牺牲": [
-                    {"码头": "c7m1_docks"},
-                    {"驳船": "c7m2_barge"},
-                    {"港口": "c7m3_port"}
-                ]
-            },
-            {
-                "毫不留情": [
-                    {"公寓": "c8m1_apartment"},
-                    {"地铁": "c8m2_subway"},
-                    {"下水道": "c8m3_sewers"},
-                    {"医院": "c8m4_interior"},
-                    {"屋顶": "c8m5_rooftop"}
-                ]
-            },
-            {
-                "坠机险途": [
-                    {"小巷": "c9m1_alleys"},
-                    {"卡车停车场": "c9m2_lots"}
-                ]
-            },
-            {
-                "死亡丧钟": [
-                    {"收费公路": "c10m1_caves"},
-                    {"水沟": "c10m2_drainage"},
-                    {"教堂": "c10m3_ranchhouse"},
-                    {"主街道": "c10m4_mainstreet"},
-                    {"码头": "c10m5_houseboat"}
-                ]
-            },
-            {
-                "寂静时分": [
-                    {"花房": "c11m1_greenhouse"},
-                    {"起重机": "c11m2_offices"},
-                    {"建筑工地": "c11m3_garage"},
-                    {"航空机场": "c11m4_terminal"},
-                    {"飞机跑道": "c11m5_runway"}
-                ]
-            },
-            {
-                "血腥收获":[
-                    {"森林": "c12m4_forest"},
-                    {"隧道": "c12m2_traintunnel"},
-                    {"桥": "c12m3_bridge"},
-                    {"火车站": "c12m4_barn"},
-                    {"农舍": "c12m5_cornfield"}
-                ]
-            },
-            {
-                "刺骨寒溪": [
-                    {"高山小溪": "c13m1_alpinecreek"},
-                    {"松木之河": "c13m2_southpinestream"},
-                    {"纪念大桥": "c13m3_memorialbridge"},
-                    {"残酷溪流": "c13m4_cutthroatcreek"}
-                ]
-            },
-            {
-                "临死一博": [
-                    {"废物场": "c14m1_junkyard"},
-                    {"灯塔终章": "c14m2_lighthouse"}
-                ]
-            }
-        ]
-    },
-    "sv_cheats": {
-        "name": "是否允许作弊",
-        "type": "select",
-        "options": [
-            {"允许": 1},
-            {"不允许": 0}
-        ]
-    },
-    "hostport": {
-        "name": "服务器端口",
-        "type": "input_int",
-        "value": 27015
-    },
-    "hostname": {
-        "name": "服务器名称",
-        "type": "input_str",
-        "value": "L4D2 Server"
-    },
-    "sv_region": {
-        "name": "服务器地区",
-        "type": "select",
-        "options": [
-            {"美国东海岸": 0},
-            {"美国西海岸": 1},
-            {"南美": 2},
-            {"欧洲": 3},
-            {"亚洲": 4},
-            {"澳洲": 5},
-            {"中东": 6},
-            {"非洲": 7},
-            {"全球": 255}
-        ]
-    },
-    "sv_allow_lobby_connect_only": {
-        "name": "是否仅允许大厅连接",
-        "type": "select",
-        "options": [
-            {"是": 1},
-            {"否": 0}
-        ]
-    },
-    "sv_steamgroup": {
-        "name": "关联的Steam组ID（0表示无关联）",
-        "type": "input_int",
-        "value": 0
-    },
-    "mp_gamemode":{
-        "name": "游戏模式",
-        "type": "select",
-        "options": [
-            {"合作模式": "coop"},
-            {"对抗模式": "versus"},
-            {"生存模式": "survival"},
-            {"清道夫模式": "scavenge"},
-            {"写实模式": "realism"},
-            {"突变模式": "mutationX"}
-        ]
-    },
-    "z_difficulty":{
-        "name": "游戏难度",
-        "type": "select",
-        "options": [
-            {"简单": "easy"},
-            {"普通": "normal"},
-            {"困难": "hard"},
-            {"专家": "impossible"}
-        ]
-    }
-}`,
         config: {},
         formValues: {},
         selectedGroups: {},
-        error: null
     },
     watch: {
-        jsonInput: {
-            immediate: true,
-            handler(newValue) {
-                try {
-                    this.config = JSON.parse(newValue);
-                    this.error = null;
-                } catch (error) {
-                    this.error = "JSON解析错误: " + error.message;
-                    console.error("JSON解析错误:", error);
-                }
-            }
-        },
         selectedGroups: {
             deep: true,
             handler() {
@@ -457,10 +254,27 @@ var app = new Vue({
                     lightyear.notify("网络异常，服务器端游戏配置获取失败", "danger", 3000);
                 }
             })
+        },
+        initConfig(){
+            $.ajax({
+                url: "/static/config/l4d2_mapping.json",
+                type: "get",
+                async: false,
+                dataType: "json",
+                success: (r) => {
+                    this.config = r
+                },
+                error: () => {
+                    lightyear.notify("网络异常，初始化配置表失败", "danger", 3000);
+                }
+            })
         }
     },
     mounted() {
-        this.initializeFormValues();
-        this.getServerConfig();
+        this.initConfig();
+        if(this.config){
+            this.initializeFormValues();
+            this.getServerConfig();
+        }
     }
 });
