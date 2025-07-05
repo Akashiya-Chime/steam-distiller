@@ -257,7 +257,7 @@ var app = new Vue({
         },
         initConfig(){
             $.ajax({
-                url: "/static/data/l4d2_config.json",
+                url: "/static/config/l4d2_mapping.json",
                 type: "get",
                 async: false,
                 dataType: "json",
