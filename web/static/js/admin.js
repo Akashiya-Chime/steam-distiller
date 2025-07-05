@@ -64,8 +64,8 @@ document.addEventListener("DOMContentLoaded", function () {
         // 创建临时textarea用于复制
         const textarea = document.createElement("textarea");
         textarea.value = codeValue.textContent;
-        textarea.style.display = "none";
         document.body.appendChild(textarea);
+        textarea.focus();
         textarea.select();
         new Promise((resolve, reject) => {
             // 执行复制命令并移除文本框
@@ -79,5 +79,5 @@ document.addEventListener("DOMContentLoaded", function () {
                 lightyear.notify("邀请码复制失败", "danger", 3000, "", "top", "right");
             }
         );
-    })
+    });
 });
