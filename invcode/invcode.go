@@ -2,7 +2,6 @@ package invcode
 
 import (
 	"crypto/rand"
-	"fmt"
 	"math/big"
 	"sync"
 	"time"
@@ -35,7 +34,6 @@ func (m *InvCodeManager) Generate() InvCode {
 	defer m.mu.RUnlock()
 
 	code := generateRandomCode(8)
-	fmt.Println(code)
 	expiresAt := time.Now().Add(m.validity)
 
 	invCode := InvCode{
