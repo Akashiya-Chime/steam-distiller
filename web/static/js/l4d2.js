@@ -75,11 +75,14 @@ document.getElementById("clear-btn").addEventListener("click", () => { term_l4d2
 //游戏配置部分
 var app = new Vue({
     delimiters: ["${", "}"],
-    el: "#game_config_tab",
+    el: "#TabsContent",
     data: {
         config: {},
         formValues: {},
         selectedGroups: {},
+        modlist: [],
+        modFile: null,
+        modTag: "",
     },
     watch: {
         selectedGroups: {
@@ -145,9 +148,9 @@ var app = new Vue({
 
             for (const key in this.config) {
                 const field = this.config[key];
-                 if (field.type === "input_int") {
+                if (field.type === "input_int") {
                     this.$set(this.formValues, key, field.value);
-                }else if (field.type === "input_str") {
+                } else if (field.type === "input_str") {
                     this.$set(this.formValues, key, field.value.replace(/\s+/g, ""));
                 }
                 else if (field.type === "select") {
@@ -255,7 +258,7 @@ var app = new Vue({
                 }
             })
         },
-        initConfig(){
+        initConfig() {
             $.ajax({
                 url: "/static/config/l4d2_mapping.json",
                 type: "get",
@@ -268,13 +271,98 @@ var app = new Vue({
                     lightyear.notify("网络异常，初始化配置表失败", "danger", 3000);
                 }
             })
-        }
+        },
+        // mod界面函数
+        getmodlist() {
+            $.ajax({
+                url: "/api/v1/l4d2/mods",
+                type: "get",
+                async: false,
+                dataType: "json",
+                success: (r) => {
+                    if (r.code == 0) {
+                        this.modlist = r.data;
+                    } else {
+                        lightyear.notify(r.msg, "danger", 3000);
+                    }
+                },
+                error: (xhr) => {
+                    lightyear.notify("网络异常，mod列表获取失败", "danger", 3000);
+                }
+            })
+        },
+        deleteMod(item) {
+            $.ajax({
+                url: "/api/v1/l4d2/mod"+"?tag=" + item.tag,
+                type: "delete",
+                async: false,
+                contentType: "application/json",
+                dataType: "json",
+                success: (r) => {
+                    if (r.code == 0) {
+                        lightyear.notify("删除成功！", "success", 3000);
+                        this.modlist = this.modlist.filter(mod => mod.tag !== item.tag);
+                    } else {
+                        lightyear.notify("删除失败：" + r.msg, "danger", 3000);
+                    }
+                },
+                error: (xhr) => {
+                    lightyear.notify("网络异常，删除mod失败", "danger", 3000);
+                }
+            })
+        },
+        getUsername() {
+            let access_token = window.parent.$.cookie("access_token")
+            let username = JSON.parse(decodeURIComponent(escape(window.atob(access_token.split(".")[1])))).sub
+            return username
+        },
+        uploadMod() {
+            if (this.modTag === "") {
+                lightyear.notify("请输入mod名称", "danger", 3000);
+                return;
+            }
+            if (this.modFile === null) {
+                lightyear.notify("请选择mod文件", "danger", 3000);
+                return;
+            }
+            //检查是否重复标签
+            if (this.modlist.some(item => item.tag === this.modTag)) {
+                lightyear.notify("上传失败，已存在相同名称的mod", "danger", 3000);
+                return;
+            }
+            const formData = new FormData();
+            formData.append('file', this.modFile);
+            formData.append('tag', this.modTag);
+            formData.append('user', this.getUsername());
+
+            $.ajax({
+                url: "/api/v1/l4d2/mod",
+                type: "post",
+                data: formData,
+                contentType: "multipart/form-data",
+                processData: false,
+                contentType: false,
+                dataType: "json",
+                success: (r) => {
+                    if (r.code == 0) {
+                        lightyear.notify("上传成功！", "success", 3000);
+                        this.getmodlist();
+                    } else {
+                        lightyear.notify("上传失败：" + r.msg, "danger", 3000);
+                    }
+                },
+                error: (xhr) => {
+                    lightyear.notify("网络异常，上传mod失败", "danger", 3000);
+                }
+            })
+        },
     },
     mounted() {
         this.initConfig();
-        if(this.config){
+        if (this.config) {
             this.initializeFormValues();
             this.getServerConfig();
         }
+        this.getmodlist();
     }
 });

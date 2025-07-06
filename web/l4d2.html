@@ -30,7 +30,7 @@
                   <li class=""><a href="#game_mod_tab" role="tab" data-toggle="tab" aria-expanded="false">Mod</a></li>
                 </ul>
 
-                <div class="tab-content">
+                <div class="tab-content" id="TabsContent">
                   <div class="tab-pane fade active in" id="start_game_tab">
                     <div class="content" id="start_game_content"
                       style="background-image: url(static/image/login-bg-3.jpg);background-size: cover">
@@ -116,18 +116,67 @@
                   </div>
 
                   <div class="tab-pane fade" id="game_mod_tab">
-                    <p>
-                      Mod页面
-                    </p>
+                      <div class="form-inline">
+                        <div class="form-group">
+                          <input type="file" id="fileInput" accept=".vpk" single v-model="modFile">
+                        </div>
+                        <div class="form-group">
+                          <input class="form-control" placeholder="请输入唯一的mod名称" v-model="modTag">
+                        </div>
+                        <div class="form-group">
+                          <button class="btn btn-primary" @click="uploadMod">
+                            <i class="mdi mdi-cloud-upload"></i>上传</button>
+                        </div>
+                      </div>
+                    <hr>
+
+                    <div class="table-container">
+                      <table class="table table-hover">
+                        <thead>
+                          <tr>
+                            <th>序号</th>
+                            <th>Mod名称</th>
+                            <th>vpk文件</th>
+                            <th>上传时间</th>
+                            <th>上传用户</th>
+                            <th>操作</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr v-for="(item, index) in modlist" :key="index">
+                            <td>${ index+1 }</td>
+                            <td>${ item.tag }</td>
+                            <td>${ item.file }</td>
+                            <td>${ item.time }</td>
+                            <td>${ item.user }</td>
+                            <td>
+                              <button class="btn btn-sm btn-danger" @click="deleteMod(item)">
+                                <i class="mdi mdi-delete"></i>删除</button>
+                            </td>
+                            <!-- <td>
+                              <div v-if="item.status=='active'">
+                                <span style="color: rgb(10, 180, 10);">已激活</span>
+                              </div>
+                              <div v-else>
+                                <span style="color: rgb(255, 0, 0);">未激活</span>
+                              </div>
+                            </td>
+                            <td>
+                              <label class="lyear-switch switch-success">
+                                <input type="checkbox" v-model="item.status" true-value="active" false-value="inactive"
+                                  @change="changeStatus(item)">
+                                <span></span>
+                              </label>
+                            </td> -->
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
                 </div>
-
               </div>
-            </div>
-          </div>
-        </div>
 
-      </div>
+            </div>
     </main>
   </div>
   <script type="text/javascript"
