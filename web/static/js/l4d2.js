@@ -54,25 +54,6 @@ function switchGame(term_class, action) {
     })
 }
 
-const term_l4d2 = window.parent.term_l4d2
-//重写连接状态更新方法，避免找不到元素的问题
-term_l4d2.updateConnectionStatus = function (connected) {
-    this.isConnected = connected;
-    if (connected) {
-        document.getElementById("statusIndicator").classList.add("connected")
-        document.getElementById("statusText").innerText = "已连接";
-    } else {
-        document.getElementById("statusIndicator").classList.remove("connected")
-        document.getElementById("statusText").innerText = "正在连接服务器...";
-    }
-}
-term_l4d2.updateConnectionStatus(term_l4d2.isConnected) // 重新显示终端时刷新状态
-term_l4d2.term.open(document.getElementById("terminal"));
-document.getElementById("start-btn").addEventListener("click", () => { switchGame(term_l4d2, "start") });
-document.getElementById("stop-btn").addEventListener("click", () => { switchGame(term_l4d2, "close") });
-document.getElementById("clear-btn").addEventListener("click", () => { term_l4d2.term.clear() });
-
-//游戏配置部分
 var app = new Vue({
     delimiters: ["${", "}"],
     el: "#TabsContent",
@@ -293,7 +274,7 @@ var app = new Vue({
         },
         deleteMod(item) {
             $.ajax({
-                url: "/api/v1/l4d2/mod"+"?tag=" + item.tag,
+                url: "/api/v1/l4d2/mod" + "?tag=" + item.tag,
                 type: "delete",
                 async: false,
                 contentType: "application/json",
@@ -318,7 +299,6 @@ var app = new Vue({
         },
         handleFileChange() {
             this.modFile = $("#fileInput")[0].files[0];
-            $("#fileName").text(this.modFile?.name || "未选择任何文件");
         },
         uploadMod() {
             if (this.modTag === "") {
@@ -375,3 +355,22 @@ var app = new Vue({
         this.getmodlist();
     }
 });
+
+// console
+const term_l4d2 = window.parent.term_l4d2
+//重写连接状态更新方法，避免找不到元素的问题
+term_l4d2.updateConnectionStatus = function (connected) {
+    this.isConnected = connected;
+    if (connected) {
+        document.getElementById("statusIndicator").classList.add("connected")
+        document.getElementById("statusText").innerText = "已连接";
+    } else {
+        document.getElementById("statusIndicator").classList.remove("connected")
+        document.getElementById("statusText").innerText = "正在连接服务器...";
+    }
+}
+term_l4d2.updateConnectionStatus(term_l4d2.isConnected) // 重新显示终端时刷新状态
+term_l4d2.term.open(document.getElementById("terminal"));
+document.getElementById("start-btn").addEventListener("click", () => { switchGame(term_l4d2, "start") });
+document.getElementById("stop-btn").addEventListener("click", () => { switchGame(term_l4d2, "close") });
+document.getElementById("clear-btn").addEventListener("click", () => { term_l4d2.term.clear() });
