@@ -333,6 +333,11 @@ var app = new Vue({
                 lightyear.notify("上传失败，已存在相同名称的mod", "danger", 3000);
                 return;
             }
+            //检查是否重复文件名
+            if (this.modlist.some(item => item.file === this.modFile.name)) {
+                lightyear.notify("上传失败，已存在相同名称的vpk文件", "danger", 3000);
+                return;
+            }
             const formData = new FormData();
             formData.append('file', this.modFile);
             formData.append('tag', this.modTag);
