@@ -316,6 +316,9 @@ var app = new Vue({
             let username = JSON.parse(decodeURIComponent(escape(window.atob(access_token.split(".")[1])))).sub
             return username
         },
+        handleFileChange() {
+            this.modFile = $("#fileInput")[0].files[0];
+        },
         uploadMod() {
             if (this.modTag === "") {
                 lightyear.notify("请输入mod名称", "danger", 3000);
