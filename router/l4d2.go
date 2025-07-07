@@ -184,8 +184,8 @@ func l4d2UploadMod(c *gin.Context) {
 
 	if err := mod.WriteMod(tag, file.Filename, user); err != nil {
 		log.L.Warnf("Write mod failed, %v.", err)
-		if errors.Is(err, mod.ErrDuplicateTag) {
-			SendJsonMsg(c, CODE_DUPLICATE_TAG, "tag重复", nil)
+		if errors.Is(err, mod.ErrDuplicateTagOrFile) {
+			SendJsonMsg(c, CODE_DUPLICATE_TAG_OR_FILE, "tag或文件重复", nil)
 		} else {
 			SendJsonMsg(c, CODE_INNER_ERROR, "写入mod列表失败", nil)
 		}

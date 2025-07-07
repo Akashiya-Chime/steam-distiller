@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-var ErrDuplicateTag = errors.New("mod tag already exists")
+var ErrDuplicateTagOrFile = errors.New("mod tag or file name already exists")
 var ErrTagNotFound = errors.New("mod tag not found")
 
 type Mod struct {
@@ -58,8 +58,8 @@ func WriteMod(tag, file, user string) error {
 	}
 
 	for _, mod := range mods {
-		if mod.Tag == tag {
-			return ErrDuplicateTag
+		if mod.Tag == tag || mod.File == file {
+			return ErrDuplicateTagOrFile
 		}
 	}
 
