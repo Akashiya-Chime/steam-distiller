@@ -243,8 +243,11 @@
     transition: all 0.3s ease;
 }
 
-.preview-form {
-    background-color: #33cabb;
-    border-radius: 12px;
-    padding: 1.8rem;
+#fileName{
+    width: 15rem;
+    vertical-align: middle;
+    display: inline-block;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }

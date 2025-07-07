@@ -318,6 +318,7 @@ var app = new Vue({
         },
         handleFileChange() {
             this.modFile = $("#fileInput")[0].files[0];
+            $("#fileName").text(this.modFile?.name || "未选择任何文件");
         },
         uploadMod() {
             if (this.modTag === "") {
