@@ -3,6 +3,7 @@ package router
 import (
 	"errors"
 	"net/http"
+	"os"
 	"path/filepath"
 	"runtime"
 	"steam-distiller/config"
@@ -10,7 +11,9 @@ import (
 	"steam-distiller/def"
 	"steam-distiller/env"
 	log "steam-distiller/logger"
+	"steam-distiller/mod"
 	ws "steam-distiller/websocket"
+	"strings"
 	"sync"
 
 	"github.com/gin-gonic/gin"
@@ -142,4 +145,108 @@ func l4d2SetConfig(c *gin.Context) {
 	}
 
 	SendJsonMsg(c, CODE_OK, "ok", nil)
+}
+
+func l4d2UploadMod(c *gin.Context) {
+	file, err := c.FormFile("file")
+	if err != nil {
+		SendJsonMsg(c, CODE_PARAM_ERROR, "文件获取失败", nil)
+		c.Abort()
+		return
+	}
+
+	tag := c.PostForm("tag")
+	if tag == "" {
+		SendJsonMsg(c, CODE_PARAM_ERROR, "缺少tag参数", nil)
+		c.Abort()
+		return
+	}
+
+	if strings.Contains(tag, "..") || strings.HasPrefix(tag, "/") {
+		SendJsonMsg(c, CODE_INVALID_TAG, "无效tag", nil)
+		c.Abort()
+		return
+	}
+
+	user := c.PostForm("user")
+	if tag == "" {
+		SendJsonMsg(c, CODE_PARAM_ERROR, "缺少user参数", nil)
+		c.Abort()
+		return
+	}
+
+	path := filepath.Join(env.L4D2ModPath, file.Filename)
+	if err := c.SaveUploadedFile(file, path); err != nil {
+		SendJsonMsg(c, CODE_INNER_ERROR, "保存文件失败", nil)
+		c.Abort()
+		return
+	}
+
+	if err := mod.WriteMod(tag, file.Filename, user); err != nil {
+		log.L.Warnf("Write mod failed, %v.", err)
+		if errors.Is(err, mod.ErrDuplicateTag) {
+			SendJsonMsg(c, CODE_DUPLICATE_TAG, "tag重复", nil)
+		} else {
+			SendJsonMsg(c, CODE_INNER_ERROR, "写入mod列表失败", nil)
+		}
+		c.Abort()
+		return
+	}
+
+	SendJsonMsg(c, CODE_OK, "上传mod成功", nil)
+}
+
+func l4d2GetMods(c *gin.Context) {
+	mods, err := mod.ReadMods()
+	if err != nil {
+		SendJsonMsg(c, CODE_INNER_ERROR, "读取mod列表失败", nil)
+		c.Abort()
+		return
+	}
+
+	SendJsonMsg(c, CODE_OK, "ok", mods)
+}
+
+func l4d2DeleteMod(c *gin.Context) {
+	tag := c.Query("tag")
+	if tag == "" {
+		SendJsonMsg(c, CODE_PARAM_ERROR, "缺少tag参数", nil)
+		c.Abort()
+		return
+	}
+
+	if strings.Contains(tag, "..") || strings.HasPrefix(tag, "/") {
+		SendJsonMsg(c, CODE_INVALID_TAG, "无效tag", nil)
+		c.Abort()
+		return
+	}
+
+	modInfo, err := mod.GetMod(tag)
+	if err != nil {
+		SendJsonMsg(c, CODE_INVALID_TAG, "无效tag", nil)
+		c.Abort()
+		return
+	}
+
+	path := filepath.Join(env.L4D2ConfigPath, modInfo.File)
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		SendJsonMsg(c, CODE_INNER_ERROR, "文件未找到", nil)
+		c.Abort()
+		return
+	}
+
+	if err := os.Remove(path); err != nil {
+		SendJsonMsg(c, CODE_INNER_ERROR, "文件删除失败", nil)
+		c.Abort()
+		return
+	}
+
+	if err := mod.DeleteMod(tag); err != nil {
+		log.L.Warnf("Delete mod failed, %v.", err)
+		SendJsonMsg(c, CODE_INNER_ERROR, "删除mod失败", nil)
+		c.Abort()
+		return
+	}
+
+	SendJsonMsg(c, CODE_OK, "删除mod成功", nil)
 }

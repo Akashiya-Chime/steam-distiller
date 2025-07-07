@@ -1,0 +1,111 @@
+package mod
+
+import (
+	"encoding/json"
+	"errors"
+	"os"
+	log "steam-distiller/logger"
+	"time"
+)
+
+var ErrDuplicateTag = errors.New("mod tag already exists")
+var ErrTagNotFound = errors.New("mod tag not found")
+
+type Mod struct {
+	Tag  string `json:"tag"`
+	File string `json:"file"`
+	Time string `json:"time"`
+	User string `json:"user"`
+}
+
+func GetMod(tag string) (*Mod, error) {
+	mods, err := ReadMods()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, mod := range mods {
+		if mod.Tag == tag {
+			foundMod := mod
+			return &foundMod, nil
+		}
+	}
+
+	return nil, ErrTagNotFound
+}
+
+func ReadMods() ([]Mod, error) {
+	file, err := os.ReadFile("mods.json")
+	if err != nil {
+		log.L.Warnf("Read mods.json failed, %v.", err)
+		return nil, err
+	}
+
+	var mods []Mod
+	if err := json.Unmarshal(file, &mods); err != nil {
+		log.L.Warnf("Unmarshal mods.json failed, %v.", err)
+		return nil, err
+	}
+
+	return mods, nil
+}
+
+func WriteMod(tag, file, user string) error {
+	mods, err := ReadMods()
+	if err != nil {
+		log.L.Warnf("Read mods failed, %v.", err)
+		return err
+	}
+
+	for _, mod := range mods {
+		if mod.Tag == tag {
+			return ErrDuplicateTag
+		}
+	}
+
+	newMod := Mod{
+		Tag:  tag,
+		File: file,
+		Time: time.Now().Format("2006-01-02 15:04:05"),
+		User: user,
+	}
+	mods = append(mods, newMod)
+
+	newData, err := json.MarshalIndent(mods, "", "    ")
+	if err != nil {
+		log.L.Warnf("Marshel mods failed, %v.", err)
+		return err
+	}
+
+	return os.WriteFile("mods.json", newData, 0644)
+}
+
+func DeleteMod(tag string) error {
+	mods, err := ReadMods()
+	if err != nil {
+		log.L.Warnf("Read mods failed, %v.", err)
+		return err
+	}
+
+	found := false
+	newMods := make([]Mod, 0, len(mods))
+	for _, mod := range mods {
+		if mod.Tag == tag {
+			found = true
+			continue
+		}
+		newMods = append(newMods, mod)
+	}
+
+	if !found {
+		return ErrTagNotFound
+	}
+
+	newData, err := json.MarshalIndent(newMods, "", "    ")
+	if err != nil {
+		log.L.Warnf("Marshel mods failed, %v.", err)
+		return err
+	}
+
+	return os.WriteFile("mods.json", newData, 0644)
+}

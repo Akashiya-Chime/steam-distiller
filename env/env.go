@@ -95,6 +95,13 @@ func InitPath() {
 	L4D2Path = filepath.Join(env.SteamEnv.Path)
 	L4D2ConfigPath = filepath.Join(L4D2Path, "/left4dead2/cfg/")
 	L4D2ModPath = filepath.Join(L4D2Path, "/left4dead2/addons/workshop/")
+	// 方便windows下调试，release版本需删除
+	if runtime.GOOS == "windows" {
+		L4D2Path = "tmp/"
+		L4D2ConfigPath = "tmp/"
+		L4D2ModPath = "tmp/"
+		return
+	}
 }
 
 func GetServerConfig() ServerConfig {
