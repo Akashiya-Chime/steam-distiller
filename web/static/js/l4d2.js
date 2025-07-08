@@ -78,6 +78,15 @@ var app = new Vue({
                     }
                 }
             }
+        },
+        modlist: {
+            handler() {
+                if (this.modlist.length > 0) {
+                    $("#modListEmpty").hide();
+                } else {
+                    $("#modListEmpty").show();
+                }
+            }
         }
     },
     methods: {
@@ -254,6 +263,77 @@ var app = new Vue({
             })
         },
         // mod界面函数
+        // 处理选中的文件
+        handleFiles(files) {
+            if (files.length === 0) return;
+            this.modFile = files[0];
+            $("#fileInput").val(""); //同名文件可再次触发change事件
+            this.updateFilePreview();
+        },
+        listenDrop() {
+            const dropArea = $('#dropArea');
+            // 拖放事件处理
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropArea.on(eventName, (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                });
+            });
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropArea.on(eventName, function () {
+                    $(this).addClass('drag-over');
+                });
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropArea.on(eventName, function () {
+                    $(this).removeClass('drag-over');
+                });
+            });
+            dropArea.on('drop', (e) => {
+                const files = e.originalEvent.dataTransfer.files;
+                this.handleFiles(files);
+            });
+        },
+        // 更新文件预览
+        updateFilePreview() {
+            const filePreview = $('#filePreview');
+            const emptyState = $('#emptyState');
+            filePreview.empty();
+            if (this.modFile === null) {
+                filePreview.append(emptyState.clone().show());
+                return;
+            }
+            // 显示文件预览
+            const fileItem = $(
+                `<div class="file-item" data-filename="${this.modFile.name}">
+                            <div class="file-info">
+                                <div class="file-name">${this.modFile.name}</div>
+                            </div>
+                            <div class="form-group file-tag">
+                                <input class="form-control" placeholder="请输入唯一的mod名称"
+                                id="modTagInput" oninput="updateModTag(this.value)">
+
+                            </div>
+                            <div class="file-actions">
+                                <button class="btn btn-sm btn-danger" title="移除" onclick="removeFile()">
+                                    <i class="mdi mdi-close"></i>
+                                </button>
+                            </div>
+                        </div>`
+            );
+            filePreview.append(fileItem);
+            $("#modTagInput").focus();
+        },
+        removeFile() {
+            this.modFile = null
+            this.modTag = ""
+            this.updateFilePreview();
+        },
+        updateModTag(val) {
+            this.modTag = val;
+        },
         getmodlist() {
             $.ajax({
                 url: "/api/v1/l4d2/mods",
@@ -297,16 +377,13 @@ var app = new Vue({
             let username = JSON.parse(decodeURIComponent(escape(window.atob(access_token.split(".")[1])))).sub
             return username
         },
-        handleFileChange() {
-            this.modFile = $("#fileInput")[0].files[0];
-        },
         uploadMod() {
-            if (this.modTag === "") {
-                lightyear.notify("请输入mod名称", "danger", 3000);
-                return;
-            }
             if (this.modFile === null) {
                 lightyear.notify("请选择mod文件", "danger", 3000);
+                return;
+            }
+            if (this.modTag === "") {
+                lightyear.notify("请输入mod名称", "danger", 3000);
                 return;
             }
             //检查是否重复标签
@@ -323,7 +400,6 @@ var app = new Vue({
             formData.append('file', this.modFile);
             formData.append('tag', this.modTag);
             formData.append('user', this.getUsername());
-
             $.ajax({
                 url: "/api/v1/l4d2/mod",
                 type: "post",
@@ -336,6 +412,8 @@ var app = new Vue({
                     if (r.code == 0) {
                         lightyear.notify("上传成功！", "success", 3000);
                         this.getmodlist();
+                        this.removeFile();
+                        $("#uploadModal").modal('hide');
                     } else {
                         lightyear.notify("上传失败：" + r.msg, "danger", 3000);
                     }
@@ -353,6 +431,9 @@ var app = new Vue({
             this.getServerConfig();
         }
         this.getmodlist();
+        this.listenDrop();
+        window.updateModTag = this.updateModTag
+        window.removeFile = this.removeFile
     }
 });
 

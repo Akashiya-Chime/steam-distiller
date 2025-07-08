@@ -12,6 +12,9 @@
   <link href="static/css/xterm.min.css" rel="stylesheet">
   <link href="static/css/l4d2.css" rel="stylesheet">
   <link href="static/css/animate.css" rel="stylesheet">
+  <style>
+
+  </style>
 
 <body>
   <div class="lyear-layout-web">
@@ -116,25 +119,47 @@
                   </div>
 
                   <div class="tab-pane fade" id="game_mod_tab">
-                    <div class="form-inline">
-                      <div class="form-group mb-3">
-                        <div class="custom-file-input">
-                          <input type="file" style="display: none;" id="fileInput" accept=".vpk"
-                            @change="handleFileChange">
-                          <button type="button" class="btn btn-primary"
-                            onclick="document.getElementById('fileInput').click()">选择文件</button>
-                          <span id="fileName">未选择任何文件</span>
+                    <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#uploadModal">
+                      去上传Mod
+                    </button>
+
+                    <div class="modal fade" tabindex="-1" role="dialog" id="uploadModal" style="display: none;">
+                      <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                aria-hidden="true">×</span></button>
+                            <h4 class="modal-title" id="gridSystemModalLabel">上传Mod</h4>
+                          </div>
+                          <div class="modal-body upload-container">
+                              <div class="upload-area" id="dropArea">
+                                <div class="upload-icon">
+                                  <i class="bi bi-cloud-arrow-up"></i>
+                                </div>
+                                <div class="upload-text">
+                                  <h3>拖放文件到此处上传或点击选择文件</h3>
+                                </div>
+                                <button class="btn btn-upload pulse" id="uploadBtn"
+                                  onclick="document.getElementById('fileInput').click()">
+                                  <i class="bi bi-folder2-open"></i> 选择文件
+                                </button>
+                                <input type="file" style="display: none;" id="fileInput" accept=".vpk"
+                                  @change="handleFiles($event.target.files)">
+                              </div>
+                              <div class="file-preview" id="filePreview">
+                                <div class="text-center py-5" id="emptyState">
+                                  <p class="text-muted mt-3">暂无文件，请选择或拖放文件</p>
+                                </div>
+                              </div>
+                              <button id="startUploadBtn" class="btn btn-block btn-primary" @click="uploadMod()"
+                                :disabled="this.modFile === null || this.modTag === ''">
+                                开始上传
+                              </button>
+                          </div>
                         </div>
-                      </div>
-                      <div class="form-group">
-                        <input class="form-control" placeholder="请输入唯一的mod名称" v-model="modTag">
-                      </div>
-                      <div class="form-group">
-                        <button class="btn btn-primary" @click="uploadMod">上传</button>
                       </div>
                     </div>
                     <hr>
-
                     <div class="table-container">
                       <table class="table table-hover">
                         <thead>
@@ -160,6 +185,9 @@
                           </tr>
                         </tbody>
                       </table>
+                      <div class="text-center py-5" id="modListEmpty">
+                                  <h4 class="text-muted">还没有Mod，快去上传一个吧</h4>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -170,11 +198,14 @@
   </div>
   <script type="text/javascript"
     src="https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.6.0/jquery.min.js"></script>
+  <script type="text/javascript"
+    src="https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.6.0/jquery.min.js"></script>
   <script src="https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/vue/2.6.14/vue.min.js"></script>
   <script type="text/javascript" src="static/js/bootstrap-notify.min.js"></script>
   <script type="text/javascript" src="static/js/bootstrap.min.js"></script>
   <script type="text/javascript" src="static/js/lightyear.js"></script>
   <script type="text/javascript" src="static/js/l4d2.js"></script>
+
 </body>
 
 </html>
