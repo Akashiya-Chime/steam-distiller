@@ -6,11 +6,16 @@ import (
 	"os"
 	"steam-distiller/def"
 	log "steam-distiller/logger"
+	"sync"
 	"time"
 )
 
-var ErrDuplicateTagOrFile = errors.New("mod tag or file name already exists")
-var ErrTagNotFound = errors.New("mod tag not found")
+var (
+	ErrDuplicateTagOrFile = errors.New("mod tag or file name already exists")
+	ErrTagNotFound        = errors.New("mod tag not found")
+)
+
+var modsMutex sync.RWMutex
 
 type Mod struct {
 	Tag  string `json:"tag"`
@@ -20,7 +25,7 @@ type Mod struct {
 }
 
 func GetMod(tag string) (*Mod, error) {
-	mods, err := ReadMods()
+	mods, err := readMods()
 	if err != nil {
 		return nil, err
 	}
@@ -35,7 +40,7 @@ func GetMod(tag string) (*Mod, error) {
 	return nil, ErrTagNotFound
 }
 
-func ReadMods() ([]Mod, error) {
+func readMods() ([]Mod, error) {
 	file, err := os.ReadFile("mods.json")
 	if err != nil {
 		log.L.Warnf("Read mods.json failed, %v.", err)
@@ -51,8 +56,18 @@ func ReadMods() ([]Mod, error) {
 	return mods, nil
 }
 
+func ReadMods() ([]Mod, error) {
+	modsMutex.RLock()
+	defer modsMutex.RUnlock()
+
+	return readMods()
+}
+
 func WriteMod(tag, file, user string) error {
-	mods, err := ReadMods()
+	modsMutex.Lock()
+	defer modsMutex.Unlock()
+
+	mods, err := readMods()
 	if err != nil {
 		log.L.Warnf("Read mods failed, %v.", err)
 		return err
@@ -82,7 +97,10 @@ func WriteMod(tag, file, user string) error {
 }
 
 func DeleteMod(tag string) error {
-	mods, err := ReadMods()
+	modsMutex.Lock()
+	defer modsMutex.Unlock()
+
+	mods, err := readMods()
 	if err != nil {
 		log.L.Warnf("Read mods failed, %v.", err)
 		return err

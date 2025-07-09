@@ -149,34 +149,18 @@ func l4d2SetConfig(c *gin.Context) {
 
 func l4d2UploadMod(c *gin.Context) {
 	file, err := c.FormFile("file")
-	if err != nil {
-		SendJsonMsg(c, CODE_PARAM_ERROR, "文件获取失败", nil)
+	if (err != nil) || (filepath.Ext(file.Filename) != ".vpk") {
+		SendJsonMsg(c, CODE_PARAM_ERROR, "文件获取失败或类型错误", nil)
 		c.Abort()
 		return
 	}
 
 	tag := c.PostForm("tag")
-	if tag == "" {
-		SendJsonMsg(c, CODE_PARAM_ERROR, "缺少tag参数", nil)
-		c.Abort()
-		return
-	}
-
-	if strings.Contains(tag, "..") || strings.HasPrefix(tag, "/") {
-		SendJsonMsg(c, CODE_INVALID_TAG, "无效tag", nil)
-		c.Abort()
-		return
-	}
-
 	user := c.PostForm("user")
-	if tag == "" {
-		SendJsonMsg(c, CODE_PARAM_ERROR, "缺少user参数", nil)
-		c.Abort()
-		return
-	}
-
-	if filepath.Ext(file.Filename) != ".vpk" {
-		SendJsonMsg(c, CODE_FILE_NOT_VPK, "文件类型错误", nil)
+	if (tag == "") || (user == "") ||
+		strings.Contains(tag, "..") ||
+		strings.HasPrefix(tag, "/") {
+		SendJsonMsg(c, CODE_PARAM_ERROR, "无效参数", nil)
 		c.Abort()
 		return
 	}
