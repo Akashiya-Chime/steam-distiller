@@ -175,6 +175,12 @@ func l4d2UploadMod(c *gin.Context) {
 		return
 	}
 
+	if filepath.Ext(file.Filename) != ".vpk" {
+		SendJsonMsg(c, CODE_FILE_NOT_VPK, "文件类型错误", nil)
+		c.Abort()
+		return
+	}
+
 	path := filepath.Join(env.L4D2ModPath, file.Filename)
 	if err := c.SaveUploadedFile(file, path); err != nil {
 		SendJsonMsg(c, CODE_INNER_ERROR, "保存文件失败", nil)
