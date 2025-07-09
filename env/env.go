@@ -23,6 +23,7 @@ var L4D2Path, L4D2ConfigPath, L4D2ModPath string
 
 type Env struct {
 	Server   ServerConfig   `toml:"server"`
+	Admin    AdminConfig    `toml:"admin"`
 	SteamEnv SteamEnvConfig `toml:"l4d2"`
 }
 
@@ -30,6 +31,11 @@ type ServerConfig struct {
 	Host      string `toml:"host"`
 	Port      string `toml:"port"`
 	SecretKey string `toml:"secret_key"`
+}
+
+type AdminConfig struct {
+	Username string `toml:"username"`
+	Password string `toml:"password"`
 }
 
 type SteamEnvConfig struct {
@@ -97,4 +103,8 @@ func GetServerConfig() ServerConfig {
 
 func GetL4D2Env() SteamEnvConfig {
 	return env.SteamEnv
+}
+
+func GetAdminConfig() AdminConfig {
+	return env.Admin
 }
