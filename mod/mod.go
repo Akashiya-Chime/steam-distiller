@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"os"
+	"steam-distiller/def"
 	log "steam-distiller/logger"
 	"time"
 )
@@ -77,7 +78,7 @@ func WriteMod(tag, file, user string) error {
 		return err
 	}
 
-	return os.WriteFile("mods.json", newData, 0644)
+	return os.WriteFile("mods.json", newData, def.Permission)
 }
 
 func DeleteMod(tag string) error {
@@ -107,5 +108,5 @@ func DeleteMod(tag string) error {
 		return err
 	}
 
-	return os.WriteFile("mods.json", newData, 0644)
+	return os.WriteFile("mods.json", newData, def.Permission)
 }
