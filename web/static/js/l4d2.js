@@ -62,8 +62,7 @@ var app = new Vue({
         formValues: {},
         selectedGroups: {},
         modlist: [],
-        modFile: null,
-        modTag: "",
+        modFiles: [],
     },
     watch: {
         selectedGroups: {
@@ -266,7 +265,13 @@ var app = new Vue({
         // 处理选中的文件
         handleFiles(files) {
             if (files.length === 0) return;
-            this.modFile = files[0];
+            for (let file of files) {
+                this.modFiles.push({
+                    file: file,
+                    fileName: file.name,
+                    tag: file.name.replace(/\.[^/.]+$/, ""),
+                });
+            }
             $("#fileInput").val(""); //同名文件可再次触发change事件
             this.updateFilePreview();
         },
@@ -301,38 +306,59 @@ var app = new Vue({
             const filePreview = $('#filePreview');
             const emptyState = $('#emptyState');
             filePreview.empty();
-            if (this.modFile === null) {
+            if (this.modFiles.length === 0) {
                 filePreview.append(emptyState.clone().show());
                 return;
             }
             // 显示文件预览
-            const fileItem = $(
-                `<div class="file-item" data-filename="${this.modFile.name}">
+            //modFiles去重,避免上传相同文件
+            this.modFiles = this.modFiles.filter((item, index, self) =>
+                index === self.findIndex((t) => t.fileName === item.fileName)
+            );
+            for (let fileItem of this.modFiles) {
+                if ($(`[data-filename="${fileItem.fileName}"]`).length > 0) {
+                    continue;
+                }
+                let fileItem_dom = $(
+                    `<div class="file_dom" data-filename="${fileItem.fileName}">
+                        <div class="file-item">
                             <div class="file-info">
-                                <div class="file-name">${this.modFile.name}</div>
+                                <div class="file-name">${fileItem.fileName}</div>
                             </div>
                             <div class="form-group file-tag">
                                 <input class="form-control" placeholder="请输入唯一的mod名称"
-                                id="modTagInput" oninput="updateModTag(this.value)">
-
+                                id="modTagInput" value="${fileItem.tag}" oninput="updateModTag('${fileItem.fileName}',this.value)">
                             </div>
                             <div class="file-actions">
-                                <button class="btn btn-sm btn-danger" title="移除" onclick="removeFile()">
-                                    <i class="mdi mdi-close"></i>
+                                <button class="btn btn-sm btn-danger" title="移除" onclick="removeFile('${fileItem.fileName}')">
+                                    <i class="mdi mdi-close"></i>删除
+                                </button>
+                                <button class="btn btn-sm btn-secondary" title="重新上传"style="display: none;" onclick="uploadSingleMod('${fileItem.fileName}')">
+                                    <i class="mdi mdi-backup-restore"></i>重试
                                 </button>
                             </div>
+                        </div>
+                            <div class="progress-bar" role="progressbar" aria-valuenow="0"
+                             aria-valuemin="0" aria-valuemax="100">
+                            </div>
                         </div>`
-            );
-            filePreview.append(fileItem);
-            $("#modTagInput").focus();
+                );
+                filePreview.append(fileItem_dom);
+            }
         },
-        removeFile() {
-            this.modFile = null
-            this.modTag = ""
-            this.updateFilePreview();
+        removeFile(filename) {
+            $(`[data-filename="${filename}"]`).removeClass('fade-in');
+            $(`[data-filename="${filename}"]`).addClass('removing');
+            setTimeout(() => {
+                this.modFiles = this.modFiles.filter(item => item.fileName !== filename);
+                this.updateFilePreview();
+            }, 400);
         },
-        updateModTag(val) {
-            this.modTag = val;
+        updateModTag(filename, val) {
+            let fileItem = this.modFiles.find(item => item.fileName === filename);
+            if (fileItem) {
+                fileItem.tag = val;
+            }
         },
         getmodlist() {
             $.ajax({
@@ -377,52 +403,84 @@ var app = new Vue({
             let username = JSON.parse(decodeURIComponent(escape(window.atob(access_token.split(".")[1])))).sub
             return username
         },
-        uploadMod() {
-            if (this.modFile === null) {
-                lightyear.notify("请选择mod文件", "danger", 3000);
-                return;
+        uploadSingleMod(filename) {
+            let fileItem = this.modFiles.find(item => item.fileName === filename);
+            if (fileItem) {
+                this.uploadMod([fileItem]);
             }
-            if (this.modTag === "") {
-                lightyear.notify("请输入mod名称", "danger", 3000);
-                return;
-            }
-            //检查是否重复标签
-            if (this.modlist.some(item => item.tag === this.modTag)) {
-                lightyear.notify("上传失败，已存在相同名称的mod", "danger", 3000);
-                return;
-            }
-            //检查是否重复文件名
-            if (this.modlist.some(item => item.file === this.modFile.name)) {
-                lightyear.notify("上传失败，已存在相同名称的vpk文件", "danger", 3000);
-                return;
-            }
-            const formData = new FormData();
-            formData.append('file', this.modFile);
-            formData.append('tag', this.modTag);
-            formData.append('user', this.getUsername());
-            $.ajax({
-                url: "/api/v1/l4d2/mod",
-                type: "post",
-                data: formData,
-                contentType: "multipart/form-data",
-                processData: false,
-                contentType: false,
-                dataType: "json",
-                success: (r) => {
-                    if (r.code == 0) {
-                        lightyear.notify("上传成功！", "success", 3000);
-                        this.getmodlist();
-                        this.removeFile();
-                        $("#uploadModal").modal('hide');
-                    } else {
-                        lightyear.notify("上传失败：" + r.msg, "danger", 3000);
-                    }
-                },
-                error: (xhr) => {
-                    lightyear.notify("网络异常，上传mod失败", "danger", 3000);
-                }
-            })
         },
+        uploadMod(files) {
+            if (files.length === 0) {
+                lightyear.notify("请先选择mod文件", "danger", 3000);
+                return;
+            }
+            for (let file of files) {
+                if (file.tag === "") {
+                    lightyear.notify("mod名称为空:" + file.fileName, "danger", 3000);
+                    return;
+                }
+                if (this.modlist.some(item => item.tag === file.tag)) {
+                    lightyear.notify("上传失败，已存在相同名称的mod:" + file.tag, "danger", 3000);
+                    return;
+                }
+                if (this.modlist.some(item => item.fileName === file.fileName)) {
+                    lightyear.notify("上传失败，已存在相同名称的vpk文件:" + file.fileName, "danger", 3000);
+                    return;
+                }
+            }
+            user = this.getUsername()
+            for (let file of files) {
+                let formData = new FormData();
+                formData.append('file', file.file);
+                formData.append('tag', file.tag);
+                formData.append('user', user);
+                let retryBtn = $(`[data-filename="${file.fileName}"]`).find('.btn-secondary');
+                let progressBar = $(`[data-filename="${file.fileName}"]`).find('.progress-bar');
+                this.updateProgress(progressBar, '上传中...', 'uploading');
+                $.ajax({
+                    url: "/api/v1/l4d2/mod",
+                    type: "post",
+                    data: formData,
+                    contentType: "multipart/form-data",
+                    processData: false,
+                    contentType: false,
+                    dataType: "json",
+                    success: (r) => {
+                        if (r.code == 0) {
+                            this.updateProgress(progressBar, '上传成功', 'success');
+                            setTimeout(() => {
+                                lightyear.notify("上传成功！", "success", 3000);
+                                this.getmodlist();
+                                this.removeFile(file.fileName);
+                                retryBtn.hide();
+                            }, 1000);
+                        } else {
+                            this.updateProgress(progressBar, '上传失败', 'error');
+                            setTimeout(() => {
+                                lightyear.notify("上传失败：" + r.msg, "danger", 3000);
+                                retryBtn.show();
+                            }, 1000);
+                        }
+                    },
+                    error: (xhr) => {
+                        this.updateProgress(progressBar, '上传失败', 'error');
+                        setTimeout(() => {
+                            lightyear.notify("网络异常，上传mod失败", "danger", 3000);
+                            retryBtn.show();
+                        }, 1000);
+                    }
+                })
+            }
+        },
+        updateProgress(progressBar, val, type) {
+            for (i of ["uploading", "success", "error"]) {
+                if (i != type) {
+                    progressBar.removeClass('progress-' + i);
+                }
+            }
+            progressBar.addClass('progress-' + type);
+            progressBar.text(val);
+        }
     },
     mounted() {
         this.initConfig();
@@ -432,11 +490,12 @@ var app = new Vue({
         }
         this.getmodlist();
         this.listenDrop();
-        window.updateModTag = this.updateModTag
-        window.removeFile = this.removeFile
+        window.updateModTag = this.updateModTag;
+        window.removeFile = this.removeFile;
+        window.uploadSingleMod = this.uploadSingleMod;
     }
 });
-
+$("[data-toggle='tooltip']").tooltip();
 // console
 const term_l4d2 = window.parent.term_l4d2
 //重写连接状态更新方法，避免找不到元素的问题

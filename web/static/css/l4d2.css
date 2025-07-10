@@ -277,6 +277,15 @@
     margin-bottom: 20px;
 }
 
+.file-counter {
+    background-color: var(--primary-color);
+    color: white;
+    border-radius: 20px;
+    padding: 3px 12px;
+    font-size: 0.9rem;
+    margin-left: 10px;
+}
+
 .btn-upload {
     background-color: #3498db;
     color: white;
@@ -326,16 +335,49 @@
     margin-top: 30px;
 }
 
-.file-item {
-    display: flex;
-    align-items: center;
+.file_dom {
     padding: 15px;
+    padding-bottom: 3rem;
     background-color: #f8f9fa;
     border-radius: 10px;
     margin-bottom: 15px;
-    transition: all 0.3s ease;
-    animation: fadeIn 0.5s ease;
     justify-content: center;
+}
+
+.progress-bar {
+    height: 1.5rem;
+    margin: 1rem 0;
+    border-radius: 5px;
+    transition: width 1s ease;
+    width: 0%;
+}
+.progress-uploading {
+    background-color: #33cabb;
+    width: 50%;
+}
+
+.progress-success {
+    background-color: #33cabb;
+    width: 100%;
+}
+
+.progress-error {
+    background-color: #e74c3c;
+    width: 75%;
+}
+
+.file-item {
+    display: flex;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease;
+}
+
+.removing {
+    animation: fadeOutLeft 0.5s ease;
 }
 
 .file-item:hover {
@@ -364,6 +406,18 @@
     gap: 10px;
 }
 
+.tooltip-inner {
+
+    background-color: #33cabb;
+
+}
+
+.tooltip.top .tooltip-arrow {
+
+    border-top-color: #33cabb;
+
+}
+
 /* Animations */
 @keyframes fadeIn {
     from {
@@ -375,27 +429,15 @@
     }
 }
 
-@keyframes fadeInUp {
+@keyframes fadeOutLeft {
     from {
-        opacity: 0;
-        transform: translateY(30px);
+        opacity: 1;
+        transform: translateX(0);
     }
 
     to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes fadeInDown {
-    from {
         opacity: 0;
-        transform: translateY(-30px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
+        transform: translateX(-300px);
     }
 }
 
