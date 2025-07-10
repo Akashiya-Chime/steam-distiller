@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"steam-distiller/env"
 	"steam-distiller/invcode"
 	"steam-distiller/logger"
@@ -21,6 +22,9 @@ func main() {
 	engine := gin.Default()
 	sql.Connect()
 	defer sql.Close()
+	if res := sql.SetAdmin(); res != sql.DB_OK {
+		log.Fatal("Set admin failed.")
+	}
 	websocket.StartManager()
 	// 邀请码有效期10分钟
 	invcode.InitInvCodeManager(10 * time.Minute)

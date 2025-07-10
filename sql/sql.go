@@ -1,7 +1,10 @@
 package sql
 
 import (
+	"crypto/md5"
+	"encoding/hex"
 	"errors"
+	"steam-distiller/env"
 	log "steam-distiller/logger"
 
 	"gorm.io/driver/sqlite"
@@ -106,5 +109,34 @@ func UpdateUserPassWord(user User) DbError {
 		return DB_UPDATE_FAILED
 	}
 
+	return DB_OK
+}
+
+func SetAdmin() DbError {
+	adminConfig := env.GetAdminConfig()
+	hash := md5.Sum([]byte(adminConfig.Password))
+	md5Password := hex.EncodeToString(hash[:])
+
+	res := g_gormDB.Model(&User{}).
+		Where("is_admin = ?", true).
+		Updates(map[string]any{
+			"username": adminConfig.Username,
+			"password": md5Password,
+		})
+	if res.Error != nil {
+		log.L.Warnf("Search admin record error, %v.", res.Error)
+		return DB_ERROR
+	}
+
+	if res.RowsAffected == 0 {
+		log.L.Infoln("No admin, create one.")
+		return CreateUser(User{
+			Username: adminConfig.Username,
+			Password: md5Password,
+			IsAdmin:  true,
+		})
+	}
+
+	log.L.Info("Update admin setting successfully.")
 	return DB_OK
 }
