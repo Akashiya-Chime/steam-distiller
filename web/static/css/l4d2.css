@@ -237,6 +237,10 @@
     text-overflow: ellipsis;
 }
 
+.search-bar {
+    margin: 20px 0;
+}
+
 .upload-container {
     background-color: white;
     border-radius: 15px;
@@ -355,6 +359,7 @@
     border-radius: 5px;
     width: 0%;
 }
+
 .progress-uploading {
     background-color: #33cabb;
     transition: width 3s linear;

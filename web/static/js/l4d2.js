@@ -63,6 +63,7 @@ var app = new Vue({
         selectedGroups: {},
         modlist: [],
         modFiles: [],
+        searchQuery: '',
     },
     watch: {
         selectedGroups: {
@@ -78,14 +79,26 @@ var app = new Vue({
                 }
             }
         },
-        modlist: {
-            handler() {
-                if (this.modlist.length > 0) {
-                    $("#modListEmpty").hide();
-                } else {
-                    $("#modListEmpty").show();
-                }
+    },
+    computed: {
+        filteredItems() {
+            let filtered = this.modlist;
+            // 状态过滤
+            // if (this.statusFilter) {
+            //     filtered = filtered.filter(item => item.status === this.statusFilter);
+            // }
+
+            // 搜索过滤
+            if (this.searchQuery) {
+                filtered = filtered.filter(item =>
+                    item.file.toLowerCase().includes(this.searchQuery) ||
+                    item.tag.toLowerCase().includes(this.searchQuery) ||
+                    item.time.toLowerCase().includes(this.searchQuery)||
+                    item.user.toLowerCase().includes(this.searchQuery)
+                );
             }
+
+            return filtered;
         }
     },
     methods: {
@@ -483,12 +496,12 @@ var app = new Vue({
         }
     },
     mounted() {
+        this.getmodlist();
         this.initConfig();
         if (this.config) {
             this.initializeFormValues();
             this.getServerConfig();
         }
-        this.getmodlist();
         this.listenDrop();
         window.updateModTag = this.updateModTag;
         window.removeFile = this.removeFile;
