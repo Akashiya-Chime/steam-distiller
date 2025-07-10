@@ -47,9 +47,8 @@ func JwtAuthor() gin.HandlerFunc {
 			})
 		if err != nil {
 			log.L.Warnf("Invalid token, %v.", err)
-			c.JSON(http.StatusUnauthorized, gin.H{
-				"error": "无效token",
-			})
+			// 当token无效时，重定向回登陆页面
+			c.Redirect(http.StatusFound, "/")
 			c.Abort()
 			return
 		}
