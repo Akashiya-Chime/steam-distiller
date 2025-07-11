@@ -218,7 +218,7 @@ func l4d2DeleteMod(c *gin.Context) {
 		return
 	}
 
-	path := filepath.Join(env.L4D2ConfigPath, modInfo.File)
+	path := filepath.Join(env.L4D2ModPath, modInfo.File)
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		SendJsonMsg(c, CODE_INNER_ERROR, "文件未找到", nil)
 		c.Abort()
