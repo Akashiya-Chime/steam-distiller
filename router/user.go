@@ -98,7 +98,8 @@ func isUserOk(user User) bool {
 }
 
 type TokenRes struct {
-	Token AccessToken `json:"access_token"`
+	Token     AccessToken `json:"token"`
+	ExpiredAt int64       `json:"expiredAt"`
 }
 
 func userLogin(c *gin.Context) {
@@ -116,7 +117,7 @@ func userLogin(c *gin.Context) {
 		return
 	}
 
-	token, err := jwt.JwtGenToken(user.Name)
+	token, expiredAt, err := jwt.JwtGenToken(user.Name)
 	if err != nil {
 		log.L.Warnf("Generate token failed, %v.", err)
 		SendJsonMsg(c, CODE_GEN_TOKEN_FAILED, "系统内部错误", nil)
@@ -124,7 +125,7 @@ func userLogin(c *gin.Context) {
 		return
 	}
 
-	SendJsonMsg(c, CODE_OK, "登录成功", TokenRes{Token: token})
+	SendJsonMsg(c, CODE_OK, "登录成功", TokenRes{Token: token, ExpiredAt: expiredAt})
 }
 
 func IsInvCodeValid(code string) bool {

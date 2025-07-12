@@ -12,16 +12,24 @@ import (
 
 const MAX_TOKEN_LIVE uint = 6 // token过期时间6小时
 
-func JwtGenToken(key string) (string, error) {
+func JwtGenToken(key string) (string, int64, error) {
 	secretKey := []byte(env.GetServerConfig().SecretKey)
+	expiredAt := jwt.NewNumericDate(time.Now().Add(time.Duration(MAX_TOKEN_LIVE) * time.Hour))
+	issuedAt := jwt.NewNumericDate(time.Now())
+
 	claims := jwt.RegisteredClaims{
 		Subject:   key,
-		ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Duration(MAX_TOKEN_LIVE) * time.Hour)),
-		IssuedAt:  jwt.NewNumericDate(time.Now()),
+		ExpiresAt: expiredAt,
+		IssuedAt:  issuedAt,
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	return token.SignedString(secretKey)
+	signedToken, err := token.SignedString(secretKey)
+	if err != nil {
+		return "", 0, err
+	}
+
+	return signedToken, expiredAt.Unix(), nil
 }
 
 func JwtAuthor() gin.HandlerFunc {
