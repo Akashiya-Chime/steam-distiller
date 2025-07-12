@@ -39,27 +39,30 @@ function generateInviteCode() {
     return result;
 
 }
+function showInviteCode() {
+    const inviteBtn = document.getElementById("inviteBtn");
+    const loading = document.getElementById("loading");
+    const codeContainer = document.getElementById("codeContainer");
+    const regenContainer = document.getElementById("regenContainer");
+    regenContainer.style.removeProperty("display");
+    console.log(regenContainer);
+    inviteBtn.style.display = "none";
+    loading.style.display = "block";
+    const code = generateInviteCode();
+    loading.style.display = "none";
+    if (!code) {
+        inviteBtn.style.removeProperty("display");
+        return;
+    }
+    codeValue.textContent = code;
+    codeContainer.style.display = "block";
+}
 
 document.addEventListener("DOMContentLoaded", function () {
     const inviteBtn = document.getElementById("inviteBtn");
-    const codeContainer = document.getElementById("codeContainer");
     const codeBox = document.getElementById("codeBox");
     const codeValue = document.getElementById("codeValue");
-    const loading = document.getElementById("loading");
-
-    inviteBtn.addEventListener("click", function () {
-        inviteBtn.style.display = "none";
-        loading.style.display = "block";
-        const code = generateInviteCode();
-        loading.style.display = "none";
-        if (!code) {
-            inviteBtn.style.removeProperty("display");
-            return;
-        }
-        codeValue.textContent = code;
-        codeContainer.style.display = "block";
-    });
-
+    inviteBtn.addEventListener("click", showInviteCode);
     codeBox.addEventListener("click", function () {
         // 创建临时textarea用于复制
         const textarea = document.createElement("textarea");
