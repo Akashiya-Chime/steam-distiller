@@ -20,6 +20,8 @@ func init() {
 func main() {
 	env.InitEnv()
 	engine := gin.Default()
+	// 默认32MB，扩大为500MB
+	engine.MaxMultipartMemory = 1024 * 1024 * 500
 	sql.Connect()
 	defer sql.Close()
 	if res := sql.SetAdmin(); res != sql.DB_OK {

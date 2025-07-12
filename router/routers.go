@@ -43,6 +43,8 @@ var apiv1Route = []RouteItem{
 	{http.MethodGet, "/l4d2/config", l4d2GetConfig},
 	{http.MethodPost, "/l4d2/config", l4d2SetConfig},
 	{http.MethodPost, "/l4d2/mod", l4d2UploadMod},
+	{http.MethodPost, "/l4d2/modchunk", l4d2UploadModByChunk},
+	{http.MethodGet, "/l4d2/mod/status", l4d2UploadModStatus},
 	{http.MethodGet, "/l4d2/mods", l4d2GetMods},
 	{http.MethodDelete, "/l4d2/mod", l4d2DeleteMod},
 }
