@@ -11,27 +11,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type ReturnCode uint
-
-const (
-	CODE_OK ReturnCode = iota
-	CODE_ERROR
-	CODE_INNER_ERROR
-	CODE_GEN_TOKEN_FAILED
-	CODE_LOGIN_FAILED
-	CODE_INV_CODE_INVALID
-	CODE_USER_INFO_INVALID
-	CODE_USER_ALREADY_EXIST
-	CODE_USER_NOT_EXIST
-	CODE_GAME_IS_RUNNING
-	CODE_USER_NOT_ADMIN
-	CODE_PARAM_ERROR
-	CODE_DUPLICATE_TAG_OR_FILE
-	CODE_INVALID_TAG
-	CODE_FILE_NOT_VPK
-	CODE_OVER_MAX_FILE_SIZE
-)
-
 type User struct {
 	Name     string `json:"username"`
 	Password string `json:"password"`

@@ -1,0 +1,37 @@
+package router
+
+type ReturnCode uint
+
+// 通用
+const (
+	CODE_OK    ReturnCode = 0
+	CODE_ERROR ReturnCode = 1000 + iota
+	CODE_PARAM_ERROR
+	CODE_INNER_ERROR
+)
+
+// 用户
+const (
+	CODE_GEN_TOKEN_FAILED ReturnCode = 2001 + iota
+	CODE_USER_ALREADY_EXIST
+	CODE_USER_NOT_EXIST
+	CODE_USER_NOT_ADMIN
+	CODE_USER_INFO_INVALID
+	CODE_LOGIN_FAILED
+	CODE_INV_CODE_INVALID
+)
+
+// 游戏服务
+const (
+	CODE_GAME_IS_RUNNING ReturnCode = 3001 + iota
+)
+
+// 文件
+const (
+	CODE_CHUNK_UPLOAD_OK = 4001 + iota
+	CODE_CHUNK_EXISTS
+	CODE_FILE_UPLOAD_OK
+	CODE_FILE_EXISTS
+	CODE_DUPLICATE_TAG_OR_FILE
+	CODE_INVALID_TAG
+)
