@@ -576,8 +576,8 @@ var app = new Vue({
             }
         },
         async uploadByChunk(fileitem) {
-            const CHUNK_SIZE = 1 * 1024 * 1024;
-            const MAX_CONCURRENT_UPLOADS = 2;
+            const CHUNK_SIZE = 5 * 1024 * 1024;
+            const MAX_CONCURRENT_UPLOADS = 5;
             const MAX_RETRY_COUNT = 3;
             let retryBtn = $(`[data-filename="${fileitem.fileName}"]`).find('.btn-secondary');
             this.updateProgress(fileitem.fileName, 0, 'uploading');
