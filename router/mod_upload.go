@@ -90,7 +90,6 @@ func l4d2UploadModByChunk(c *gin.Context) {
 	markChunkUploaded(req.Tag, req.ChunkIndex)
 
 	completed := getCompletedChunks(req.Tag, req.TotalChunks)
-	fmt.Println(completed)
 	if len(completed) == req.TotalChunks {
 		if err := mergeChunks(req.Tag, req.Filename); err != nil {
 			log.L.Warnf("Merge chunks failed, %v.", err)
