@@ -1,3 +1,159 @@
+// 上传控制器
+class UploadController {
+    constructor(url, fileitem, user, chunkSize, maxConcurrent, maxRetry) {
+        this.url = url;
+        this.fileitem = fileitem;
+        this.file = fileitem.file;
+        this.user = user;
+        this.chunkSize = chunkSize;
+        this.maxConcurrent = maxConcurrent;
+        this.maxRetry = maxRetry;
+        this.totalChunks = Math.ceil(this.file.size / chunkSize);
+        this.uploadedChunks = 0;
+        this.chunkQueue = [];
+        this.activeUploads = 0;
+        this.isPaused = false;
+        this.isCancelled = false;
+        this.progressCallbacks = [];
+        this.completeCallbacks = [];
+        this.errorCallbacks = [];
+        this.postsuccessCallback = () => { };
+        // 初始化分片队列
+        for (let i = 0; i < this.totalChunks; i++) {
+            this.chunkQueue.push({
+                index: i,
+                retryCount: 0,
+                start: i * chunkSize,
+                end: Math.min((i + 1) * chunkSize, this.file.size)
+            });
+        }
+    }
+
+    onProgress(callback) {
+        this.progressCallbacks.push(callback);
+    }
+
+    onPostsuccess(callback) {
+        this.postsuccessCallback = callback;
+    }
+    onComplete(callback) {
+        this.completeCallbacks.push(callback);
+    }
+
+    onError(callback) {
+        this.errorCallbacks.push(callback);
+    }
+
+    pause() {
+        this.isPaused = true;
+    }
+
+    resume() {
+        this.isPaused = false;
+        this.processQueue();
+    }
+
+    cancel() {
+        this.isCancelled = true;
+    }
+
+    async start() {
+        this.isPaused = false;
+        this.isCancelled = false;
+        await this.processQueue();
+    }
+
+    async processQueue() {
+        if (this.isCancelled) return;
+
+        // 达到最大并发数或没有更多分片
+        while (this.activeUploads < this.maxConcurrent && this.chunkQueue.length > 0) {
+            if (this.isPaused) break;
+
+            const chunk = this.chunkQueue.shift();
+            this.activeUploads++;
+            this.uploadChunk(chunk);
+        }
+    }
+
+    async uploadChunk(chunk) {
+        if (this.isCancelled) return;
+
+        try {
+            const chunkBlob = this.file.slice(chunk.start, chunk.end);
+            const formData = new FormData();
+            // 将分片包装成 File 对象，保留原始文件名和类型
+            const chunkFile = new File([chunkBlob], this.file.name, {
+                type: this.file.type,
+            });
+            formData.append('file', chunkFile);
+            formData.append('tag', this.fileitem.tag);
+            formData.append('filename', this.fileitem.fileName);
+            formData.append('user', this.user);
+            formData.append('chunkIndex', chunk.index);
+            formData.append('totalChunks', this.totalChunks);
+
+            // 上传分片到服务器
+            await this.sendChunk(formData);
+
+            this.uploadedChunks++;
+            this.activeUploads--;
+
+            // 更新进度
+            const progress = Math.floor((this.uploadedChunks / this.totalChunks) * 100);
+            this.progressCallbacks.forEach(cb => cb(progress, chunk.index));
+
+            // 检查是否全部完成
+            if (this.uploadedChunks === this.totalChunks) {
+                this.completeCallbacks.forEach(cb => cb());
+            } else {
+                // 继续处理队列
+                this.processQueue();
+            }
+        } catch (error) {
+            if (this.isCancelled) return;
+            if (chunk.retryCount < this.maxRetry) {
+                // 重试上传
+                chunk.retryCount++;
+                this.chunkQueue.unshift(chunk);
+                this.activeUploads--;
+                this.processQueue();
+            } else {
+                // 超过重试次数，上报错误
+                this.errorCallbacks.forEach(cb => cb(`分片 ${chunk.index} 上传失败`));
+            }
+        }
+    }
+
+    async sendChunk(formData) {
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                url: this.url,
+                type: "post",
+                data: formData,
+                contentType: "multipart/form-data",
+                processData: false,
+                contentType: false,
+                dataType: "json",
+                success: (r) => {
+                    if (this.postsuccessCallback(r)) {
+                        resolve();
+                    } else {
+                        reject(`上传失败: ${r.msg}`);
+                    }
+                },
+                error: (r) => {
+                    reject(`上传失败:${formData.get('chunkIndex')}`);
+
+                }
+            })
+        })
+    }
+}
+
+
+
+
 function getGameStatus() {
     is_success = false // 用于判断是否成功连到服务器
     now_status = ""
@@ -63,7 +219,12 @@ var app = new Vue({
         selectedGroups: {},
         modlist: [],
         modFiles: [],
-        searchQuery: '',
+        isUploading: false,
+        filters: {
+            tag: '',
+            file: '',
+            user: '',
+        },
     },
     watch: {
         selectedGroups: {
@@ -83,23 +244,15 @@ var app = new Vue({
     computed: {
         filteredItems() {
             let filtered = this.modlist;
-            // 状态过滤
-            // if (this.statusFilter) {
-            //     filtered = filtered.filter(item => item.status === this.statusFilter);
-            // }
-
-            // 搜索过滤
-            if (this.searchQuery) {
-                filtered = filtered.filter(item =>
-                    item.file.toLowerCase().includes(this.searchQuery) ||
-                    item.tag.toLowerCase().includes(this.searchQuery) ||
-                    item.time.toLowerCase().includes(this.searchQuery)||
-                    item.user.toLowerCase().includes(this.searchQuery)
-                );
+            for (const key in this.filters) {
+                if (this.filters[key] != '') {
+                    filtered = filtered.filter(item =>
+                        item[key].toLowerCase().includes(this.filters[key].toLowerCase())
+                    );
+                }
             }
-
             return filtered;
-        }
+        },
     },
     methods: {
         getFieldIcon(fieldType) {
@@ -186,13 +339,13 @@ var app = new Vue({
                 dataType: "json",
                 success: (r) => {
                     if (r.code == 0) {
-                        lightyear.notify("游戏配置提交成功！", "success", 3000);
+                        lightyear.notify("游戏配置提交成功！", "success", 3000, "", "top", "right");
                     } else {
-                        lightyear.notify(r.msg, "danger", 3000);
+                        lightyear.notify(r.msg, "danger", 3000, "", "top", "right");
                     }
                 },
                 error: (xhr) => {
-                    lightyear.notify("网络异常，提交游戏配置失败", "danger", 3000);
+                    lightyear.notify("网络异常，提交游戏配置失败", "danger", 3000, "", "top", "right");
                 }
             })
         },
@@ -238,9 +391,9 @@ var app = new Vue({
                         }
                     }
                 }
-                lightyear.notify("配置结果已成功应用到表单！", "success", 3000);
+                lightyear.notify("配置结果已成功应用到表单！", "success", 3000, "", "top", "right");
             } catch (e) {
-                lightyear.notify("应用配置结果时出错：" + e.message, "danger", 3000);
+                lightyear.notify("应用配置结果时出错：" + e.message, "danger", 3000, "", "top", "right");
             }
         },
         getServerConfig() {
@@ -252,11 +405,11 @@ var app = new Vue({
                     if (r.code == 0) {
                         this.applyToForm(r.data)
                     } else {
-                        lightyear.notify(r.msg, "danger", 3000);
+                        lightyear.notify(r.msg, "danger", 3000, "", "top", "right");
                     }
                 },
                 error: (xhr) => {
-                    lightyear.notify("网络异常，服务器端游戏配置获取失败", "danger", 3000);
+                    lightyear.notify("网络异常，服务器端游戏配置获取失败", "danger", 3000, "", "top", "right");
                 }
             })
         },
@@ -270,7 +423,7 @@ var app = new Vue({
                     this.config = r
                 },
                 error: () => {
-                    lightyear.notify("网络异常，初始化配置表失败", "danger", 3000);
+                    lightyear.notify("网络异常，初始化配置表失败", "danger", 3000, "", "top", "right");
                 }
             })
         },
@@ -282,7 +435,7 @@ var app = new Vue({
                 this.modFiles.push({
                     file: file,
                     fileName: file.name,
-                    tag: file.name.replace(/\.[^/.]+$/, ""),
+                    tag: "",
                 });
             }
             $("#fileInput").val(""); //同名文件可再次触发change事件
@@ -340,7 +493,7 @@ var app = new Vue({
                             </div>
                             <div class="form-group file-tag">
                                 <input class="form-control" placeholder="请输入唯一的mod名称"
-                                id="modTagInput" value="${fileItem.tag}" oninput="updateModTag('${fileItem.fileName}',this.value)">
+                                id="modTagInput" oninput="updateModTag('${fileItem.fileName}',this.value)">
                             </div>
                             <div class="file-actions">
                                 <button class="btn btn-sm btn-danger" title="移除" onclick="removeFile('${fileItem.fileName}')">
@@ -351,7 +504,7 @@ var app = new Vue({
                                 </button>
                             </div>
                         </div>
-                            <div class="progress-bar" role="progressbar" aria-valuenow="0"
+                            <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="0"
                              aria-valuemin="0" aria-valuemax="100">
                             </div>
                         </div>`
@@ -383,11 +536,11 @@ var app = new Vue({
                     if (r.code == 0) {
                         this.modlist = r.data;
                     } else {
-                        lightyear.notify(r.msg, "danger", 3000);
+                        lightyear.notify(r.msg, "danger", 3000, "", "top", "right");
                     }
                 },
                 error: (xhr) => {
-                    lightyear.notify("网络异常，mod列表获取失败", "danger", 3000);
+                    lightyear.notify("网络异常，mod列表获取失败", "danger", 3000, "", "top", "right");
                 }
             })
         },
@@ -400,14 +553,14 @@ var app = new Vue({
                 dataType: "json",
                 success: (r) => {
                     if (r.code == 0) {
-                        lightyear.notify("删除成功！", "success", 3000);
+                        lightyear.notify("删除成功！", "success", 3000, "", "top", "right");
                         this.modlist = this.modlist.filter(mod => mod.tag !== item.tag);
                     } else {
-                        lightyear.notify("删除失败：" + r.msg, "danger", 3000);
+                        lightyear.notify("删除失败：" + r.msg, "danger", 3000, "", "top", "right");
                     }
                 },
                 error: (xhr) => {
-                    lightyear.notify("网络异常，删除mod失败", "danger", 3000);
+                    lightyear.notify("网络异常，删除mod失败", "danger", 3000, "", "top", "right");
                 }
             })
         },
@@ -422,78 +575,98 @@ var app = new Vue({
                 this.uploadMod([fileItem]);
             }
         },
+        async uploadByChunk(fileitem) {
+            const CHUNK_SIZE = 1 * 1024 * 1024;
+            const MAX_CONCURRENT_UPLOADS = 2;
+            const MAX_RETRY_COUNT = 3;
+            let retryBtn = $(`[data-filename="${fileitem.fileName}"]`).find('.btn-secondary');
+            this.updateProgress(fileitem.fileName, 0, 'uploading');
+            this.isUploading = true;
+            totalChunks = Math.ceil(fileitem.file.size / CHUNK_SIZE);
+            try {
+                uploadController = new UploadController(
+                    "/api/v1/l4d2/modchunk",
+                    fileitem,
+                    this.getUsername(),
+                    CHUNK_SIZE,
+                    MAX_CONCURRENT_UPLOADS,
+                    MAX_RETRY_COUNT
+                );
+                uploadController.onProgress((progress, chunkIndex) => {
+                    this.updateProgress(fileitem.fileName, progress, 'uploading');
+                });
+                uploadController.onComplete(() => {
+                    this.isUploading = false;
+                    this.updateProgress(fileitem.fileName, 100, 'success');
+                    this.getmodlist();
+                    this.removeFile(fileitem.fileName);
+                    retryBtn.hide();
+                });
+                uploadController.onError((error) => {
+                    this.isUploading = false;
+                    console.error(fileitem.fileName, error)
+                    this.updateProgress(fileitem.fileName, null, 'error');
+                    lightyear.notify("上传失败：" + fileitem.fileName, "danger", 3000, "", "top", "right");
+                    retryBtn.show();
+                });
+                uploadController.onPostsuccess((r) => {
+                    if (r.code == 4001 || r.code == 4002 || r.code == 4004) {
+                        return true
+                    }
+                    return false
+                })
+                // 开始上传
+                await uploadController.start();
+            } catch (error) {
+                this.isUploading = false;
+                console.error(fileitem.fileName, error)
+                lightyear.notify("程序错误，上传失败：" + fileitem.fileName, "danger", 3000, "", "top", "right");
+            }
+        },
         uploadMod(files) {
             if (files.length === 0) {
-                lightyear.notify("请先选择mod文件", "danger", 3000);
+                lightyear.notify("请先选择mod文件", "danger", 3000, "", "top", "right");
+                return;
+            }
+            if (this.isUploading) {
+                lightyear.notify("有文件正在上传，请等待", "danger", 3000, "", "top", "right");
                 return;
             }
             for (let file of files) {
                 if (file.tag === "") {
-                    lightyear.notify("mod名称为空:" + file.fileName, "danger", 3000);
+                    lightyear.notify("mod名称为空:" + file.fileName, "danger", 3000, "", "top", "right");
                     return;
                 }
-                if (this.modlist.some(item => item.tag === file.tag)) {
-                    lightyear.notify("上传失败，已存在相同名称的mod:" + file.tag, "danger", 3000);
+                if (this.modlist.some(item => item.tag === file.tag) || files.some(item => item.tag === file.tag && item.fileName != file.fileName)) {
+                    lightyear.notify("上传失败，已存在相同名称的mod:" + file.tag, "danger", 3000, "", "top", "right");
                     return;
                 }
                 if (this.modlist.some(item => item.fileName === file.fileName)) {
-                    lightyear.notify("上传失败，已存在相同名称的vpk文件:" + file.fileName, "danger", 3000);
+                    lightyear.notify("上传失败，已存在相同名称的vpk文件:" + file.fileName, "danger", 3000, "", "top", "right");
                     return;
                 }
             }
             user = this.getUsername()
             for (let file of files) {
-                let formData = new FormData();
-                formData.append('file', file.file);
-                formData.append('tag', file.tag);
-                formData.append('user', user);
-                let retryBtn = $(`[data-filename="${file.fileName}"]`).find('.btn-secondary');
-                let progressBar = $(`[data-filename="${file.fileName}"]`).find('.progress-bar');
-                this.updateProgress(progressBar, '上传中...', 'uploading');
-                $.ajax({
-                    url: "/api/v1/l4d2/mod",
-                    type: "post",
-                    data: formData,
-                    contentType: "multipart/form-data",
-                    processData: false,
-                    contentType: false,
-                    dataType: "json",
-                    success: (r) => {
-                        if (r.code == 0) {
-                            this.updateProgress(progressBar, '上传成功', 'success');
-                            setTimeout(() => {
-                                lightyear.notify("上传成功！", "success", 3000);
-                                this.getmodlist();
-                                this.removeFile(file.fileName);
-                                retryBtn.hide();
-                            }, 1000);
-                        } else {
-                            this.updateProgress(progressBar, '上传失败', 'error');
-                            setTimeout(() => {
-                                lightyear.notify("上传失败：" + r.msg, "danger", 3000);
-                                retryBtn.show();
-                            }, 1000);
-                        }
-                    },
-                    error: (xhr) => {
-                        this.updateProgress(progressBar, '上传失败', 'error');
-                        setTimeout(() => {
-                            lightyear.notify("网络异常，上传mod失败", "danger", 3000);
-                            retryBtn.show();
-                        }, 1000);
-                    }
-                })
+                this.updateProgress(file.fileName, 0, 'uploading');
+                this.uploadByChunk(file)
             }
         },
-        updateProgress(progressBar, val, type) {
+        updateProgress(filename, num, type) {
+            const MIN_PROGRESS = 5;//最低显示进度为5，以保证能够显示进度条
+            num = Math.max(num, MIN_PROGRESS)
+            let progressBar = $(`[data-filename="${filename}"]`).find('.progress-bar');
             for (i of ["uploading", "success", "error"]) {
                 if (i != type) {
                     progressBar.removeClass('progress-' + i);
                 }
             }
             progressBar.addClass('progress-' + type);
-            progressBar.text(val);
-        }
+            progressBar.text(num + '%');
+            if (num != null) {
+                progressBar.css('width', num + '%');
+            }
+        },
     },
     mounted() {
         this.getmodlist();

@@ -10,10 +10,10 @@
   <script src="static/js/xterm.js"></script>
   <script src="static/js/xterm-addon-fit.min.js"></script>
   <link href="static/css/xterm.min.css" rel="stylesheet">
-  <link href="static/css/l4d2.css" rel="stylesheet">
-  <link href="static/css/animate.css" rel="stylesheet">
   <link rel="stylesheet"
     href="https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/element-ui/2.11.1/theme-chalk/index.css">
+  <link href="static/css/animate.css" rel="stylesheet">
+  <link href="static/css/l4d2.css" rel="stylesheet">
 
 <body>
   <div class="lyear-layout-web">
@@ -126,14 +126,6 @@
                       <i class="mdi mdi-information mdi-24px"></i>
                     </button>
                     <hr>
-                    <div class="search-bar">
-                      <div class="input-group">
-                        <span class="input-group-btn">
-                            <button class="btn btn-default" type="button">搜索</button>
-                        </span>
-                        <input type="text" class="form-control" placeholder="搜索项目..." v-model="searchQuery">
-                      </div>
-                    </div>
                     <div class="modal fade" tabindex="-1" role="dialog" id="uploadModal" style="display: none;">
                       <div class="modal-dialog" role="document">
                         <div class="modal-content">
@@ -171,20 +163,51 @@
                       </div>
                     </div>
                     <div class="table-container">
-                      <el-table :data="filteredItems" :default-sort="{prop: 'time', order: 'descending'}"
-                        empty-text="暂无Mod数据">
-
+                      <el-table :data="filteredItems" :default-sort="{prop: 'time', order: 'descending'}">
                         <el-table-column type="index" label="序号" width="60"></el-table-column>
 
                         <el-table-column prop="tag" label="Mod名称" sortable>
+                          <template slot="header" slot-scope="scope">
+                            <div class="header-with-search">
+                              <span>Mod名称</span>
+                              <el-popover placement="top" trigger="click">
+                                <el-input v-model="filters.tag" placeholder="输入过滤条件" size="mini">
+                                </el-input>
+                                <el-button slot="reference" icon="el-icon-search" size="mini" circle class="search-btn">
+                                </el-button>
+                              </el-popover>
+                            </div>
+                          </template>
                         </el-table-column>
 
                         <el-table-column prop="file" label="文件名称" sortable>
+                          <template slot="header" slot-scope="scope">
+                            <div class="header-with-search">
+                              <span>文件名称</span>
+                              <el-popover placement="top" trigger="click">
+                                <el-input v-model="filters.file" placeholder="输入过滤条件" size="mini">
+                                </el-input>
+                                <el-button slot="reference" icon="el-icon-search" size="mini" circle class="search-btn">
+                                </el-button>
+                              </el-popover>
+                            </div>
+                          </template>
                         </el-table-column>
 
                         <el-table-column prop="time" label="上传时间" sortable>
                         </el-table-column>
                         <el-table-column prop="user" label="上传用户" sortable>
+                          <template slot="header" slot-scope="scope">
+                            <div class="header-with-search">
+                              <span>上传用户</span>
+                              <el-popover placement="top" trigger="click">
+                                <el-input v-model="filters.user" placeholder="输入过滤条件" size="mini">
+                                </el-input>
+                                <el-button slot="reference" icon="el-icon-search" size="mini" circle class="search-btn">
+                                </el-button>
+                              </el-popover>
+                            </div>
+                          </template>
                         </el-table-column>
                         <el-table-column label="操作">
                           <template slot-scope="scope">
@@ -199,8 +222,9 @@
                   </div>
                 </div>
               </div>
-
             </div>
+
+          </div>
     </main>
   </div>
   <script type="text/javascript"

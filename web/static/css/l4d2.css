@@ -237,6 +237,28 @@
     text-overflow: ellipsis;
 }
 
+.el-table th>.cell {
+    align-items: center;
+    display: flex;
+
+}
+
+.el-table__empty-block {
+    min-height: 0 !important;
+    display: none;
+}
+
+.header-with-search {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.search-btn {
+    margin-left: 8px;
+    padding: 4px;
+}
+
 .search-bar {
     margin: 20px 0;
 }
@@ -348,6 +370,11 @@
     justify-content: center;
 }
 
+.file_dom:hover {
+    transform: translateX(5px);
+    box-shadow: 0 7px 15px rgba(0, 0, 0, 0.08);
+}
+
 .progress-bar {
     height: 2rem;
     font-size: 1.5rem;
@@ -358,24 +385,29 @@
     margin: 1rem 0;
     border-radius: 5px;
     width: 0%;
+    background-image: -webkit-linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
+    background-image: -o-linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
+    background-image: linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
+    -webkit-background-size: 40px 40px;
+    background-size: 40px 40px
 }
 
 .progress-uploading {
     background-color: #33cabb;
-    transition: width 3s linear;
+    transition: width 0.5s linear;
     width: 50%;
 
 }
 
 .progress-success {
     background-color: #33cabb;
-    transition: width 1s ease;
+    transition: width 0.5s ease;
     width: 100%;
 }
 
 .progress-error {
     background-color: #e74c3c;
-    transition: width 1s ease;
+    transition: width 0.5s ease;
     width: 75%;
 }
 
@@ -390,12 +422,7 @@
 }
 
 .removing {
-    animation: fadeOutLeft 0.5s ease;
-}
-
-.file-item:hover {
-    transform: translateX(5px);
-    box-shadow: 0 7px 15px rgba(0, 0, 0, 0.08);
+    animation: fadeOut 0.5s ease;
 }
 
 .file-info {
@@ -442,15 +469,15 @@
     }
 }
 
-@keyframes fadeOutLeft {
+@keyframes fadeOut {
     from {
         opacity: 1;
-        transform: translateX(0);
+        /* transform: translateX(0); */
     }
 
     to {
         opacity: 0;
-        transform: translateX(-300px);
+        /* transform: translateX(-300px); */
     }
 }
 
