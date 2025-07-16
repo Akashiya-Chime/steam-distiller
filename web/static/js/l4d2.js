@@ -220,11 +220,6 @@ var app = new Vue({
         modlist: [],
         modFiles: [],
         isUploading: false,
-        filters: {
-            tag: '',
-            file: '',
-            user: '',
-        },
     },
     watch: {
         selectedGroups: {
@@ -242,16 +237,21 @@ var app = new Vue({
         },
     },
     computed: {
-        filteredItems() {
-            let filtered = this.modlist;
-            for (const key in this.filters) {
-                if (this.filters[key] != '') {
-                    filtered = filtered.filter(item =>
-                        item[key].toLowerCase().includes(this.filters[key].toLowerCase())
-                    );
-                }
+        isshowuploadarea() {
+            if (this.modFiles.length === 0) {
+                return true;
+            } else if (!this.isUploading) {
+                return true;
             }
-            return filtered;
+            return false
+        },
+        isshowuploadbtn() {
+            if (this.modFiles.length === 0) {
+                return true;
+            } else if (this.isUploading) {
+                return true;
+            }
+            return false
         },
     },
     methods: {
@@ -482,9 +482,6 @@ var app = new Vue({
                 index === self.findIndex((t) => t.fileName === item.fileName)
             );
             for (let fileItem of this.modFiles) {
-                if ($(`[data-filename="${fileItem.fileName}"]`).length > 0) {
-                    continue;
-                }
                 let fileItem_dom = $(
                     `<div class="file_dom" data-filename="${fileItem.fileName}">
                         <div class="file-item">
@@ -517,8 +514,12 @@ var app = new Vue({
             $(`[data-filename="${filename}"]`).addClass('removing');
             setTimeout(() => {
                 this.modFiles = this.modFiles.filter(item => item.fileName !== filename);
-                this.updateFilePreview();
-            }, 400);
+                $(`[data-filename="${filename}"]`).remove();
+                if (this.modFiles.length == 0) {
+                    this.isUploading = false
+                    $("#uploadModal").modal('hide');
+                }
+            }, 500);
         },
         updateModTag(filename, val) {
             let fileItem = this.modFiles.find(item => item.fileName === filename);
@@ -545,23 +546,30 @@ var app = new Vue({
             })
         },
         deleteMod(item) {
-            $.ajax({
-                url: "/api/v1/l4d2/mod" + "?tag=" + item.tag,
-                type: "delete",
-                async: false,
-                contentType: "application/json",
-                dataType: "json",
-                success: (r) => {
-                    if (r.code == 0) {
-                        lightyear.notify("删除成功！", "success", 3000, "", "top", "right");
-                        this.modlist = this.modlist.filter(mod => mod.tag !== item.tag);
-                    } else {
-                        lightyear.notify("删除失败：" + r.msg, "danger", 3000, "", "top", "right");
+            //弹出确认模态框
+            this.$confirm('确认删除mod吗？', '删除mod', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                $.ajax({
+                    url: "/api/v1/l4d2/mod" + "?tag=" + item.tag,
+                    type: "delete",
+                    async: false,
+                    contentType: "application/json",
+                    dataType: "json",
+                    success: (r) => {
+                        if (r.code == 0) {
+                            lightyear.notify("删除成功！", "success", 3000, "", "top", "right");
+                            this.modlist = this.modlist.filter(mod => mod.tag !== item.tag);
+                        } else {
+                            lightyear.notify("删除失败：" + r.msg, "danger", 3000, "", "top", "right");
+                        }
+                    },
+                    error: (xhr) => {
+                        lightyear.notify("网络异常，删除mod失败", "danger", 3000, "", "top", "right");
                     }
-                },
-                error: (xhr) => {
-                    lightyear.notify("网络异常，删除mod失败", "danger", 3000, "", "top", "right");
-                }
+                })
             })
         },
         getUsername() {
@@ -596,14 +604,12 @@ var app = new Vue({
                     this.updateProgress(fileitem.fileName, progress, 'uploading');
                 });
                 uploadController.onComplete(() => {
-                    this.isUploading = false;
                     this.updateProgress(fileitem.fileName, 100, 'success');
                     this.getmodlist();
                     this.removeFile(fileitem.fileName);
                     retryBtn.hide();
                 });
                 uploadController.onError((error) => {
-                    this.isUploading = false;
                     console.error(fileitem.fileName, error)
                     this.updateProgress(fileitem.fileName, null, 'error');
                     lightyear.notify("上传失败：" + fileitem.fileName, "danger", 3000, "", "top", "right");
@@ -618,7 +624,6 @@ var app = new Vue({
                 // 开始上传
                 await uploadController.start();
             } catch (error) {
-                this.isUploading = false;
                 console.error(fileitem.fileName, error)
                 lightyear.notify("程序错误，上传失败：" + fileitem.fileName, "danger", 3000, "", "top", "right");
             }
@@ -646,6 +651,7 @@ var app = new Vue({
                     return;
                 }
             }
+            this.isUploading = true
             user = this.getUsername()
             for (let file of files) {
                 this.updateProgress(file.fileName, 0, 'uploading');
