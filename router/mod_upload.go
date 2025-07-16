@@ -56,6 +56,12 @@ func l4d2UploadModByChunk(c *gin.Context) {
 		return
 	}
 
+	if mod.IsModExists(req.Tag) {
+		SendJsonMsg(c, CODE_FILE_EXISTS, "mod文件已存在", nil)
+		c.Abort()
+		return
+	}
+
 	// 单文件
 	if req.ChunkIndex == 0 && req.TotalChunks == 1 {
 		if err := singleFileUpload(req); err != nil {
@@ -64,12 +70,17 @@ func l4d2UploadModByChunk(c *gin.Context) {
 			return
 		}
 		log.L.Infof("Upload mod file tag[%s] name[%s] successfully.", req.Tag, req.Filename)
-		SendJsonMsg(c, CODE_OK, "文件上传完成", nil)
+		SendJsonMsg(c, CODE_FILE_UPLOAD_OK, "文件上传完成", nil)
 		return
 	}
 
 	// 分片
 	if err := chunkFileUpload(req); err != nil {
+		if errors.Is(err, ErrChunkUploaded) {
+			SendJsonMsg(c, CODE_CHUNK_EXISTS, "分片已存在", nil)
+			c.Abort()
+			return
+		}
 		log.L.Warnf("Save chunk failed, tag:[%s] index:[%d].", req.Tag, req.ChunkIndex)
 		SendJsonMsg(c, CODE_INNER_ERROR, "保存分片失败", nil)
 		c.Abort()
@@ -96,17 +107,17 @@ func l4d2UploadModByChunk(c *gin.Context) {
 		}
 
 		log.L.Infof("Upload mod file tag[%s] name[%s] successfully.", req.Tag, req.Filename)
-		SendJsonMsg(c, CODE_OK, "文件上传完成", nil)
+		SendJsonMsg(c, CODE_FILE_UPLOAD_OK, "文件上传完成", nil)
 		return
 	}
 
-	SendJsonMsg(c, CODE_OK, "分片上传完成", nil)
+	SendJsonMsg(c, CODE_CHUNK_UPLOAD_OK, "分片上传完成", nil)
 }
 
 func getRequestInfo(c *gin.Context) (*RequestInfo, error) {
-	file, header, err := c.Request.FormFile("file")
-	if (err != nil) || (filepath.Ext(header.Filename) != ".vpk") {
-		SendJsonMsg(c, CODE_PARAM_ERROR, "获取文件失败或类型错误", nil)
+	file, _, err := c.Request.FormFile("file")
+	if err != nil {
+		SendJsonMsg(c, CODE_PARAM_ERROR, "获取文件失败", nil)
 		return nil, err
 	}
 
@@ -114,8 +125,10 @@ func getRequestInfo(c *gin.Context) (*RequestInfo, error) {
 	user := c.PostForm("user")
 	chunkIndex := c.PostForm("chunkIndex")
 	totalChunks := c.PostForm("totalChunks")
+	filename := c.PostForm("filename")
 	if (tag == "") || (user == "") || (chunkIndex == "") || (totalChunks == "") ||
-		strings.Contains(tag, "..") || strings.HasPrefix(tag, "/") {
+		strings.Contains(tag, "..") || strings.HasPrefix(tag, "/") ||
+		(filepath.Ext(filename) != ".vpk") {
 		SendJsonMsg(c, CODE_PARAM_ERROR, "无效参数", nil)
 		return nil, err
 	}
@@ -134,7 +147,7 @@ func getRequestInfo(c *gin.Context) (*RequestInfo, error) {
 
 	return &RequestInfo{
 		Data:        file,
-		Filename:    header.Filename,
+		Filename:    filename,
 		Tag:         tag,
 		User:        user,
 		ChunkIndex:  idx,

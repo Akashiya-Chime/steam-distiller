@@ -25,6 +25,9 @@ type Mod struct {
 }
 
 func GetMod(tag string) (*Mod, error) {
+	modsMutex.RLock()
+	defer modsMutex.RUnlock()
+
 	mods, err := readMods()
 	if err != nil {
 		return nil, err
@@ -127,4 +130,22 @@ func DeleteMod(tag string) error {
 	}
 
 	return os.WriteFile("mods.json", newData, def.Permission)
+}
+
+func IsModExists(tag string) bool {
+	modsMutex.RLock()
+	defer modsMutex.RUnlock()
+
+	mods, err := readMods()
+	if err != nil {
+		return false
+	}
+
+	for _, mod := range mods {
+		if mod.Tag == tag {
+			return true
+		}
+	}
+
+	return false
 }
