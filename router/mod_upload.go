@@ -125,7 +125,7 @@ func getRequestInfo(c *gin.Context) (*RequestInfo, error) {
 	chunkIndex := c.PostForm("chunkIndex")
 	totalChunks := c.PostForm("totalChunks")
 	filename := c.PostForm("filename")
-	if (tag == "") || (user == "") || (chunkIndex == "") || (totalChunks == "") ||
+	if (user == "") || (chunkIndex == "") || (totalChunks == "") ||
 		strings.Contains(tag, "..") || strings.HasPrefix(tag, "/") ||
 		(filepath.Ext(filename) != ".vpk") {
 		SendJsonMsg(c, CODE_PARAM_ERROR, "无效参数", nil)
@@ -306,7 +306,7 @@ func l4d2UploadModStatus(c *gin.Context) {
 	tag := c.Query("tag")
 	totalChunks, _ := strconv.Atoi(c.Query("totalChunks"))
 
-	if (tag == "") || totalChunks <= 0 {
+	if (tag == "") || (totalChunks <= 0) {
 		SendJsonMsg(c, CODE_PARAM_ERROR, "无效参数", nil)
 		c.Abort()
 		return

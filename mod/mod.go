@@ -90,6 +90,7 @@ func WriteMod(tag, file, user string) error {
 	}
 	mods = append(mods, newMod)
 
+	// 空格用于处理json文件缩进
 	newData, err := json.MarshalIndent(mods, "", "    ")
 	if err != nil {
 		log.L.Warnf("Marshel mods failed, %v.", err)
@@ -123,6 +124,7 @@ func DeleteMod(tag string) error {
 		return ErrTagNotFound
 	}
 
+	// 空格用于处理json文件缩进
 	newData, err := json.MarshalIndent(newMods, "", "    ")
 	if err != nil {
 		log.L.Warnf("Marshel mods failed, %v.", err)
