@@ -2,7 +2,6 @@ var vm = new Vue({
     el: "#login",
     data: {
         user_info: {},
-        remember_password: true,
     },
     methods: {
         to_register: function () {
@@ -34,14 +33,7 @@ var vm = new Vue({
                 lightyear.loading("hide")
                 content = r.data
                 if (content.code == 0) {
-                    document.cookie = "access_token=" + content.data.access_token + ";path=/";
-                    if (this.remember_password) {
-                        localStorage.setItem("username", this.user_info.user);
-                        localStorage.setItem("password", this.user_info.pass);
-                    } else {
-                        localStorage.removeItem("username");
-                        localStorage.removeItem("password");
-                    }
+                    $.cookie("access_token", content.data.access_token, { expires: 1, path: '/' });
                     lightyear.notify(content.msg, "success", 1000);
                     setTimeout(function () {
                         window.location.href = "home"
@@ -57,13 +49,6 @@ var vm = new Vue({
     },
     created: function () {
         document.cookie = ""
-        const savedUsername = localStorage.getItem("username");
-        const savedPassword = localStorage.getItem("password");
-        if (savedUsername && savedPassword) {
-            this.user_info.user = savedUsername;
-            this.user_info.pass = savedPassword;
-            this.remember_password = true;
-        }
     }
 });
 document.onkeydown = function (e) {
