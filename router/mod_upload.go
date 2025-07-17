@@ -48,7 +48,7 @@ type RequestInfo struct {
 	TotalChunks int
 }
 
-func l4d2UploadModByChunk(c *gin.Context) {
+func l4d2UploadMod(c *gin.Context) {
 	req, err := getRequestInfo(c)
 	if err != nil {
 		log.L.Warnf("Invalid param, %v.", err)

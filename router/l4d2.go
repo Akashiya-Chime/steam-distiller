@@ -147,45 +147,6 @@ func l4d2SetConfig(c *gin.Context) {
 	SendJsonMsg(c, CODE_OK, "ok", nil)
 }
 
-func l4d2UploadMod(c *gin.Context) {
-	file, err := c.FormFile("file")
-	if (err != nil) || (filepath.Ext(file.Filename) != ".vpk") {
-		SendJsonMsg(c, CODE_PARAM_ERROR, "文件获取失败或类型错误", nil)
-		c.Abort()
-		return
-	}
-
-	tag := c.PostForm("tag")
-	user := c.PostForm("user")
-	if (tag == "") || (user == "") ||
-		strings.Contains(tag, "..") ||
-		strings.HasPrefix(tag, "/") {
-		SendJsonMsg(c, CODE_PARAM_ERROR, "无效参数", nil)
-		c.Abort()
-		return
-	}
-
-	path := filepath.Join(env.L4D2ModPath, file.Filename)
-	if err := c.SaveUploadedFile(file, path); err != nil {
-		SendJsonMsg(c, CODE_INNER_ERROR, "保存文件失败", nil)
-		c.Abort()
-		return
-	}
-
-	if err := mod.WriteMod(tag, file.Filename, user); err != nil {
-		log.L.Warnf("Write mod failed, %v.", err)
-		if errors.Is(err, mod.ErrDuplicateTagOrFile) {
-			SendJsonMsg(c, CODE_DUPLICATE_TAG_OR_FILE, "tag或文件重复", nil)
-		} else {
-			SendJsonMsg(c, CODE_INNER_ERROR, "写入mod列表失败", nil)
-		}
-		c.Abort()
-		return
-	}
-
-	SendJsonMsg(c, CODE_OK, "上传mod成功", nil)
-}
-
 func l4d2GetMods(c *gin.Context) {
 	mods, err := mod.ReadMods()
 	if err != nil {
