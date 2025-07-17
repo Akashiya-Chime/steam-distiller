@@ -27,7 +27,7 @@
                 <ul id="Tabs" class="nav nav-tabs" role="tablist">
                   <li id="start_game_tab_btn" class="active"><a href="#start_game_tab" role="tab" data-toggle="tab"
                       aria-expanded="true">控制台</a></li>
-                  <li class=""><a href="#game_config_tab" role="tab" data-toggle="tab" aria-expanded="false">游戏配置</a>
+                  <li class=""><a href="#game_config_tab" id="game_config_tab_btn" role="tab" data-toggle="tab" aria-expanded="false">游戏配置</a>
                   </li>
                   <li class=""><a href="#game_mod_tab" role="tab" data-toggle="tab" aria-expanded="false">Mod</a></li>
                 </ul>
@@ -119,7 +119,8 @@
 
                   <div class="tab-pane fade" id="game_mod_tab">
                     <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#uploadModal">
-                      上传
+                      ${isUploading > 0 ? '上传中...' : '上传'}
+                      <i v-if="isUploading" class="mdi mdi-24px mdi-spin mdi-loading"></i>
                     </button>
                     <button type="button" class="btn btn-link btn-lg" data-toggle="tooltip" data-placement="right" title
                       data-original-title="mod上传后需重启游戏服务器才可生效">
@@ -135,7 +136,7 @@
                             <h4 class="modal-title" id="gridSystemModalLabel">点击上传</h4>
                           </div>
                           <div class="modal-body upload-container">
-                            <div class="upload-area" id="dropArea" v-if="isshowuploadarea"
+                            <div class="upload-area" id="dropArea" v-if="isShowUploadArea"
                               onclick="document.getElementById('fileInput').click()">
                               <div class="upload-icon">
                                 <i class="bi bi-cloud-arrow-up"></i>
@@ -155,7 +156,7 @@
                               </div>
                             </div>
                             <button id="startUploadBtn" class="btn btn-block btn-primary" @click="uploadMod(modFiles)"
-                              :disabled="this.isshowuploadbtn">
+                              :disabled="this.isShowUploadBtn">
                               开始上传
                             </button>
                           </div>
@@ -187,7 +188,6 @@
                 </div>
               </div>
             </div>
-
           </div>
     </main>
   </div>
@@ -199,7 +199,8 @@
   <script type="text/javascript" src="static/js/bootstrap-notify.min.js"></script>
   <script type="text/javascript" src="static/js/bootstrap.min.js"></script>
   <script type="text/javascript" src="static/js/lightyear.js"></script>
-  <script type="text/javascript" src="static/js/l4d2.js"></script>
+  <script type="text/javascript" src="static/js/l4d2-console.js"></script>
+  <script type="text/javascript" src="static/js/l4d2-config-mod.js"></script>
 </body>
 
 </html>

@@ -151,65 +151,6 @@ class UploadController {
     }
 }
 
-
-
-
-function getGameStatus() {
-    is_success = false // 用于判断是否成功连到服务器
-    now_status = ""
-    $.ajax({
-        url: "/api/v1/l4d2/status",
-        type: "get",
-        async: false,
-        dataType: "json",
-        success: function (r) {
-            is_success = true
-            if (r.code == 0) {
-                now_status = r.data.status
-            } else {
-                lightyear.notify(r.msg, "danger", 3000, "", "top", "right");
-            }
-        },
-        error: function (xhr) {
-            lightyear.notify("网络异常，获取服务状态失败", "danger", 3000, "", "top", "right");
-        }
-    })
-    return [is_success, now_status]
-}
-function switchGame(term_class, action) {
-    const [status_control, prompt, url] =
-        action === "start"
-            ? ["running", "启动", "/api/v1/l4d2/start"]
-            : ["closed", "关闭", "/api/v1/l4d2/stop"]
-    if (!term_class.isConnected) {
-        lightyear.notify("与服务器尚未建立连接，请稍后再试", "danger", 3000, "", "top", "right");
-        return;
-    }
-    let [is_success, now_status] = getGameStatus()
-    if (is_success == false) {
-        return;
-    }
-    if (now_status == status_control) {
-        lightyear.notify("服务已经" + prompt, "success", 3000, "", "top", "right");
-        return;
-    }
-    term_class.info(`正在${prompt}服务...`);
-    $.ajax({
-        url: url,
-        type: "get",
-        dataType: "json",
-        success: function (r) {
-            if (r.code == 0) {
-                term_class.isGameStarted = true;
-                lightyear.notify(r.msg, "success", 3000, "", "top", "right");
-            }
-        },
-        error: function (xhr) {
-            lightyear.notify("网络异常，服务" + prompt + "失败", "danger", 3000, "", "top", "right");
-        }
-    })
-}
-
 var app = new Vue({
     delimiters: ["${", "}"],
     el: "#TabsContent",
@@ -219,7 +160,12 @@ var app = new Vue({
         selectedGroups: {},
         modlist: [],
         modFiles: [],
+        errorUploadFiles: [],
         isUploading: false,
+        CHUNK_SIZE: 3 * 1024 * 1024,//每个分片的大小
+        MAX_CONCURRENT_UPLOADS: 5,//最大并发上传数
+        MAX_RETRY_COUNT: 3,//最大重试次数
+        MIN_PROGRESS: 5,//进度条的最小显示进度为5，以保证能够正常显示文字
     },
     watch: {
         selectedGroups: {
@@ -237,7 +183,7 @@ var app = new Vue({
         },
     },
     computed: {
-        isshowuploadarea() {
+        isShowUploadArea() {
             if (this.modFiles.length === 0) {
                 return true;
             } else if (!this.isUploading) {
@@ -245,7 +191,7 @@ var app = new Vue({
             }
             return false
         },
-        isshowuploadbtn() {
+        isShowUploadBtn() {
             if (this.modFiles.length === 0) {
                 return true;
             } else if (this.isUploading) {
@@ -255,6 +201,7 @@ var app = new Vue({
         },
     },
     methods: {
+        // 配置界面的函数
         getFieldIcon(fieldType) {
             switch (fieldType) {
                 case "select": return "mdi mdi-checkbox-marked-outline";
@@ -381,17 +328,14 @@ var app = new Vue({
                                         break;
                                     }
                                 }
-
                                 if (found) break;
                             }
-
                             if (!found) {
                                 console.warn(`Value ${targetValue} not found for field ${key}`);
                             }
                         }
                     }
                 }
-                lightyear.notify("配置结果已成功应用到表单！", "success", 3000, "", "top", "right");
             } catch (e) {
                 lightyear.notify("应用配置结果时出错：" + e.message, "danger", 3000, "", "top", "right");
             }
@@ -427,36 +371,38 @@ var app = new Vue({
                 }
             })
         },
-        // mod界面函数
-        // 处理选中的文件
+
+        // 配置界面的函数
         handleFiles(files) {
+            const MAX_File_once = 5;
             if (files.length === 0) return;
-            for (let file of files) {
+            if (files.length + this.modFiles.length > MAX_File_once) {
+                lightyear.notify(`一次最多可上传${MAX_File_once}个文件，请先上传完当前列表文件`, "danger", 3000, "", "top", "right");
+            }
+            let MAX_File_once_this = Math.min(MAX_File_once - this.modFiles.length, files.length)
+            for (let i = 0; i < MAX_File_once_this; i++) {
                 this.modFiles.push({
-                    file: file,
-                    fileName: file.name,
+                    file: files[i],
+                    fileName: files[i].name,
                     tag: "",
                 });
             }
             $("#fileInput").val(""); //同名文件可再次触发change事件
             this.updateFilePreview();
         },
-        listenDrop() {
+        listenFileDrop() {
             const dropArea = $('#dropArea');
-            // 拖放事件处理
             ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
                 dropArea.on(eventName, (e) => {
                     e.preventDefault();
                     e.stopPropagation();
                 });
             });
-
             ['dragenter', 'dragover'].forEach(eventName => {
                 dropArea.on(eventName, function () {
                     $(this).addClass('drag-over');
                 });
             });
-
             ['dragleave', 'drop'].forEach(eventName => {
                 dropArea.on(eventName, function () {
                     $(this).removeClass('drag-over');
@@ -467,7 +413,6 @@ var app = new Vue({
                 this.handleFiles(files);
             });
         },
-        // 更新文件预览
         updateFilePreview() {
             const filePreview = $('#filePreview');
             const emptyState = $('#emptyState');
@@ -476,7 +421,6 @@ var app = new Vue({
                 filePreview.append(emptyState.clone().show());
                 return;
             }
-            // 显示文件预览
             //modFiles去重,避免上传相同文件
             this.modFiles = this.modFiles.filter((item, index, self) =>
                 index === self.findIndex((t) => t.fileName === item.fileName)
@@ -490,10 +434,10 @@ var app = new Vue({
                             </div>
                             <div class="form-group file-tag">
                                 <input class="form-control" placeholder="请输入唯一的mod名称"
-                                id="modTagInput" oninput="updateModTag('${fileItem.fileName}',this.value)">
+                                oninput="updateModTag('${fileItem.fileName}',this.value)">
                             </div>
                             <div class="file-actions">
-                                <button class="btn btn-sm btn-danger" title="移除" onclick="removeFile('${fileItem.fileName}')">
+                                <button class="btn btn-sm btn-danger" title="移除" onclick="removeUploadFile('${fileItem.fileName}')">
                                     <i class="mdi mdi-close"></i>删除
                                 </button>
                                 <button class="btn btn-sm btn-secondary" title="重新上传"style="display: none;" onclick="uploadSingleMod('${fileItem.fileName}')">
@@ -509,13 +453,14 @@ var app = new Vue({
                 filePreview.append(fileItem_dom);
             }
         },
-        removeFile(filename) {
+        removeUploadFile(filename) {
             $(`[data-filename="${filename}"]`).removeClass('fade-in');
             $(`[data-filename="${filename}"]`).addClass('removing');
             setTimeout(() => {
                 this.modFiles = this.modFiles.filter(item => item.fileName !== filename);
                 $(`[data-filename="${filename}"]`).remove();
                 if (this.modFiles.length == 0) {
+                    //所有文件上传成功完成
                     this.isUploading = false
                     $("#uploadModal").modal('hide');
                 }
@@ -527,7 +472,7 @@ var app = new Vue({
                 fileItem.tag = val;
             }
         },
-        getmodlist() {
+        getModList() {
             $.ajax({
                 url: "/api/v1/l4d2/mods",
                 type: "get",
@@ -546,8 +491,7 @@ var app = new Vue({
             })
         },
         deleteMod(item) {
-            //弹出确认模态框
-            this.$confirm('确认删除mod吗？', '删除mod', {
+            this.$confirm(`确认删除【${item.tag}】吗？`, '删除mod', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
                 type: 'warning'
@@ -584,29 +528,27 @@ var app = new Vue({
             }
         },
         async uploadByChunk(fileitem) {
-            const CHUNK_SIZE = 3 * 1024 * 1024;
-            const MAX_CONCURRENT_UPLOADS = 5;
-            const MAX_RETRY_COUNT = 3;
+            $(`[data-filename="${fileitem.fileName}"]`).find('input').prop('disabled', true);
             let retryBtn = $(`[data-filename="${fileitem.fileName}"]`).find('.btn-secondary');
             this.updateProgress(fileitem.fileName, 0, 'uploading');
-            this.isUploading = true;
-            totalChunks = Math.ceil(fileitem.file.size / CHUNK_SIZE);
+            totalChunks = Math.ceil(fileitem.file.size / this.CHUNK_SIZE);
             try {
                 uploadController = new UploadController(
-                    "/api/v1/l4d2/modchunk",
+                    "/api/v1/l4d2/mod",
                     fileitem,
                     this.getUsername(),
-                    CHUNK_SIZE,
-                    MAX_CONCURRENT_UPLOADS,
-                    MAX_RETRY_COUNT
+                    this.CHUNK_SIZE,
+                    this.MAX_CONCURRENT_UPLOADS,
+                    this.MAX_RETRY_COUNT
                 );
+                //对单个文件的状态更新进行监听
                 uploadController.onProgress((progress, chunkIndex) => {
                     this.updateProgress(fileitem.fileName, progress, 'uploading');
                 });
                 uploadController.onComplete(() => {
                     this.updateProgress(fileitem.fileName, 100, 'success');
-                    this.getmodlist();
-                    this.removeFile(fileitem.fileName);
+                    this.getModList();
+                    this.removeUploadFile(fileitem.fileName);
                     retryBtn.hide();
                 });
                 uploadController.onError((error) => {
@@ -614,6 +556,12 @@ var app = new Vue({
                     this.updateProgress(fileitem.fileName, null, 'error');
                     lightyear.notify("上传失败：" + fileitem.fileName, "danger", 3000, "", "top", "right");
                     retryBtn.show();
+                    this.errorUploadFiles.push(fileitem.fileName);
+                    if(this.errorUploadFiles.length === this.modFiles.length){
+                        //全部上传完成，但是有失败文件
+                        this.isUploading = false
+                         $(`[data-filename="${fileitem.fileName}"]`).find('input').prop('disabled', false);
+                    }
                 });
                 uploadController.onPostsuccess((r) => {
                     if (r.code == 4001 || r.code == 4002 || r.code == 4004) {
@@ -621,7 +569,6 @@ var app = new Vue({
                     }
                     return false
                 })
-                // 开始上传
                 await uploadController.start();
             } catch (error) {
                 console.error(fileitem.fileName, error)
@@ -652,15 +599,16 @@ var app = new Vue({
                 }
             }
             this.isUploading = true
+            this.errorUploadFiles = []
             user = this.getUsername()
             for (let file of files) {
+                //禁止输入
                 this.updateProgress(file.fileName, 0, 'uploading');
                 this.uploadByChunk(file)
             }
         },
         updateProgress(filename, num, type) {
-            const MIN_PROGRESS = 5;//最低显示进度为5，以保证能够显示进度条
-            num = Math.max(num, MIN_PROGRESS)
+            num = Math.max(num, this.MIN_PROGRESS)
             let progressBar = $(`[data-filename="${filename}"]`).find('.progress-bar');
             for (i of ["uploading", "success", "error"]) {
                 if (i != type) {
@@ -675,34 +623,21 @@ var app = new Vue({
         },
     },
     mounted() {
-        this.getmodlist();
         this.initConfig();
         if (this.config) {
             this.initializeFormValues();
             this.getServerConfig();
         }
-        this.listenDrop();
+        this.getModList();
+        this.listenFileDrop();
         window.updateModTag = this.updateModTag;
-        window.removeFile = this.removeFile;
+        window.removeUploadFile = this.removeUploadFile;
         window.uploadSingleMod = this.uploadSingleMod;
+        $('#uploadModal').on('hidden.bs.modal', (e) => {
+            if (this.modFiles.length > 0) {
+                lightyear.notify("有文件在上传列表中，可再次点击上传按钮查看进度", "warning", 3000, "", "top", "right");
+            }
+        });
+        $("[data-toggle='tooltip']").tooltip();
     }
 });
-$("[data-toggle='tooltip']").tooltip();
-// console
-const term_l4d2 = window.parent.term_l4d2
-//重写连接状态更新方法，避免找不到元素的问题
-term_l4d2.updateConnectionStatus = function (connected) {
-    this.isConnected = connected;
-    if (connected) {
-        document.getElementById("statusIndicator").classList.add("connected")
-        document.getElementById("statusText").innerText = "已连接";
-    } else {
-        document.getElementById("statusIndicator").classList.remove("connected")
-        document.getElementById("statusText").innerText = "正在连接服务器...";
-    }
-}
-term_l4d2.updateConnectionStatus(term_l4d2.isConnected) // 重新显示终端时刷新状态
-term_l4d2.term.open(document.getElementById("terminal"));
-document.getElementById("start-btn").addEventListener("click", () => { switchGame(term_l4d2, "start") });
-document.getElementById("stop-btn").addEventListener("click", () => { switchGame(term_l4d2, "close") });
-document.getElementById("clear-btn").addEventListener("click", () => { term_l4d2.term.clear() });
