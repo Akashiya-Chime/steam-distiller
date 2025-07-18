@@ -1,5 +1,5 @@
 function getGameStatus() {
-    is_success = false // 用于判断是否成功连到服务器
+    is_success = false
     now_status = ""
     $.ajax({
         url: "/api/v1/l4d2/status",

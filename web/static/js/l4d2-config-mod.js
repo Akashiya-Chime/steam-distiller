@@ -1,9 +1,8 @@
-// 上传控制器
 class UploadController {
-    constructor(url, fileitem, user, chunkSize, maxConcurrent, maxRetry) {
+    constructor(url, fileItem, user, chunkSize, maxConcurrent, maxRetry) {
         this.url = url;
-        this.fileitem = fileitem;
-        this.file = fileitem.file;
+        this.fileItem = fileItem;
+        this.file = fileItem.file;
         this.user = user;
         this.chunkSize = chunkSize;
         this.maxConcurrent = maxConcurrent;
@@ -65,11 +64,8 @@ class UploadController {
 
     async processQueue() {
         if (this.isCancelled) return;
-
-        // 达到最大并发数或没有更多分片
-        while (this.activeUploads < this.maxConcurrent && this.chunkQueue.length > 0) {
+        while ((this.activeUploads < this.maxConcurrent) && (this.chunkQueue.length > 0)) {
             if (this.isPaused) break;
-
             const chunk = this.chunkQueue.shift();
             this.activeUploads++;
             this.uploadChunk(chunk);
@@ -78,48 +74,33 @@ class UploadController {
 
     async uploadChunk(chunk) {
         if (this.isCancelled) return;
-
         try {
             const chunkBlob = this.file.slice(chunk.start, chunk.end);
             const formData = new FormData();
-            // 将分片包装成 File 对象，保留原始文件名和类型
-            const chunkFile = new File([chunkBlob], this.file.name, {
-                type: this.file.type,
-            });
-            formData.append('file', chunkFile);
-            formData.append('tag', this.fileitem.tag);
-            formData.append('filename', this.fileitem.fileName);
+            formData.append('file', chunkBlob);
+            formData.append('tag', this.fileItem.tag);
+            formData.append('filename', this.fileItem.fileName);
             formData.append('user', this.user);
             formData.append('chunkIndex', chunk.index);
             formData.append('totalChunks', this.totalChunks);
-
-            // 上传分片到服务器
             await this.sendChunk(formData);
-
             this.uploadedChunks++;
             this.activeUploads--;
-
-            // 更新进度
             const progress = Math.floor((this.uploadedChunks / this.totalChunks) * 100);
             this.progressCallbacks.forEach(cb => cb(progress, chunk.index));
-
-            // 检查是否全部完成
             if (this.uploadedChunks === this.totalChunks) {
                 this.completeCallbacks.forEach(cb => cb());
             } else {
-                // 继续处理队列
                 this.processQueue();
             }
         } catch (error) {
             if (this.isCancelled) return;
             if (chunk.retryCount < this.maxRetry) {
-                // 重试上传
                 chunk.retryCount++;
                 this.chunkQueue.unshift(chunk);
                 this.activeUploads--;
                 this.processQueue();
             } else {
-                // 超过重试次数，上报错误
                 this.errorCallbacks.forEach(cb => cb(`分片 ${chunk.index} 上传失败`));
             }
         }
@@ -162,10 +143,10 @@ var app = new Vue({
         modFiles: [],
         errorUploadFiles: [],
         isUploading: false,
-        CHUNK_SIZE: 3 * 1024 * 1024,//每个分片的大小
-        MAX_CONCURRENT_UPLOADS: 5,//最大并发上传数
-        MAX_RETRY_COUNT: 3,//最大重试次数
-        MIN_PROGRESS: 5,//进度条的最小显示进度为5，以保证能够正常显示文字
+        CHUNK_SIZE: 3 * 1024 * 1024,// 单位字节
+        MAX_CONCURRENT_UPLOADS: 5,
+        MAX_RETRY_COUNT: 3,
+        MIN_PROGRESS: 5,// 进度条的最小显示进度为5，以保证能够正常显示文字
     },
     watch: {
         selectedGroups: {
@@ -373,7 +354,7 @@ var app = new Vue({
         },
 
         // 配置界面的函数
-        handleFiles(files) {
+        handleSelectedFiles(files) {
             const MAX_File_once = 5;
             if (files.length === 0) return;
             if (files.length + this.modFiles.length > MAX_File_once) {
@@ -387,7 +368,7 @@ var app = new Vue({
                     tag: "",
                 });
             }
-            $("#fileInput").val(""); //同名文件可再次触发change事件
+            $("#fileInput").val(""); // 同名文件可再次触发change事件
             this.updateFilePreview();
         },
         listenFileDrop() {
@@ -410,7 +391,7 @@ var app = new Vue({
             });
             dropArea.on('drop', (e) => {
                 const files = e.originalEvent.dataTransfer.files;
-                this.handleFiles(files);
+                this.handleSelectedFiles(files);
             });
         },
         updateFilePreview() {
@@ -421,7 +402,7 @@ var app = new Vue({
                 filePreview.append(emptyState.clone().show());
                 return;
             }
-            //modFiles去重,避免上传相同文件
+            // modFiles去重,避免上传相同文件
             this.modFiles = this.modFiles.filter((item, index, self) =>
                 index === self.findIndex((t) => t.fileName === item.fileName)
             );
@@ -437,7 +418,7 @@ var app = new Vue({
                                 oninput="updateModTag('${fileItem.fileName}',this.value)">
                             </div>
                             <div class="file-actions">
-                                <button class="btn btn-sm btn-danger" title="移除" onclick="removeUploadFile('${fileItem.fileName}')">
+                                <button class="btn btn-sm btn-danger" title="删除" onclick="removeUploadFile('${fileItem.fileName}')">
                                     <i class="mdi mdi-close"></i>删除
                                 </button>
                                 <button class="btn btn-sm btn-secondary" title="重新上传"style="display: none;" onclick="uploadSingleMod('${fileItem.fileName}')">
@@ -527,40 +508,42 @@ var app = new Vue({
                 this.uploadMod([fileItem]);
             }
         },
-        async uploadByChunk(fileitem) {
-            $(`[data-filename="${fileitem.fileName}"]`).find('input').prop('disabled', true);
-            let retryBtn = $(`[data-filename="${fileitem.fileName}"]`).find('.btn-secondary');
-            this.updateProgress(fileitem.fileName, 0, 'uploading');
-            totalChunks = Math.ceil(fileitem.file.size / this.CHUNK_SIZE);
+        async uploadByChunk(fileItem) {
+            $(`[data-filename="${fileItem.fileName}"]`).find('input').prop('disabled', true);
+            $(`[data-filename="${fileItem.fileName}"]`).find('button[title="删除"]').prop('disabled', true);
+            let retryBtn = $(`[data-filename="${fileItem.fileName}"]`).find('.btn-secondary');
+            this.updateProgress(fileItem.fileName, 0, 'uploading');
+            totalChunks = Math.ceil(fileItem.file.size / this.CHUNK_SIZE);
             try {
                 uploadController = new UploadController(
                     "/api/v1/l4d2/mod",
-                    fileitem,
+                    fileItem,
                     this.getUsername(),
                     this.CHUNK_SIZE,
                     this.MAX_CONCURRENT_UPLOADS,
                     this.MAX_RETRY_COUNT
                 );
-                //对单个文件的状态更新进行监听
+                // 对单个文件的状态更新进行监听
                 uploadController.onProgress((progress, chunkIndex) => {
-                    this.updateProgress(fileitem.fileName, progress, 'uploading');
+                    this.updateProgress(fileItem.fileName, progress, 'uploading');
                 });
                 uploadController.onComplete(() => {
-                    this.updateProgress(fileitem.fileName, 100, 'success');
+                    this.updateProgress(fileItem.fileName, 100, 'success');
                     this.getModList();
-                    this.removeUploadFile(fileitem.fileName);
+                    this.removeUploadFile(fileItem.fileName);
                     retryBtn.hide();
                 });
                 uploadController.onError((error) => {
-                    console.error(fileitem.fileName, error)
-                    this.updateProgress(fileitem.fileName, null, 'error');
-                    lightyear.notify("上传失败：" + fileitem.fileName, "danger", 3000, "", "top", "right");
+                    console.error(fileItem.fileName, error)
+                    this.updateProgress(fileItem.fileName, null, 'error');
+                    lightyear.notify("上传失败：" + fileItem.fileName, "danger", 3000, "", "top", "right");
                     retryBtn.show();
-                    this.errorUploadFiles.push(fileitem.fileName);
+                    this.errorUploadFiles.push(fileItem.fileName);
                     if(this.errorUploadFiles.length === this.modFiles.length){
-                        //全部上传完成，但是有失败文件
+                        // 全部上传完成，但是有失败文件
                         this.isUploading = false
-                         $(`[data-filename="${fileitem.fileName}"]`).find('input').prop('disabled', false);
+                        $(`[data-filename="${fileItem.fileName}"]`).find('input').prop('disabled', false);
+                        $(`[data-filename="${fileItem.fileName}"]`).find('button[title="删除"]').prop('disabled', false);
                     }
                 });
                 uploadController.onPostsuccess((r) => {
@@ -571,8 +554,8 @@ var app = new Vue({
                 })
                 await uploadController.start();
             } catch (error) {
-                console.error(fileitem.fileName, error)
-                lightyear.notify("程序错误，上传失败：" + fileitem.fileName, "danger", 3000, "", "top", "right");
+                console.error(fileItem.fileName, error)
+                lightyear.notify("程序错误，上传失败：" + fileItem.fileName, "danger", 3000, "", "top", "right");
             }
         },
         uploadMod(files) {
@@ -602,7 +585,6 @@ var app = new Vue({
             this.errorUploadFiles = []
             user = this.getUsername()
             for (let file of files) {
-                //禁止输入
                 this.updateProgress(file.fileName, 0, 'uploading');
                 this.uploadByChunk(file)
             }
