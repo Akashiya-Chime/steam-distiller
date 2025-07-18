@@ -143,10 +143,10 @@ var app = new Vue({
         modFiles: [],
         errorUploadFiles: [],
         isUploading: false,
-        CHUNK_SIZE: 3 * 1024 * 1024,// 单位字节
+        CHUNK_SIZE: 3 * 1024 * 1024, // 单位字节
         MAX_CONCURRENT_UPLOADS: 5,
         MAX_RETRY_COUNT: 3,
-        MIN_PROGRESS: 5,// 进度条的最小显示进度为5，以保证能够正常显示文字
+        MIN_PROGRESS: 5, // 进度条的最小显示进度为5，以保证能够正常显示文字
     },
     watch: {
         selectedGroups: {
