@@ -143,7 +143,6 @@ term.onKey((event) => {
 })
 
 term.writeln('\x1b[32m欢迎使用steamCMD终端界面\x1b[0m ');
-connectWebSocket();
 
 // 窗口调整大小时重新适配终端
 window.addEventListener('resize', () => {

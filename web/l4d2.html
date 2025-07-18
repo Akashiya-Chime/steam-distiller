@@ -10,8 +10,10 @@
   <script src="static/js/xterm.js"></script>
   <script src="static/js/xterm-addon-fit.min.js"></script>
   <link href="static/css/xterm.min.css" rel="stylesheet">
-  <link href="static/css/l4d2.css" rel="stylesheet">
+  <link rel="stylesheet"
+    href="https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/element-ui/2.11.1/theme-chalk/index.css">
   <link href="static/css/animate.css" rel="stylesheet">
+  <link href="static/css/l4d2.css" rel="stylesheet">
 
 <body>
   <div class="lyear-layout-web">
@@ -25,12 +27,12 @@
                 <ul id="Tabs" class="nav nav-tabs" role="tablist">
                   <li id="start_game_tab_btn" class="active"><a href="#start_game_tab" role="tab" data-toggle="tab"
                       aria-expanded="true">控制台</a></li>
-                  <li class=""><a href="#game_config_tab" role="tab" data-toggle="tab" aria-expanded="false">游戏配置</a>
+                  <li class=""><a href="#game_config_tab" id="game_config_tab_btn" role="tab" data-toggle="tab" aria-expanded="false">游戏配置</a>
                   </li>
                   <li class=""><a href="#game_mod_tab" role="tab" data-toggle="tab" aria-expanded="false">Mod</a></li>
                 </ul>
 
-                <div class="tab-content">
+                <div class="tab-content" id="TabsContent">
                   <div class="tab-pane fade active in" id="start_game_tab">
                     <div class="content" id="start_game_content"
                       style="background-image: url(static/image/login-bg-3.jpg);background-size: cover">
@@ -116,27 +118,89 @@
                   </div>
 
                   <div class="tab-pane fade" id="game_mod_tab">
-                    <p>
-                      Mod页面
-                    </p>
+                    <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#uploadModal">
+                      ${isUploading > 0 ? '上传中...' : '上传'}
+                      <i v-if="isUploading" class="mdi mdi-24px mdi-spin mdi-loading"></i>
+                    </button>
+                    <button type="button" class="btn btn-link btn-lg" data-toggle="tooltip" data-placement="right" title
+                      data-original-title="mod上传后需重启游戏服务器才可生效">
+                      <i class="mdi mdi-information mdi-24px"></i>
+                    </button>
+                    <hr>
+                    <div class="modal fade" tabindex="-1" role="dialog" id="uploadModal" style="display: none;">
+                      <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                aria-hidden="true">×</span></button>
+                            <h4 class="modal-title" id="gridSystemModalLabel">点击上传</h4>
+                          </div>
+                          <div class="modal-body upload-container">
+                            <div class="upload-area" id="dropArea" v-if="isShowUploadArea"
+                              onclick="document.getElementById('fileInput').click()">
+                              <div class="upload-icon">
+                                <i class="bi bi-cloud-arrow-up"></i>
+                              </div>
+                              <div class="upload-text">
+                                <h3>点击或拖放文件到此处上传</h3>
+                              </div>
+                              <input type="file" style="display: none;" id="fileInput" accept=".vpk"
+                                @change="handleSelectedFiles($event.target.files)" multiple>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                              <h5>已选文件 <span class="file-counter">${this.modFiles.length}</span></h5>
+                            </div>
+                            <div class="file-preview" id="filePreview">
+                              <div class="text-center py-5" id="emptyState">
+                                <p class="text-muted mt-3">暂无文件，请选择或拖放文件</p>
+                              </div>
+                            </div>
+                            <button id="startUploadBtn" class="btn btn-block btn-primary" @click="uploadMod(modFiles)"
+                              :disabled="this.isShowUploadBtn">
+                              开始上传
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="table-container">
+                      <el-table :data="modlist" :default-sort="{prop: 'time', order: 'descending'}">
+                        <el-table-column type="index" label="序号" width="60"></el-table-column>
+                        <el-table-column prop="tag" label="Mod名称" sortable>
+                        </el-table-column>
+                        <el-table-column prop="file" label="文件名称" sortable>
+                        </el-table-column>
+                        <el-table-column prop="time" label="上传时间" sortable>
+                        </el-table-column>
+                        <el-table-column prop="user" label="上传用户" sortable>
+                        </el-table-column>
+                        <el-table-column label="操作">
+                          <template slot-scope="scope">
+                            <el-button type="danger" size="mini" @click="deleteMod(scope.row)">
+                              删除
+                            </el-button>
+                          </template>
+                        </el-table-column>
+
+                      </el-table>
+                    </div>
                   </div>
                 </div>
-
               </div>
             </div>
           </div>
-        </div>
-
-      </div>
     </main>
   </div>
   <script type="text/javascript"
     src="https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.6.0/jquery.min.js"></script>
   <script src="https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/vue/2.6.14/vue.min.js"></script>
+  <script type="text/javascript"
+    src="https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/element-ui/2.7.1/index.js"></script>
   <script type="text/javascript" src="static/js/bootstrap-notify.min.js"></script>
   <script type="text/javascript" src="static/js/bootstrap.min.js"></script>
   <script type="text/javascript" src="static/js/lightyear.js"></script>
-  <script src="static/js/l4d2.js"></script>
+  <script type="text/javascript" src="static/js/l4d2-console.js"></script>
+  <script type="text/javascript" src="static/js/l4d2-config-mod.js"></script>
 </body>
 
 </html>

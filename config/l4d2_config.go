@@ -8,14 +8,12 @@ import (
 	"path/filepath"
 	"reflect"
 	"runtime"
+	"steam-distiller/def"
 	"steam-distiller/env"
 	log "steam-distiller/logger"
 	"strconv"
 	"strings"
 )
-
-// 配置文件权限 -rw-r-----
-const PERMISSION = 0640
 
 func getGameMap() string {
 	path := filepath.Join(env.L4D2Path, "currentMap.txt")
@@ -37,7 +35,7 @@ func setGameMap(mapName string) {
 	if runtime.GOOS == "windows" {
 		path = "currentMap.txt"
 	}
-	if err := os.WriteFile(path, []byte(mapName), PERMISSION); err != nil {
+	if err := os.WriteFile(path, []byte(mapName), def.Permission); err != nil {
 		log.L.Panicf("Write currentMap.txt failed, %v.", err)
 	}
 }
@@ -60,7 +58,7 @@ type L4D2Config struct {
 func (c *L4D2Config) Read(filePath string) error {
 	c.Map = getGameMap()
 
-	file, err := os.OpenFile(filePath, os.O_CREATE|os.O_RDWR, PERMISSION)
+	file, err := os.OpenFile(filePath, os.O_CREATE|os.O_RDWR, def.Permission)
 	if err != nil {
 		return fmt.Errorf("failed to open config file: %v", err)
 	}
@@ -141,7 +139,7 @@ func (c *L4D2Config) Update(filePath string) error {
 		newContent.WriteString(key + " " + val + "\n")
 	}
 
-	return os.WriteFile(filePath, newContent.Bytes(), PERMISSION)
+	return os.WriteFile(filePath, newContent.Bytes(), def.Permission)
 }
 
 // 获取文件中配置键值对，不保序
