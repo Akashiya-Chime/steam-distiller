@@ -33,7 +33,9 @@ var vm = new Vue({
                 lightyear.loading("hide")
                 content = r.data
                 if (content.code == 0) {
-                    $.cookie("access_token", content.data.access_token, { expires: 1, path: '/' });
+                    expiredAt = content.data.expiredAt*1000
+                    $.cookie("access_token", content.data.token, { expires: new Date(expiredAt), path: '/' });
+                    $.cookie("expiredAt", expiredAt, { expires: new Date(expiredAt), path: '/' });
                     lightyear.notify(content.msg, "success", 1000);
                     setTimeout(function () {
                         window.location.href = "home"

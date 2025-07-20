@@ -54,7 +54,7 @@ class ws_terminal {
             };
 
             this.socket.onerror = (error) => {
-                this.error("连接错误:" + (error.message|| "未知错误"));
+                this.error("连接错误:" + (error.message || "未知错误"));
                 this.updateConnectionStatus(false);
             };
 
@@ -69,21 +69,21 @@ class ws_terminal {
             };
 
         } catch (error) {
-            this.error("连接失败:" + (error.message|| "未知错误"));
+            this.error("连接失败:" + (error.message || "未知错误"));
             this.updateConnectionStatus(false);
         }
     }
 
-    info(text){
+    info(text) {
         this.term.write(`\r\n\x1b[32m${text}\x1b[0m\r\n`);
     }
 
-    error(text){
-        this.term.write(`\r\n\x1b[31m${text}\x1b[0m\r\n`); 
+    error(text) {
+        this.term.write(`\r\n\x1b[31m${text}\x1b[0m\r\n`);
     }
 
-    warn(text){
-        this.term.write(`\r\n\x1b[33m${text}\x1b[0m\r\n`); 
+    warn(text) {
+        this.term.write(`\r\n\x1b[33m${text}\x1b[0m\r\n`);
     }
 
     updateConnectionStatus(connected) {
@@ -158,3 +158,28 @@ function get_user_info() {
 get_user_info()
 const wsUrl_l4d2 = "ws://" + window.location.host + "/api/v1/l4d2/log";
 var term_l4d2 = new ws_terminal(wsUrl_l4d2);
+let check_expire_time=30 * 60 * 1e3 // 间隔30分钟检查一次cookie
+let listen_cookie_expire = setInterval(() => {
+    let token_expire = $.cookie("expiredAt")
+    if (token_expire <= Date.now()+2*check_expire_time) {
+        clearInterval(listen_cookie_expire)
+        $.confirm({
+            title: '登录过期警告',
+            content: '登录即将过期，需要重新登录',
+            type: 'orange',
+            typeAnimated: false,
+            buttons: {
+                omg: {
+                    text: '返回登录页',
+                    btnClass: 'btn-orange',
+                    action: function () {
+                        window.location.href = "/"
+                    }
+                },
+                close: {
+                    text: '我已知晓，稍后自行重登录',
+                }
+            }
+        });
+    }
+}, check_expire_time)
