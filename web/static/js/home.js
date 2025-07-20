@@ -176,9 +176,6 @@ let listen_cookie_expire = setInterval(() => {
                         window.location.href = "/"
                     }
                 },
-                close: {
-                    text: '我已知晓，稍后自行重登录',
-                }
             }
         });
     }
