@@ -52,13 +52,11 @@ func l4d2UploadMod(c *gin.Context) {
 	req, err := getRequestInfo(c)
 	if err != nil {
 		log.L.Warnf("Invalid param, %v.", err)
-		c.Abort()
 		return
 	}
 
 	if mod.IsModExists(req.Tag) {
 		SendJsonMsg(c, CODE_FILE_EXISTS, "mod文件已存在", nil)
-		c.Abort()
 		return
 	}
 
@@ -66,7 +64,6 @@ func l4d2UploadMod(c *gin.Context) {
 	if req.ChunkIndex == 0 && req.TotalChunks == 1 {
 		if err := singleFileUpload(req); err != nil {
 			SendJsonMsg(c, CODE_INNER_ERROR, "保存文件失败", nil)
-			c.Abort()
 			return
 		}
 		log.L.Infof("Upload mod file tag[%s] name[%s] successfully.", req.Tag, req.Filename)
@@ -78,12 +75,10 @@ func l4d2UploadMod(c *gin.Context) {
 	if err := chunkFileUpload(req); err != nil {
 		if errors.Is(err, ErrChunkUploaded) {
 			SendJsonMsg(c, CODE_CHUNK_EXISTS, "分片已存在", nil)
-			c.Abort()
 			return
 		}
 		log.L.Warnf("Save chunk failed, tag:[%s] index:[%d].", req.Tag, req.ChunkIndex)
 		SendJsonMsg(c, CODE_INNER_ERROR, "保存分片失败", nil)
-		c.Abort()
 		return
 	}
 
@@ -94,14 +89,12 @@ func l4d2UploadMod(c *gin.Context) {
 		if err := mergeChunks(req.Tag, req.Filename); err != nil {
 			log.L.Warnf("Merge chunks failed, %v.", err)
 			SendJsonMsg(c, CODE_INNER_ERROR, "合并分片失败", nil)
-			c.Abort()
 			return
 		}
 
 		if err := mod.WriteMod(req.Tag, req.Filename, req.User); err != nil {
 			log.L.Warnf("Write mod failed, %v.", err)
 			SendJsonMsg(c, CODE_INNER_ERROR, "保存文件失败", nil)
-			c.Abort()
 			return
 		}
 
@@ -308,7 +301,6 @@ func l4d2UploadModStatus(c *gin.Context) {
 
 	if (tag == "") || (totalChunks <= 0) {
 		SendJsonMsg(c, CODE_PARAM_ERROR, "无效参数", nil)
-		c.Abort()
 		return
 	}
 
@@ -317,7 +309,6 @@ func l4d2UploadModStatus(c *gin.Context) {
 
 	if g_ChunkStatus[tag] == nil {
 		SendJsonMsg(c, CODE_OK, "ok", gin.H{"completed": []int{}})
-		c.Abort()
 		return
 	}
 

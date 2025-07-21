@@ -29,7 +29,6 @@ func l4d2StartGame(c *gin.Context) {
 		} else {
 			SendJsonMsg(c, CODE_INNER_ERROR, "启动游戏服务器失败，内部错误", nil)
 		}
-		c.Abort()
 		return
 	}
 
@@ -43,7 +42,6 @@ func l4d2StopGame(c *gin.Context) {
 		} else {
 			SendJsonMsg(c, CODE_INNER_ERROR, "停止游戏服务器失败，内部错误", nil)
 		}
-		c.Abort()
 		return
 	}
 
@@ -78,7 +76,6 @@ func l4d2LogHandler(c *gin.Context) {
 
 	if err := onceInit(); err != nil {
 		conn.Close()
-		c.Abort()
 		return
 	}
 }
@@ -98,7 +95,6 @@ type GetStatusRes struct {
 func l4d2Status(c *gin.Context) {
 	if l4d2.IsRunning() {
 		SendJsonMsg(c, CODE_OK, "游戏服务器已启动", GetStatusRes{Status: StatusRunning})
-		c.Abort()
 		return
 	}
 	SendJsonMsg(c, CODE_OK, "游戏服务器已关闭", GetStatusRes{Status: StatusClosed})
@@ -115,7 +111,6 @@ func l4d2GetConfig(c *gin.Context) {
 	if err := l4d2Config.ReadConfigFile(); err != nil {
 		log.L.Warnf("Read l4d2 config file failed, %v.", err)
 		SendJsonMsg(c, CODE_INNER_ERROR, "获取L4D2游戏配置失败", nil)
-		c.Abort()
 		return
 	}
 
@@ -133,14 +128,12 @@ func l4d2SetConfig(c *gin.Context) {
 	if err := c.ShouldBindJSON(&l4d2Config.GameConfig); err != nil {
 		log.L.Warnf("Serialize l4d2 config failed, %v.", err)
 		SendJsonMsg(c, CODE_INNER_ERROR, "系统内部错误", nil)
-		c.Abort()
 		return
 	}
 
 	if err := l4d2Config.UpdateConfig(); err != nil {
 		log.L.Warnf("Update l4d2 config file failed, %v.", err)
 		SendJsonMsg(c, CODE_INNER_ERROR, "更新L4D2游戏配置失败", nil)
-		c.Abort()
 		return
 	}
 
@@ -151,7 +144,6 @@ func l4d2GetMods(c *gin.Context) {
 	mods, err := mod.ReadMods()
 	if err != nil {
 		SendJsonMsg(c, CODE_INNER_ERROR, "读取mod列表失败", nil)
-		c.Abort()
 		return
 	}
 
@@ -162,40 +154,34 @@ func l4d2DeleteMod(c *gin.Context) {
 	tag := c.Query("tag")
 	if tag == "" {
 		SendJsonMsg(c, CODE_PARAM_ERROR, "缺少tag参数", nil)
-		c.Abort()
 		return
 	}
 
 	if strings.Contains(tag, "..") || strings.HasPrefix(tag, "/") {
 		SendJsonMsg(c, CODE_INVALID_TAG, "无效tag", nil)
-		c.Abort()
 		return
 	}
 
 	modInfo, err := mod.GetMod(tag)
 	if err != nil {
 		SendJsonMsg(c, CODE_INVALID_TAG, "无效tag", nil)
-		c.Abort()
 		return
 	}
 
 	path := filepath.Join(env.L4D2ModPath, modInfo.File)
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		SendJsonMsg(c, CODE_INNER_ERROR, "文件未找到", nil)
-		c.Abort()
 		return
 	}
 
 	if err := os.Remove(path); err != nil {
 		SendJsonMsg(c, CODE_INNER_ERROR, "文件删除失败", nil)
-		c.Abort()
 		return
 	}
 
 	if err := mod.DeleteMod(tag); err != nil {
 		log.L.Warnf("Delete mod failed, %v.", err)
 		SendJsonMsg(c, CODE_INNER_ERROR, "删除mod失败", nil)
-		c.Abort()
 		return
 	}
 

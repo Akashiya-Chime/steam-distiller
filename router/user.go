@@ -91,13 +91,11 @@ func userLogin(c *gin.Context) {
 	if err := c.ShouldBindJSON(&user); err != nil {
 		log.L.Warnf("Serialize user info failed, %v.", err)
 		SendJsonMsg(c, CODE_INNER_ERROR, "系统内部错误", nil)
-		c.Abort()
 		return
 	}
 
 	if !isUserOk(user) {
 		SendJsonMsg(c, CODE_LOGIN_FAILED, "登陆失败，请检查用户名及密码是否正确", nil)
-		c.Abort()
 		return
 	}
 
@@ -105,7 +103,6 @@ func userLogin(c *gin.Context) {
 	if err != nil {
 		log.L.Warnf("Generate token failed, %v.", err)
 		SendJsonMsg(c, CODE_GEN_TOKEN_FAILED, "系统内部错误", nil)
-		c.Abort()
 		return
 	}
 
@@ -129,20 +126,17 @@ func userRegister(c *gin.Context) {
 	if err := c.ShouldBindJSON(&user); err != nil {
 		log.L.Warnf("Serialize user info failed, %v.", err)
 		SendJsonMsg(c, CODE_INNER_ERROR, "系统内部错误", nil)
-		c.Abort()
 		return
 	}
 
 	// 先校验邀请码
 	if !IsInvCodeValid(user.InvCode) {
 		SendJsonMsg(c, CODE_INV_CODE_INVALID, "无效邀请码", nil)
-		c.Abort()
 		return
 	}
 
 	if !IsUserInfoValid(user) {
 		SendJsonMsg(c, CODE_USER_INFO_INVALID, "用户名或密码有误", nil)
-		c.Abort()
 		return
 	}
 
@@ -153,7 +147,6 @@ func userRegister(c *gin.Context) {
 		} else {
 			SendJsonMsg(c, CODE_INNER_ERROR, "内部错误", nil)
 		}
-		c.Abort()
 		return
 	}
 
@@ -169,13 +162,11 @@ func userGetInfo(c *gin.Context) {
 	username := c.Query("username")
 	if len(username) == 0 {
 		SendJsonMsg(c, CODE_ERROR, "无用户名", nil)
-		c.Abort()
 		return
 	}
 
 	if !sql.IsUserExists(username) {
 		SendJsonMsg(c, CODE_USER_NOT_EXIST, "用户不存在", nil)
-		c.Abort()
 		return
 	}
 
@@ -183,7 +174,6 @@ func userGetInfo(c *gin.Context) {
 	if err != sql.DB_OK {
 		log.L.Warnf("Get user info from db failed, %v.", err)
 		SendJsonMsg(c, CODE_INNER_ERROR, "查询用户失败", nil)
-		c.Abort()
 		return
 	}
 
@@ -202,13 +192,11 @@ func userGetInvCode(c *gin.Context) {
 	if err != sql.DB_OK {
 		log.L.Warnf("Get user info from db failed, %v.", err)
 		SendJsonMsg(c, CODE_INNER_ERROR, "查询用户失败", nil)
-		c.Abort()
 		return
 	}
 
 	if !dbUser.IsAdmin {
 		SendJsonMsg(c, CODE_USER_NOT_ADMIN, "无获取邀请码权限", nil)
-		c.Abort()
 		return
 	}
 
