@@ -113,7 +113,7 @@ function switch_tab(obj) {
     obj.parentNode.classList.add("active")
     // 切换iframe
     iframe_data = {
-        "steamCMD": "steamCMD",
+        "首页": "checkHealth",
         "left4Dead2": "left4dead2",
         "Barotrauma": "barotrauma",
         "管理": "admin",
