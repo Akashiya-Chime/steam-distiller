@@ -64,6 +64,7 @@ func l4d2LogHandler(c *gin.Context) {
 	conn, err := ws.WsUpgrader(c)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
+		return
 	}
 	client := ws.RegisterClient(conn, def.L4D2)
 
